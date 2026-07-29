@@ -552,3 +552,10 @@ function styleIcon(s: Style) {
 function styleLabel(s: Style) {
   return s === "candle" ? "شمعی" : s === "ha" ? "هیکن‌آشی" : s === "line" ? "خطی" : "ناحیه‌ای";
 }
+function fibColor(r: number): string {
+  if (r === 0 || r === 1) return "#c9a84c";
+  if (r === 0.5) return "#e8b84a";
+  if (r === 0.618) return "#e85d3a";
+  return "#8b7355";
+}
+}
