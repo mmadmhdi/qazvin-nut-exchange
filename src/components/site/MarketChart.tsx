@@ -346,6 +346,24 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             {overlays.ema50 && (
               <Line type="monotone" dataKey="ema50" stroke="var(--brass-dark)" strokeWidth={1.2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
             )}
+            {overlays.vwap && (
+              <Line type="monotone" dataKey="vwap" stroke="#c9a84c" strokeWidth={1.4} strokeDasharray="1 3" dot={false} isAnimationActive={false} />
+            )}
+            {overlays.fib && meta.fib && meta.fib.levels.map((lv) => (
+              <ReferenceLine
+                key={lv.ratio}
+                y={lv.value}
+                stroke={fibColor(lv.ratio)}
+                strokeOpacity={0.7}
+                strokeDasharray="4 3"
+                label={{
+                  value: `${(lv.ratio * 100).toFixed(1)}%`,
+                  position: "insideLeft",
+                  fill: fibColor(lv.ratio),
+                  fontSize: 9,
+                }}
+              />
+            ))}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
