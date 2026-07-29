@@ -21,6 +21,9 @@ import {
   rsi as calcRsi,
   sma,
   atr as calcAtr,
+  stochastic,
+  vwap as calcVwap,
+  fibonacciLevels,
   type OHLC,
 } from "@/lib/indicators";
 import {
@@ -31,6 +34,8 @@ import {
   Activity,
   Waves,
   Layers,
+  GitBranch,
+  Zap,
 } from "lucide-react";
 
 type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
@@ -50,8 +55,10 @@ type Overlays = {
   ma50: boolean;
   ema50: boolean;
   bb: boolean;
+  vwap: boolean;
+  fib: boolean;
 };
-type SubPanel = "volume" | "rsi" | "macd";
+type SubPanel = "volume" | "rsi" | "macd" | "stoch";
 
 // ─────────────────────────── Candle shape ───────────────────────────
 function Candle(props: any) {
@@ -86,8 +93,8 @@ function Candle(props: any) {
 export function MarketChart({ product, compact = false }: { product: Product; compact?: boolean }) {
   const [range, setRange] = useState<Range>("3m");
   const [style, setStyle] = useState<Style>("candle");
-  const [overlays, setOverlays] = useState<Overlays>({ ma20: true, ma50: false, ema50: false, bb: false });
-  const [panels, setPanels] = useState<Record<SubPanel, boolean>>({ volume: true, rsi: false, macd: false });
+  const [overlays, setOverlays] = useState<Overlays>({ ma20: true, ma50: false, ema50: false, bb: false, vwap: false, fib: false });
+  const [panels, setPanels] = useState<Record<SubPanel, boolean>>({ volume: true, rsi: false, macd: false, stoch: false });
   const [hover, setHover] = useState<any | null>(null);
 
   const { data, stats, meta } = useMemo(() => {
@@ -111,6 +118,9 @@ export function MarketChart({ product, compact = false }: { product: Product; co
     const r14 = calcRsi(closes, 14);
     const m = calcMacd(closes, 12, 26, 9);
     const at = calcAtr(rows, 14);
+    const stoch = stochastic(rows, 14, 3);
+    const vw = calcVwap(rows);
+    const fib = fibonacciLevels(rows);
 
     const chartRows = rows.map((r, i) => ({
       date: r.date,
@@ -128,10 +138,13 @@ export function MarketChart({ product, compact = false }: { product: Product; co
       bbU: bb.upper[i],
       bbM: bb.mid[i],
       bbL: bb.lower[i],
+      vwap: vw[i],
       rsi: r14[i],
       macd: m.macd[i],
       macdSignal: m.signal[i],
       macdHist: m.hist[i],
+      stochK: stoch.k[i],
+      stochD: stoch.d[i],
       up: r.close >= r.open,
     }));
 
@@ -148,7 +161,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
     return {
       data: chartRows,
       stats: { last, first, hi, lo, chg, chgPct },
-      meta: { avgVol, atrLast, bars: chartRows.length },
+      meta: { avgVol, atrLast, bars: chartRows.length, fib },
     };
   }, [product.history, range, style]);
 
@@ -220,6 +233,12 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           <ToggleChip on={overlays.bb} onClick={() => setOverlays({ ...overlays, bb: !overlays.bb })}>
             <Waves className="h-3 w-3" /> BB
           </ToggleChip>
+          <ToggleChip on={overlays.vwap} onClick={() => setOverlays({ ...overlays, vwap: !overlays.vwap })}>
+            <Zap className="h-3 w-3" /> VWAP
+          </ToggleChip>
+          <ToggleChip on={overlays.fib} onClick={() => setOverlays({ ...overlays, fib: !overlays.fib })}>
+            <GitBranch className="h-3 w-3" /> Fib
+          </ToggleChip>
           <span className="mx-2 h-4 w-px bg-tv-border" />
           <ToggleChip on={panels.volume} onClick={() => setPanels({ ...panels, volume: !panels.volume })}>
             <BarChart3 className="h-3 w-3" /> Vol
@@ -229,6 +248,9 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           </ToggleChip>
           <ToggleChip on={panels.macd} onClick={() => setPanels({ ...panels, macd: !panels.macd })}>
             <Layers className="h-3 w-3" /> MACD
+          </ToggleChip>
+          <ToggleChip on={panels.stoch} onClick={() => setPanels({ ...panels, stoch: !panels.stoch })}>
+            <Activity className="h-3 w-3" /> Stoch
           </ToggleChip>
         </div>
       </div>
@@ -324,6 +346,24 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             {overlays.ema50 && (
               <Line type="monotone" dataKey="ema50" stroke="var(--brass-dark)" strokeWidth={1.2} strokeDasharray="6 3" dot={false} isAnimationActive={false} />
             )}
+            {overlays.vwap && (
+              <Line type="monotone" dataKey="vwap" stroke="#c9a84c" strokeWidth={1.4} strokeDasharray="1 3" dot={false} isAnimationActive={false} />
+            )}
+            {overlays.fib && meta.fib && meta.fib.levels.map((lv) => (
+              <ReferenceLine
+                key={lv.ratio}
+                y={lv.value}
+                stroke={fibColor(lv.ratio)}
+                strokeOpacity={0.7}
+                strokeDasharray="4 3"
+                label={{
+                  value: `${(lv.ratio * 100).toFixed(1)}%`,
+                  position: "insideLeft",
+                  fill: fibColor(lv.ratio),
+                  fontSize: 9,
+                }}
+              />
+            ))}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -415,6 +455,29 @@ export function MarketChart({ product, compact = false }: { product: Product; co
         </div>
       )}
 
+      {/* Stochastic panel */}
+      {panels.stoch && (
+        <div className="h-24 bg-tv-bg border-t border-tv-border">
+          <PanelLabel>Stochastic %K %D</PanelLabel>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 4 }}>
+              <XAxis dataKey="label" reversed hide />
+              <YAxis orientation="right" domain={[0, 100]} width={44} tick={{ fill: "var(--tv-muted)", fontSize: 9 }} tickLine={false} axisLine={{ stroke: "var(--tv-border)" }} ticks={[20, 50, 80]} />
+              <ReferenceLine y={80} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />
+              <ReferenceLine y={20} stroke="var(--bull)" strokeOpacity={0.4} strokeDasharray="2 3" />
+              <Tooltip
+                cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
+                contentStyle={{ background: "var(--tv-bg)", border: "1px solid var(--tv-border)", fontSize: 11, color: "var(--tv-text)" }}
+                formatter={(v: any, k: string) => [typeof v === "number" ? toFaDigits(v.toFixed(1)) : v, k === "stochK" ? "%K" : "%D"]}
+                labelFormatter={(l) => `تاریخ: ${l}`}
+              />
+              <Line type="monotone" dataKey="stochK" stroke="var(--brass)" strokeWidth={1.3} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="stochD" stroke="var(--olive)" strokeWidth={1.2} strokeDasharray="4 3" dot={false} isAnimationActive={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {/* Footer key stats */}
       <div className="px-3 md:px-4 py-2 border-t border-tv-border bg-tv-headband text-[10px] text-tv-muted grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
         <Kv k="بالاترین" v={formatPrice(stats.hi)} />
@@ -488,4 +551,10 @@ function styleIcon(s: Style) {
 }
 function styleLabel(s: Style) {
   return s === "candle" ? "شمعی" : s === "ha" ? "هیکن‌آشی" : s === "line" ? "خطی" : "ناحیه‌ای";
+}
+function fibColor(r: number): string {
+  if (r === 0 || r === 1) return "#c9a84c";
+  if (r === 0.5) return "#e8b84a";
+  if (r === 0.618) return "#e85d3a";
+  return "#8b7355";
 }

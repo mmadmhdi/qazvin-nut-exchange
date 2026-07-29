@@ -165,6 +165,57 @@ export function valueScore(rows: OHLC[]): number {
   return clamp(100 - pos * 90);
 }
 
+// Stochastic Oscillator (%K, %D)
+export function stochastic(rows: OHLC[], kWin = 14, dWin = 3) {
+  const k: (number | null)[] = [];
+  for (let i = 0; i < rows.length; i++) {
+    if (i < kWin - 1) { k.push(null); continue; }
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - kWin + 1; j <= i; j++) {
+      if (rows[j].high > hh) hh = rows[j].high;
+      if (rows[j].low < ll) ll = rows[j].low;
+    }
+    const c = rows[i].close;
+    k.push(hh === ll ? 50 : ((c - ll) / (hh - ll)) * 100);
+  }
+  const filled = k.map((v) => v ?? 0);
+  const d = sma(filled, dWin).map((v, i) => (k[i] == null ? null : v));
+  return { k, d };
+}
+
+// VWAP over the window
+export function vwap(rows: OHLC[]): (number | null)[] {
+  const out: (number | null)[] = [];
+  let pv = 0, vv = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const tp = (rows[i].high + rows[i].low + rows[i].close) / 3;
+    const v = rows[i].volume ?? 0;
+    pv += tp * v; vv += v;
+    out.push(vv > 0 ? pv / vv : null);
+  }
+  return out;
+}
+
+// Fibonacci retracement levels between period high and low
+export function fibonacciLevels(rows: OHLC[]) {
+  if (!rows.length) return null;
+  let hi = -Infinity, lo = Infinity, hiIdx = 0, loIdx = 0;
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i].high > hi) { hi = rows[i].high; hiIdx = i; }
+    if (rows[i].low < lo) { lo = rows[i].low; loIdx = i; }
+  }
+  const up = loIdx < hiIdx;
+  const ratios = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+  const range = hi - lo;
+  return {
+    hi, lo, up,
+    levels: ratios.map((r) => ({
+      ratio: r,
+      value: up ? hi - range * r : lo + range * r,
+    })),
+  };
+}
+
 function clamp(v: number, lo = 0, hi = 100) {
   return Math.max(lo, Math.min(hi, v));
 }
