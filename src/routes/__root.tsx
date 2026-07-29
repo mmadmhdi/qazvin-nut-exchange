@@ -105,6 +105,7 @@ function RootComponent() {
           <main className="flex-1"><Outlet /></main>
           <Footer />
         </div>
+        <Toaster richColors position="top-center" dir="rtl" />
       </StoreProvider>
     </QueryClientProvider>
   );
