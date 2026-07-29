@@ -273,17 +273,18 @@ export function useStore(): StoreCtx {
 
   const updateSettingsMut = useMutation({
     mutationFn: async (s: Partial<SiteSettings>) => {
-      const row: Record<string, unknown> = {};
-      if (s.brandName !== undefined) row.brand_name = s.brandName;
-      if (s.brandLatin !== undefined) row.brand_latin = s.brandLatin;
-      if (s.brandTagline !== undefined) row.brand_tagline = s.brandTagline;
-      if (s.currency !== undefined) row.currency = s.currency;
-      if (s.heroTitle !== undefined) row.hero_title = s.heroTitle;
-      if (s.heroSubtitle !== undefined) row.hero_subtitle = s.heroSubtitle;
-      if (s.aboutText !== undefined) row.about_text = s.aboutText;
-      if (s.contactPhone !== undefined) row.contact_phone = s.contactPhone;
-      if (s.contactAddress !== undefined) row.contact_address = s.contactAddress;
-      if (s.contactEmail !== undefined) row.contact_email = s.contactEmail;
+      const row = {
+        ...(s.brandName !== undefined && { brand_name: s.brandName }),
+        ...(s.brandLatin !== undefined && { brand_latin: s.brandLatin }),
+        ...(s.brandTagline !== undefined && { brand_tagline: s.brandTagline }),
+        ...(s.currency !== undefined && { currency: s.currency }),
+        ...(s.heroTitle !== undefined && { hero_title: s.heroTitle }),
+        ...(s.heroSubtitle !== undefined && { hero_subtitle: s.heroSubtitle }),
+        ...(s.aboutText !== undefined && { about_text: s.aboutText }),
+        ...(s.contactPhone !== undefined && { contact_phone: s.contactPhone }),
+        ...(s.contactAddress !== undefined && { contact_address: s.contactAddress }),
+        ...(s.contactEmail !== undefined && { contact_email: s.contactEmail }),
+      };
       const { error } = await supabase.from("site_settings").update(row).eq("id", 1);
       if (error) throw error;
     },
