@@ -161,3 +161,8 @@
     color-mix(in oklab, var(--olive-deep) 88%, black) 100%);
   color: var(--paper);
 }
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
