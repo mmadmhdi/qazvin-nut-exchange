@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
+import { MarketChart } from "@/components/site/MarketChart";
 
 export const Route = createFileRoute("/")({
   head: () => ({
