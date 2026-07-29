@@ -9,17 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WholesaleRouteImport } from './routes/wholesale'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 
+const WholesaleRoute = WholesaleRouteImport.update({
+  id: '/wholesale',
+  path: '/wholesale',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketRoute = MarketRouteImport.update({
@@ -30,6 +43,11 @@ const MarketRoute = MarketRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalysisRoute = AnalysisRouteImport.update({
+  id: '/analysis',
+  path: '/analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -57,18 +75,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/analysis': typeof AnalysisRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
+  '/news': typeof NewsRoute
   '/products': typeof ProductsRouteWithChildren
+  '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/analysis': typeof AnalysisRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
+  '/news': typeof NewsRoute
   '/products': typeof ProductsRouteWithChildren
+  '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesById {
@@ -76,9 +100,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/analysis': typeof AnalysisRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
+  '/news': typeof NewsRoute
   '/products': typeof ProductsRouteWithChildren
+  '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRouteTypes {
@@ -87,27 +114,36 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/analysis'
     | '/contact'
     | '/market'
+    | '/news'
     | '/products'
+    | '/wholesale'
     | '/products/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/admin'
+    | '/analysis'
     | '/contact'
     | '/market'
+    | '/news'
     | '/products'
+    | '/wholesale'
     | '/products/$slug'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/admin'
+    | '/analysis'
     | '/contact'
     | '/market'
+    | '/news'
     | '/products'
+    | '/wholesale'
     | '/products/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -115,18 +151,35 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  AnalysisRoute: typeof AnalysisRoute
   ContactRoute: typeof ContactRoute
   MarketRoute: typeof MarketRoute
+  NewsRoute: typeof NewsRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  WholesaleRoute: typeof WholesaleRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wholesale': {
+      id: '/wholesale'
+      path: '/wholesale'
+      fullPath: '/wholesale'
+      preLoaderRoute: typeof WholesaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market': {
@@ -141,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analysis': {
+      id: '/analysis'
+      path: '/analysis'
+      fullPath: '/analysis'
+      preLoaderRoute: typeof AnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -190,9 +250,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  AnalysisRoute: AnalysisRoute,
   ContactRoute: ContactRoute,
   MarketRoute: MarketRoute,
+  NewsRoute: NewsRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  WholesaleRoute: WholesaleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 
-const NAV = [
+const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "خانه", exact: true },
   { to: "/market", label: "بازار پسته" },
   { to: "/analysis", label: "تحلیل بازار" },
@@ -10,7 +10,7 @@ const NAV = [
   { to: "/wholesale", label: "فروش عمده" },
   { to: "/about", label: "درباره ما" },
   { to: "/contact", label: "تماس" },
-] as const;
+];
 
 export function Header() {
   const { settings } = useStore();
