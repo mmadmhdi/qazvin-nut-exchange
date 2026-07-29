@@ -558,4 +558,3 @@ function fibColor(r: number): string {
   if (r === 0.618) return "#e85d3a";
   return "#8b7355";
 }
-}
