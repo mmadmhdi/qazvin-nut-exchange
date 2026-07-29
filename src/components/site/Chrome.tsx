@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "خانه", exact: true },
   { to: "/market", label: "بازار پسته" },
+  { to: "/compare", label: "مقایسه" },
   { to: "/analysis", label: "تحلیل بازار" },
   { to: "/news", label: "اخبار خشکبار" },
   { to: "/products", label: "محصولات" },

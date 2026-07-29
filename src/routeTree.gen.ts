@@ -14,6 +14,7 @@ import { Route as ProductsRouteImport } from './routes/products'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -43,6 +44,11 @@ const MarketRoute = MarketRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalysisRoute = AnalysisRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/analysis': typeof AnalysisRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/analysis': typeof AnalysisRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/analysis': typeof AnalysisRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/analysis'
+    | '/compare'
     | '/contact'
     | '/market'
     | '/news'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/analysis'
+    | '/compare'
     | '/contact'
     | '/market'
     | '/news'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/analysis'
+    | '/compare'
     | '/contact'
     | '/market'
     | '/news'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AnalysisRoute: typeof AnalysisRoute
+  CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analysis': {
@@ -251,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AnalysisRoute: AnalysisRoute,
+  CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
