@@ -233,6 +233,12 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           <ToggleChip on={overlays.bb} onClick={() => setOverlays({ ...overlays, bb: !overlays.bb })}>
             <Waves className="h-3 w-3" /> BB
           </ToggleChip>
+          <ToggleChip on={overlays.vwap} onClick={() => setOverlays({ ...overlays, vwap: !overlays.vwap })}>
+            <Zap className="h-3 w-3" /> VWAP
+          </ToggleChip>
+          <ToggleChip on={overlays.fib} onClick={() => setOverlays({ ...overlays, fib: !overlays.fib })}>
+            <GitBranch className="h-3 w-3" /> Fib
+          </ToggleChip>
           <span className="mx-2 h-4 w-px bg-tv-border" />
           <ToggleChip on={panels.volume} onClick={() => setPanels({ ...panels, volume: !panels.volume })}>
             <BarChart3 className="h-3 w-3" /> Vol
@@ -242,6 +248,9 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           </ToggleChip>
           <ToggleChip on={panels.macd} onClick={() => setPanels({ ...panels, macd: !panels.macd })}>
             <Layers className="h-3 w-3" /> MACD
+          </ToggleChip>
+          <ToggleChip on={panels.stoch} onClick={() => setPanels({ ...panels, stoch: !panels.stoch })}>
+            <Activity className="h-3 w-3" /> Stoch
           </ToggleChip>
         </div>
       </div>
