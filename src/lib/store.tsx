@@ -1,15 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type PricePoint = {
   date: string;
-  price: number; // = close
+  price: number;
   open?: number;
   high?: number;
   low?: number;
@@ -21,7 +16,7 @@ export type Product = {
   id: string;
   slug: string;
   name: string;
-  category: "پسته" | "بادام درختی" | "بادام زمینی" | "سایر";
+  category: string;
   price: number;
   unit: string;
   origin: string;
@@ -47,325 +42,25 @@ export type SiteSettings = {
   contactEmail: string;
 };
 
-const DAY = 86400000;
-
-// Deterministic OHLC walk seeded per product. Base prices are calibrated
-// to observed 2026 wholesale market ranges (rial/kg) reported by
-// stdt.ir, sepidyas, aghayepeste and similar Iranian nut market trackers.
-function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] {
-  const out: PricePoint[] = [];
-  let close = basePrice * 0.88;
-  let s = seed;
-  const rnd = () => {
-    s = (s * 9301 + 49297) % 233280;
-    return s / 233280;
-  };
-  const now = Date.now();
-  for (let i = days - 1; i >= 0; i--) {
-    const drift = (rnd() - 0.48) * 0.028;
-    const open = close;
-    const target = basePrice * (1 + Math.sin(i / 22) * 0.05);
-    close = open * (1 + drift) + (target - open) * 0.06;
-    const wick = Math.max(basePrice, close) * (0.006 + rnd() * 0.018);
-    const high = Math.max(open, close) + wick * rnd();
-    const low = Math.min(open, close) - wick * rnd();
-    const round = (v: number) => Math.round(v / 1000) * 1000;
-    const volume = Math.round(120 + rnd() * 380 + Math.abs(drift) * 4000);
-    const date = new Date(now - i * DAY).toISOString().slice(0, 10);
-    out.push({
-      date,
-      price: round(close),
-      open: round(open),
-      high: round(high),
-      low: round(low),
-      close: round(close),
-      volume,
-    });
-  }
-  // pin last close to listed price
-  const last = out[out.length - 1];
-  last.close = basePrice;
-  last.price = basePrice;
-  last.high = Math.max(last.high ?? basePrice, basePrice);
-  last.low = Math.min(last.low ?? basePrice, basePrice);
-  return out;
-}
-
-const today = new Date().toISOString().slice(0, 10);
-
-// Realistic base prices (rial/kg wholesale) — 2026 market snapshot.
-// Sources cross-checked: stdt.ir daily pistachio index (~1.08M toman/kg
-// raw fandoghi), sepidyas wholesale, aghayepeste retail band.
-const SEED_PRODUCTS: Product[] = [
-  {
-    id: "khelal-peste-qazvin",
-    slug: "khelal-peste-qazvin",
-    name: "خلال پسته قزوین",
-    category: "پسته",
-    price: 58_500_000,
-    unit: "ریال / کیلوگرم",
-    origin: "قزوین",
-    grade: "ممتاز",
-    description:
-      "خلال پسته قزوین با رنگ سبز طبیعی، عطر ملایم و برش یکنواخت؛ برگزیده باغ‌های اصیل قزوین.",
-    priority: 100,
-    active: true,
-    featured: true,
-    updatedAt: today,
-    history: seedHistory(58_500_000, 7),
-  },
-  {
-    id: "khelal-peste-boein",
-    slug: "khelal-peste-boein",
-    name: "خلال پسته بویین‌زهرا",
-    category: "پسته",
-    price: 53_200_000,
-    unit: "ریال / کیلوگرم",
-    origin: "بویین‌زهرا",
-    grade: "درجه یک",
-    description:
-      "خلال پسته بویین با مغز پرمایه و رنگ زیتونی روشن؛ انتخابی متعادل برای قنادی و صنایع.",
-    priority: 90,
-    active: true,
-    featured: true,
-    updatedAt: today,
-    history: seedHistory(53_200_000, 11),
-  },
-  {
-    id: "peste-akbari",
-    slug: "peste-akbari",
-    name: "پسته اکبری",
-    category: "پسته",
-    price: 12_500_000,
-    unit: "ریال / کیلوگرم",
-    origin: "رفسنجان",
-    grade: "درشت",
-    description: "پسته اکبری با دانه‌های بلند و مغز پر؛ نماد کیفیت صادراتی ایران.",
-    priority: 80,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(12_500_000, 13),
-  },
-  {
-    id: "peste-fandoghi",
-    slug: "peste-fandoghi",
-    name: "پسته فندقی",
-    category: "پسته",
-    price: 10_890_000,
-    unit: "ریال / کیلوگرم",
-    origin: "کرمان",
-    grade: "درجه یک",
-    description: "پسته فندقی گرد و ترد؛ پرمصرف‌ترین رقم بازار داخلی و مبنای شاخص قیمت.",
-    priority: 75,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(10_890_000, 19),
-  },
-  {
-    id: "khelal-badam-derakhti",
-    slug: "khelal-badam-derakhti",
-    name: "خلال بادام درختی",
-    category: "بادام درختی",
-    price: 21_400_000,
-    unit: "ریال / کیلوگرم",
-    origin: "سامان",
-    grade: "درجه یک",
-    description: "خلال بادام درختی سفید و یکدست، مناسب شیرینی‌پزی سنتی و مدرن.",
-    priority: 60,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(21_400_000, 3),
-  },
-  {
-    id: "perak-badam-derakhti",
-    slug: "perak-badam-derakhti",
-    name: "پرک بادام درختی",
-    category: "بادام درختی",
-    price: 21_000_000,
-    unit: "ریال / کیلوگرم",
-    origin: "سامان",
-    grade: "درجه یک",
-    description: "پرک بادام درختی با ضخامت یکنواخت؛ بافتی ترد و طعمی اصیل.",
-    priority: 55,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(21_000_000, 17),
-  },
-  {
-    id: "khelal-badam-zamini-doroshte",
-    slug: "khelal-badam-zamini-doroshte",
-    name: "خلال بادام زمینی درشت",
-    category: "بادام زمینی",
-    price: 5_600_000,
-    unit: "ریال / کیلوگرم",
-    origin: "کردستان",
-    grade: "درشت",
-    description: "خلال بادام زمینی درشت، تفت‌داده متعادل؛ مناسب آجیل و تزیین.",
-    priority: 40,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(5_600_000, 23),
-  },
-  {
-    id: "perak-badam-zamini",
-    slug: "perak-badam-zamini",
-    name: "پرک بادام زمینی",
-    category: "بادام زمینی",
-    price: 5_500_000,
-    unit: "ریال / کیلوگرم",
-    origin: "کردستان",
-    grade: "درجه یک",
-    description: "پرک بادام زمینی با برش نازک و طعم ملایم؛ کاربرد گسترده در صنایع.",
-    priority: 35,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(5_500_000, 29),
-  },
-  {
-    id: "magz-peste",
-    slug: "magz-peste",
-    name: "مغز پسته سبز",
-    category: "پسته",
-    price: 42_000_000,
-    unit: "ریال / کیلوگرم",
-    origin: "قزوین",
-    grade: "ممتاز",
-    description: "مغز پسته سبز پوست‌کنده، رنگ ثابت و مغز کامل؛ کاربرد لوکس در قنادی.",
-    priority: 70,
-    active: true,
-    featured: false,
-    updatedAt: today,
-    history: seedHistory(42_000_000, 31),
-  },
-];
-
-const SEED_SETTINGS: SiteSettings = {
+const FALLBACK_SETTINGS: SiteSettings = {
   brandName: "درج سبز قزوین",
   brandLatin: "Darj Sabz · Qazvin",
-  brandTagline: "درج سبز؛ مرجع قیمت خلال پسته قزوین از سال ۱۳۴۸",
+  brandTagline: "درج سبز؛ مرجع قیمت خلال پسته قزوین",
   currency: "ریال",
   heroTitle: "بازار خلال پسته، اصیل و شفاف",
-  heroSubtitle:
-    "درج سبز قزوین، تابلوی رسمی قیمت خلال پسته قزوین و بویین را با نمودارهای حرفه‌ای و تاریخچه‌ی دقیق در اختیار تجار، قنادان و صنایع قرار می‌دهد.",
-  aboutText:
-    "درج سبز قزوین، حاصل چهار نسل تجربه در باغ‌های اصیل قزوین است. ما پسته‌ای را عرضه می‌کنیم که در همان زمینی روییده که پدرانمان کاشته‌اند؛ بی‌واسطه، شفاف و بر پایه‌ی اعتمادی که مهم‌ترین سرمایه‌ی ماست. مأموریت ما، حفظ اصالت طعم و صداقت در قیمت است.",
-  contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
-  contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
-  contactEmail: "info@darjsabz.example",
+  heroSubtitle: "تابلوی رسمی قیمت خلال پسته قزوین و بویین.",
+  aboutText: "",
+  contactPhone: "",
+  contactAddress: "",
+  contactEmail: "",
 };
 
-const LS_KEY = "darj-sabz:v2";
-
-type State = {
-  products: Product[];
-  settings: SiteSettings;
-};
-
-type StoreCtx = State & {
-  ready: boolean;
-  saveProduct: (p: Product) => void;
-  deleteProduct: (id: string) => void;
-  addPricePoint: (id: string, point: PricePoint) => void;
-  updateSettings: (s: Partial<SiteSettings>) => void;
-  resetAll: () => void;
-};
-
-const StoreContext = createContext<StoreCtx | null>(null);
-
-function slugify(name: string): string {
+export function slugify(name: string): string {
   return name
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^\p{L}\p{N}-]/gu, "")
     .toLowerCase();
-}
-
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<State>({
-    products: SEED_PRODUCTS,
-    settings: SEED_SETTINGS,
-  });
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as State;
-        if (parsed?.products && parsed?.settings) setState(parsed);
-      }
-    } catch {}
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-    } catch {}
-  }, [state, ready]);
-
-  const value: StoreCtx = useMemo(
-    () => ({
-      ...state,
-      ready,
-      saveProduct(p) {
-        setState((s) => {
-          const exists = s.products.some((x) => x.id === p.id);
-          const next = exists
-            ? s.products.map((x) => (x.id === p.id ? p : x))
-            : [...s.products, { ...p, slug: p.slug || slugify(p.name) || p.id }];
-          return { ...s, products: next };
-        });
-      },
-      deleteProduct(id) {
-        setState((s) => ({ ...s, products: s.products.filter((x) => x.id !== id) }));
-      },
-      addPricePoint(id, point) {
-        setState((s) => ({
-          ...s,
-          products: s.products.map((x) =>
-            x.id === id
-              ? {
-                  ...x,
-                  price: point.price,
-                  updatedAt: point.date,
-                  history: [...x.history.filter((h) => h.date !== point.date), point].sort(
-                    (a, b) => a.date.localeCompare(b.date),
-                  ),
-                }
-              : x,
-          ),
-        }));
-      },
-      updateSettings(s) {
-        setState((prev) => ({ ...prev, settings: { ...prev.settings, ...s } }));
-      },
-      resetAll() {
-        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS });
-      },
-    }),
-    [state, ready],
-  );
-
-  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
-}
-
-export function useStore(): StoreCtx {
-  const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error("useStore must be used within StoreProvider");
-  return ctx;
-}
-
-export function useProductBySlug(slug: string): Product | undefined {
-  const { products } = useStore();
-  return products.find((p) => p.slug === slug || p.id === slug);
 }
 
 export function computeChange(history: PricePoint[]): { pct: number; abs: number } {
@@ -375,4 +70,240 @@ export function computeChange(history: PricePoint[]): { pct: number; abs: number
   return { pct: ((last - prev) / prev) * 100, abs: last - prev };
 }
 
-export { SEED_PRODUCTS, SEED_SETTINGS, slugify };
+type RawProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  unit: string;
+  origin: string;
+  grade: string;
+  description: string;
+  priority: number;
+  active: boolean;
+  featured: boolean;
+  updated_at: string;
+};
+type RawHistory = {
+  product_id: string;
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+type RawSettings = {
+  brand_name: string;
+  brand_latin: string;
+  brand_tagline: string;
+  currency: string;
+  hero_title: string;
+  hero_subtitle: string;
+  about_text: string;
+  contact_phone: string;
+  contact_address: string;
+  contact_email: string;
+};
+
+const K_PRODUCTS = ["products"] as const;
+const K_HISTORY = ["price_history"] as const;
+const K_SETTINGS = ["site_settings"] as const;
+
+async function fetchProducts(): Promise<RawProduct[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("priority", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as RawProduct[];
+}
+async function fetchHistory(): Promise<RawHistory[]> {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 365);
+  const { data, error } = await supabase
+    .from("price_history")
+    .select("product_id,date,open,high,low,close,volume")
+    .gte("date", cutoff.toISOString().slice(0, 10))
+    .order("date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as RawHistory[];
+}
+async function fetchSettings(): Promise<RawSettings | null> {
+  const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).maybeSingle();
+  if (error) throw error;
+  return (data as RawSettings | null);
+}
+
+function mapSettings(r: RawSettings | null | undefined): SiteSettings {
+  if (!r) return FALLBACK_SETTINGS;
+  return {
+    brandName: r.brand_name,
+    brandLatin: r.brand_latin,
+    brandTagline: r.brand_tagline,
+    currency: r.currency,
+    heroTitle: r.hero_title,
+    heroSubtitle: r.hero_subtitle,
+    aboutText: r.about_text,
+    contactPhone: r.contact_phone,
+    contactAddress: r.contact_address,
+    contactEmail: r.contact_email,
+  };
+}
+
+type StoreCtx = {
+  ready: boolean;
+  loading: boolean;
+  error: Error | null;
+  products: Product[];
+  settings: SiteSettings;
+  saveProduct: (p: Product & { isNew?: boolean }) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  addPricePoint: (id: string, point: PricePoint) => Promise<void>;
+  updateSettings: (s: Partial<SiteSettings>) => Promise<void>;
+};
+
+// A pass-through provider is kept for API compat.
+export function StoreProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
+}
+
+export function useStore(): StoreCtx {
+  const qc = useQueryClient();
+  const productsQ = useQuery({ queryKey: K_PRODUCTS, queryFn: fetchProducts, staleTime: 60_000 });
+  const historyQ = useQuery({ queryKey: K_HISTORY, queryFn: fetchHistory, staleTime: 60_000 });
+  const settingsQ = useQuery({ queryKey: K_SETTINGS, queryFn: fetchSettings, staleTime: 300_000 });
+
+  const products = useMemo<Product[]>(() => {
+    const raw = productsQ.data ?? [];
+    const hist = historyQ.data ?? [];
+    const byProduct = new Map<string, PricePoint[]>();
+    for (const h of hist) {
+      const pt: PricePoint = {
+        date: h.date,
+        price: h.close,
+        open: h.open,
+        high: h.high,
+        low: h.low,
+        close: h.close,
+        volume: h.volume,
+      };
+      const arr = byProduct.get(h.product_id) ?? [];
+      arr.push(pt);
+      byProduct.set(h.product_id, arr);
+    }
+    return raw.map((p) => {
+      const history = byProduct.get(p.id) ?? [];
+      const last = history[history.length - 1];
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        category: p.category,
+        price: last?.close ?? 0,
+        unit: p.unit,
+        origin: p.origin,
+        grade: p.grade,
+        description: p.description,
+        priority: p.priority,
+        active: p.active,
+        featured: p.featured,
+        updatedAt: last?.date ?? p.updated_at?.slice(0, 10) ?? "",
+        history,
+      };
+    });
+  }, [productsQ.data, historyQ.data]);
+
+  const settings = useMemo(() => mapSettings(settingsQ.data), [settingsQ.data]);
+
+  const saveProductMut = useMutation({
+    mutationFn: async (p: Product & { isNew?: boolean }) => {
+      const row = {
+        slug: p.slug || slugify(p.name),
+        name: p.name,
+        category: p.category,
+        unit: p.unit,
+        origin: p.origin,
+        grade: p.grade,
+        description: p.description,
+        priority: p.priority,
+        active: p.active,
+        featured: p.featured,
+      };
+      if (p.isNew) {
+        const { error } = await supabase.from("products").insert(row);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("products").update(row).eq("id", p.id);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: K_PRODUCTS }),
+  });
+
+  const deleteProductMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: K_PRODUCTS });
+      qc.invalidateQueries({ queryKey: K_HISTORY });
+    },
+  });
+
+  const addPricePointMut = useMutation({
+    mutationFn: async ({ id, point }: { id: string; point: PricePoint }) => {
+      const close = Math.round(point.close ?? point.price);
+      const open = Math.round(point.open ?? close);
+      const high = Math.round(point.high ?? Math.max(open, close));
+      const low = Math.round(point.low ?? Math.min(open, close));
+      const volume = Math.round(point.volume ?? 0);
+      // upsert on (product_id,date)
+      const { error } = await supabase
+        .from("price_history")
+        .upsert(
+          { product_id: id, date: point.date, open, high, low, close, volume },
+          { onConflict: "product_id,date" },
+        );
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: K_HISTORY }),
+  });
+
+  const updateSettingsMut = useMutation({
+    mutationFn: async (s: Partial<SiteSettings>) => {
+      const row: Record<string, unknown> = {};
+      if (s.brandName !== undefined) row.brand_name = s.brandName;
+      if (s.brandLatin !== undefined) row.brand_latin = s.brandLatin;
+      if (s.brandTagline !== undefined) row.brand_tagline = s.brandTagline;
+      if (s.currency !== undefined) row.currency = s.currency;
+      if (s.heroTitle !== undefined) row.hero_title = s.heroTitle;
+      if (s.heroSubtitle !== undefined) row.hero_subtitle = s.heroSubtitle;
+      if (s.aboutText !== undefined) row.about_text = s.aboutText;
+      if (s.contactPhone !== undefined) row.contact_phone = s.contactPhone;
+      if (s.contactAddress !== undefined) row.contact_address = s.contactAddress;
+      if (s.contactEmail !== undefined) row.contact_email = s.contactEmail;
+      const { error } = await supabase.from("site_settings").update(row).eq("id", 1);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: K_SETTINGS }),
+  });
+
+  return {
+    ready: !productsQ.isLoading && !historyQ.isLoading && !settingsQ.isLoading,
+    loading: productsQ.isLoading || historyQ.isLoading || settingsQ.isLoading,
+    error: (productsQ.error ?? historyQ.error ?? settingsQ.error) as Error | null,
+    products,
+    settings,
+    saveProduct: (p) => saveProductMut.mutateAsync(p),
+    deleteProduct: (id) => deleteProductMut.mutateAsync(id),
+    addPricePoint: (id, point) => addPricePointMut.mutateAsync({ id, point }),
+    updateSettings: (s) => updateSettingsMut.mutateAsync(s),
+  };
+}
+
+export function useProductBySlug(slug: string): Product | undefined {
+  const { products } = useStore();
+  return products.find((p) => p.slug === slug || p.id === slug);
+}
