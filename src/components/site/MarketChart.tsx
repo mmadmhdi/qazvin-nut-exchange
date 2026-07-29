@@ -455,6 +455,29 @@ export function MarketChart({ product, compact = false }: { product: Product; co
         </div>
       )}
 
+      {/* Stochastic panel */}
+      {panels.stoch && (
+        <div className="h-24 bg-tv-bg border-t border-tv-border">
+          <PanelLabel>Stochastic %K %D</PanelLabel>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 4 }}>
+              <XAxis dataKey="label" reversed hide />
+              <YAxis orientation="right" domain={[0, 100]} width={44} tick={{ fill: "var(--tv-muted)", fontSize: 9 }} tickLine={false} axisLine={{ stroke: "var(--tv-border)" }} ticks={[20, 50, 80]} />
+              <ReferenceLine y={80} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />
+              <ReferenceLine y={20} stroke="var(--bull)" strokeOpacity={0.4} strokeDasharray="2 3" />
+              <Tooltip
+                cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
+                contentStyle={{ background: "var(--tv-bg)", border: "1px solid var(--tv-border)", fontSize: 11, color: "var(--tv-text)" }}
+                formatter={(v: any, k: string) => [typeof v === "number" ? toFaDigits(v.toFixed(1)) : v, k === "stochK" ? "%K" : "%D"]}
+                labelFormatter={(l) => `تاریخ: ${l}`}
+              />
+              <Line type="monotone" dataKey="stochK" stroke="var(--brass)" strokeWidth={1.3} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="stochD" stroke="var(--olive)" strokeWidth={1.2} strokeDasharray="4 3" dot={false} isAnimationActive={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
       {/* Footer key stats */}
       <div className="px-3 md:px-4 py-2 border-t border-tv-border bg-tv-headband text-[10px] text-tv-muted grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
         <Kv k="بالاترین" v={formatPrice(stats.hi)} />
