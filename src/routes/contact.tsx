@@ -51,9 +51,13 @@ function Contact() {
       toast.success("پیام شما با موفقیت ثبت شد");
       setForm({ name: "", phone: "", email: "", message: "" });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setErr(msg);
-      toast.error("ثبت پیام ناموفق بود");
+      const raw = e instanceof Error ? e.message : String(e);
+      let friendly = "ثبت پیام ناموفق بود";
+      if (/rate_limited|duplicate_recent|check_violation|429/i.test(raw)) {
+        friendly = "به‌دلیل محدودیت ضدهرزنامه، لطفاً چند دقیقه دیگر مجدداً تلاش کنید.";
+      }
+      setErr(friendly);
+      toast.error(friendly);
     } finally {
       setBusy(false);
     }
