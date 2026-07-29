@@ -23,15 +23,17 @@ function ProductDetail() {
       </div>
     );
   }
+  const hasHistory = product.history.length > 0;
+  const hasPrice = hasHistory && product.price > 0;
   const { pct } = computeChange(product.history);
   const up = pct >= 0;
 
   const closes = product.history.map((h) => h.close ?? h.price);
-  const hi52 = Math.max(...closes);
-  const lo52 = Math.min(...closes);
-  const first = closes[0];
-  const yr = ((closes[closes.length - 1] - first) / first) * 100;
-  const inRange = ((product.price - lo52) / (hi52 - lo52 || 1)) * 100;
+  const hi52 = hasHistory ? Math.max(...closes) : 0;
+  const lo52 = hasHistory ? Math.min(...closes) : 0;
+  const first = closes[0] ?? 0;
+  const yr = first > 0 ? ((closes[closes.length - 1] - first) / first) * 100 : 0;
+  const inRange = hi52 !== lo52 ? ((product.price - lo52) / (hi52 - lo52)) * 100 : 0;
 
   const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
@@ -47,25 +49,33 @@ function ProductDetail() {
           </div>
           <h1 className="font-display text-4xl sm:text-5xl text-olive-deep mt-2 leading-tight">{product.name}</h1>
           <div className="gold-rule my-6" />
-          <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
-            <div className="font-display num-fa text-4xl sm:text-5xl text-olive-deep">
-              {formatPrice(product.price)}
+          {hasPrice ? (
+            <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
+              <div className="font-display num-fa text-4xl sm:text-5xl text-olive-deep">
+                {formatPrice(product.price)}
+              </div>
+              <div className="text-sm text-muted-foreground">{product.unit}</div>
+              <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-sm border ${up ? "text-bull border-bull/40" : "text-bear border-bear/40"}`}>
+                {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                <span className="num-fa">{formatPercent(pct)}</span>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">{product.unit}</div>
-            <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-sm border ${up ? "text-bull border-bull/40" : "text-bear border-bear/40"}`}>
-              {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              <span className="num-fa">{formatPercent(pct)}</span>
+          ) : (
+            <div className="rounded-sm border border-border bg-cream/60 px-4 py-3 text-sm text-cocoa">
+              هنوز قیمتی برای این محصول ثبت نشده است. پس از ثبت اولین قیمت توسط مدیر بازار، جزئیات و نمودار در دسترس خواهد بود.
             </div>
-          </div>
+          )}
           <p className="mt-6 text-cocoa leading-8">{product.description}</p>
 
           {/* Key stats grid */}
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Stat k="بالاترین دوره" v={formatPrice(hi52)} />
-            <Stat k="پایین‌ترین دوره" v={formatPrice(lo52)} />
-            <Stat k="بازدهی دوره" v={formatPercent(yr)} accent={yr >= 0 ? "bull" : "bear"} />
-            <Stat k="موقعیت در دامنه" v={`${Math.round(inRange)}٪`} bar={inRange} />
-          </div>
+          {hasPrice && (
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Stat k="بالاترین دوره" v={formatPrice(hi52)} />
+              <Stat k="پایین‌ترین دوره" v={formatPrice(lo52)} />
+              <Stat k="بازدهی دوره" v={formatPercent(yr)} accent={yr >= 0 ? "bull" : "bear"} />
+              <Stat k="موقعیت در دامنه" v={`${Math.round(inRange)}٪`} bar={inRange} />
+            </div>
+          )}
 
           {/* Chart */}
           <div className="mt-8">

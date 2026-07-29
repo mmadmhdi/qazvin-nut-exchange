@@ -97,6 +97,20 @@ export function MarketChart({ product, compact = false }: { product: Product; co
   const [panels, setPanels] = useState<Record<SubPanel, boolean>>({ volume: true, rsi: false, macd: false, stoch: false });
   const [hover, setHover] = useState<any | null>(null);
 
+  if (product.history.length === 0) {
+    return (
+      <div className={`card-paper rounded-sm ${compact ? "p-8" : "p-12"} text-center`}>
+        <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">نمودار قیمت</div>
+        <div className="mt-3 font-display text-lg text-olive-deep">هنوز قیمت ثبت نشده است</div>
+        <p className="mt-2 text-xs text-muted-foreground leading-6 max-w-md mx-auto">
+          داده‌های تاریخی این محصول فقط پس از ثبت دستی قیمت روز توسط مدیر بازار قابل نمایش خواهد بود.
+        </p>
+      </div>
+    );
+  }
+
+
+
   const { data, stats, meta } = useMemo(() => {
     const days = RANGES.find((r) => r.key === range)!.days;
     let raw: PricePoint[] = product.history.slice(-days);
