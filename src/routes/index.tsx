@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
+import { MarketChart } from "@/components/site/MarketChart";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -78,6 +79,14 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured chart */}
+      {featured[0] && (
+        <section className="mx-auto max-w-7xl px-6 mt-16">
+          <MarketChart product={featured[0]} />
+        </section>
+      )}
+
 
       {/* Featured pistachio */}
       <section className="mx-auto max-w-7xl px-6 mt-24">
