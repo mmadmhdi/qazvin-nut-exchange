@@ -21,6 +21,9 @@ import {
   rsi as calcRsi,
   sma,
   atr as calcAtr,
+  stochastic,
+  vwap as calcVwap,
+  fibonacciLevels,
   type OHLC,
 } from "@/lib/indicators";
 import {
@@ -31,6 +34,8 @@ import {
   Activity,
   Waves,
   Layers,
+  GitBranch,
+  Zap,
 } from "lucide-react";
 
 type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
@@ -50,8 +55,10 @@ type Overlays = {
   ma50: boolean;
   ema50: boolean;
   bb: boolean;
+  vwap: boolean;
+  fib: boolean;
 };
-type SubPanel = "volume" | "rsi" | "macd";
+type SubPanel = "volume" | "rsi" | "macd" | "stoch";
 
 // ─────────────────────────── Candle shape ───────────────────────────
 function Candle(props: any) {
