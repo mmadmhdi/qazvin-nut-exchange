@@ -12,6 +12,7 @@
 
   --font-sans: "Vazirmatn", "Estedad", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Cormorant Garamond", "Vazirmatn", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -44,6 +45,12 @@
   --color-bull: var(--bull);
   --color-bear: var(--bear);
 
+  --color-tv-bg: var(--tv-bg);
+  --color-tv-headband: var(--tv-headband);
+  --color-tv-border: var(--tv-border);
+  --color-tv-text: var(--tv-text);
+  --color-tv-muted: var(--tv-muted);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -54,37 +61,45 @@
 :root {
   --radius: 0.375rem;
 
-  /* Old-money palette */
-  --paper: oklch(0.965 0.012 85);        /* warm cream paper */
-  --cream: oklch(0.945 0.02 88);
-  --bone: oklch(0.92 0.018 85);
-  --olive: oklch(0.42 0.055 130);        /* olive */
-  --olive-deep: oklch(0.28 0.045 135);   /* forest olive */
-  --brass: oklch(0.72 0.09 82);          /* matte gold */
-  --brass-dark: oklch(0.55 0.08 80);
-  --cocoa: oklch(0.32 0.035 60);
-  --bull: oklch(0.5 0.09 145);           /* subtle green */
-  --bear: oklch(0.5 0.12 30);            /* muted brick */
+  /* Old-money palette — harmonized around olive + cream + brass */
+  --paper: oklch(0.968 0.014 88);
+  --cream: oklch(0.945 0.022 90);
+  --bone: oklch(0.915 0.02 88);
+  --olive: oklch(0.44 0.06 132);
+  --olive-deep: oklch(0.26 0.045 138);
+  --olive-ink: oklch(0.19 0.03 140);
+  --brass: oklch(0.73 0.095 82);
+  --brass-dark: oklch(0.54 0.085 78);
+  --cocoa: oklch(0.34 0.038 62);
+  --bull: oklch(0.58 0.13 148);        /* candle green */
+  --bear: oklch(0.55 0.16 28);         /* candle red-brick */
 
   --background: var(--paper);
-  --foreground: oklch(0.22 0.02 70);
-  --card: oklch(0.985 0.008 88);
-  --card-foreground: oklch(0.22 0.02 70);
-  --popover: oklch(0.985 0.008 88);
-  --popover-foreground: oklch(0.22 0.02 70);
+  --foreground: oklch(0.22 0.025 72);
+  --card: oklch(0.988 0.01 88);
+  --card-foreground: oklch(0.22 0.025 72);
+  --popover: oklch(0.988 0.01 88);
+  --popover-foreground: oklch(0.22 0.025 72);
   --primary: var(--olive-deep);
   --primary-foreground: var(--paper);
   --secondary: var(--bone);
   --secondary-foreground: var(--olive-deep);
-  --muted: oklch(0.93 0.015 85);
-  --muted-foreground: oklch(0.45 0.025 75);
+  --muted: oklch(0.93 0.017 88);
+  --muted-foreground: oklch(0.46 0.028 78);
   --accent: var(--brass);
   --accent-foreground: var(--olive-deep);
   --destructive: oklch(0.55 0.18 28);
   --destructive-foreground: var(--paper);
-  --border: oklch(0.82 0.02 82);
-  --input: oklch(0.88 0.018 85);
+  --border: oklch(0.83 0.022 84);
+  --input: oklch(0.89 0.02 88);
   --ring: var(--brass);
+
+  /* TradingView-style dark panels (used inside chart cards) */
+  --tv-bg: oklch(0.18 0.02 140);
+  --tv-headband: oklch(0.22 0.025 140);
+  --tv-border: oklch(0.32 0.02 138);
+  --tv-text: oklch(0.94 0.02 90);
+  --tv-muted: oklch(0.68 0.02 88);
 
   --chart-1: var(--olive-deep);
   --chart-2: var(--brass-dark);
@@ -108,17 +123,15 @@
     background-image:
       radial-gradient(color-mix(in oklab, var(--olive-deep) 4%, transparent) 1px, transparent 1px),
       radial-gradient(color-mix(in oklab, var(--brass) 3%, transparent) 1px, transparent 1px);
-    background-size: 22px 22px, 33px 33px;
-    background-position: 0 0, 11px 11px;
+    background-size: 24px 24px, 36px 36px;
+    background-position: 0 0, 12px 12px;
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
     letter-spacing: 0.01em;
   }
-  /* Persian digits everywhere */
-  .num-fa {
-    font-feature-settings: "ss01";
-  }
+  .num-fa { font-feature-settings: "ss01"; }
+  .font-mono, .mono { font-family: var(--font-mono); }
 }
 
 @utility hairline-b {
@@ -135,4 +148,16 @@
   background-color: var(--card);
   border: 1px solid color-mix(in oklab, var(--olive-deep) 15%, transparent);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--brass) 25%, transparent) inset;
+}
+@utility tv-panel {
+  background: var(--tv-bg);
+  color: var(--tv-text);
+  border: 1px solid var(--tv-border);
+  box-shadow: 0 20px 60px -30px color-mix(in oklab, var(--olive-deep) 60%, transparent);
+}
+@utility ticker-strip {
+  background: linear-gradient(to left,
+    color-mix(in oklab, var(--olive-deep) 96%, black) 0%,
+    color-mix(in oklab, var(--olive-deep) 88%, black) 100%);
+  color: var(--paper);
 }
