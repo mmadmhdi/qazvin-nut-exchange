@@ -93,8 +93,8 @@ function Candle(props: any) {
 export function MarketChart({ product, compact = false }: { product: Product; compact?: boolean }) {
   const [range, setRange] = useState<Range>("3m");
   const [style, setStyle] = useState<Style>("candle");
-  const [overlays, setOverlays] = useState<Overlays>({ ma20: true, ma50: false, ema50: false, bb: false });
-  const [panels, setPanels] = useState<Record<SubPanel, boolean>>({ volume: true, rsi: false, macd: false });
+  const [overlays, setOverlays] = useState<Overlays>({ ma20: true, ma50: false, ema50: false, bb: false, vwap: false, fib: false });
+  const [panels, setPanels] = useState<Record<SubPanel, boolean>>({ volume: true, rsi: false, macd: false, stoch: false });
   const [hover, setHover] = useState<any | null>(null);
 
   const { data, stats, meta } = useMemo(() => {
