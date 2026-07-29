@@ -118,6 +118,9 @@ export function MarketChart({ product, compact = false }: { product: Product; co
     const r14 = calcRsi(closes, 14);
     const m = calcMacd(closes, 12, 26, 9);
     const at = calcAtr(rows, 14);
+    const stoch = stochastic(rows, 14, 3);
+    const vw = calcVwap(rows);
+    const fib = fibonacciLevels(rows);
 
     const chartRows = rows.map((r, i) => ({
       date: r.date,
@@ -135,10 +138,13 @@ export function MarketChart({ product, compact = false }: { product: Product; co
       bbU: bb.upper[i],
       bbM: bb.mid[i],
       bbL: bb.lower[i],
+      vwap: vw[i],
       rsi: r14[i],
       macd: m.macd[i],
       macdSignal: m.signal[i],
       macdHist: m.hist[i],
+      stochK: stoch.k[i],
+      stochD: stoch.d[i],
       up: r.close >= r.open,
     }));
 
@@ -155,7 +161,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
     return {
       data: chartRows,
       stats: { last, first, hi, lo, chg, chgPct },
-      meta: { avgVol, atrLast, bars: chartRows.length },
+      meta: { avgVol, atrLast, bars: chartRows.length, fib },
     };
   }, [product.history, range, style]);
 
