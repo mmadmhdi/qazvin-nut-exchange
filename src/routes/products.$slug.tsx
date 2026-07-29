@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { MarketChart } from "@/components/site/MarketChart";
 import { PriceHistoryTable } from "@/components/site/PriceHistoryTable";
