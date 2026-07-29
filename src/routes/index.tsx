@@ -80,6 +80,14 @@ function Home() {
         </div>
       </section>
 
+      {/* Featured chart */}
+      {featured[0] && (
+        <section className="mx-auto max-w-7xl px-6 mt-16">
+          <MarketChart product={featured[0]} />
+        </section>
+      )}
+
+
       {/* Featured pistachio */}
       <section className="mx-auto max-w-7xl px-6 mt-24">
         <div className="text-center max-w-2xl mx-auto">
