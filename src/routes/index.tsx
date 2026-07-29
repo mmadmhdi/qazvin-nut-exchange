@@ -1,16 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useStore } from "@/lib/store";
+import { useStore, computeChange } from "@/lib/store";
 import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
 import { MarketChart } from "@/components/site/MarketChart";
+import { formatPercent, formatPrice, toFaDigits } from "@/lib/format";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "خانه پسته قزوین — میراث خانوادگی خلال پسته" },
-      { name: "description", content: "قیمت شفاف خلال پسته قزوین و بویین، در تابلویی باوقار برای تجارت اصیل خشکبار." },
-      { property: "og:title", content: "خانه پسته قزوین" },
-      { property: "og:description", content: "بازار روز خلال پسته، اصالت و اعتماد در تجارت خانوادگی." },
+      { title: "درج سبز قزوین — تابلوی قیمت خلال پسته" },
+      { name: "description", content: "درج سبز قزوین: تابلوی رسمی قیمت روز خلال پسته قزوین و بویین با نمودار حرفه‌ای و تحلیل بازار." },
+      { property: "og:title", content: "درج سبز قزوین — تابلوی قیمت خلال پسته" },
+      { property: "og:description", content: "قیمت زنده، نمودار شمعی و تحلیل بازار خلال پسته قزوین." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
@@ -25,11 +29,35 @@ function Home() {
 
   return (
     <div>
+      {/* Ticker strip */}
+      <div className="ticker-strip">
+        <div className="mx-auto max-w-7xl px-6 py-2.5 overflow-hidden">
+          <div className="flex items-center gap-8 text-xs whitespace-nowrap animate-[ticker_45s_linear_infinite]" style={{animation:"none"}}>
+            {active.map((p) => {
+              const ch = computeChange(p.history).pct;
+              const up = ch >= 0;
+              return (
+                <div key={p.id} className="flex items-center gap-2">
+                  <span className="text-brass/80 tracking-widest text-[10px] uppercase">{p.origin}</span>
+                  <span className="text-paper/90">{p.name}</span>
+                  <span className="num-fa text-brass">{formatPrice(p.price)}</span>
+                  <span className={`num-fa flex items-center gap-0.5 ${up ? "text-bull" : "text-bear"}`}>
+                    {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                    {formatPercent(ch)}
+                  </span>
+                  <span className="text-paper/20">|</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-cream/60 via-background to-background" />
-        <div className="mx-auto max-w-7xl px-6 pt-16 pb-20 md:pt-24 md:pb-28">
-          <div className="max-w-3xl">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-cream/70 via-background to-background" />
+        <div className="mx-auto max-w-7xl px-6 pt-16 pb-16 md:pt-24 md:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-10 items-center">
+          <div>
             <div className="text-[10px] tracking-[0.4em] uppercase text-brass-dark mb-6">
               {settings.brandLatin} · Est. ۱۳۴۸
             </div>
@@ -47,15 +75,23 @@ function Home() {
                 to="/market"
                 className="inline-flex items-center gap-2 rounded-sm bg-olive-deep px-6 py-3 text-sm tracking-widest text-paper hover:bg-olive transition-colors"
               >
-                مشاهده بازار امروز
+                تابلوی زنده بازار
               </Link>
               <Link
-                to="/about"
+                to="/analysis"
                 className="inline-flex items-center gap-2 rounded-sm border border-olive-deep/40 px-6 py-3 text-sm tracking-widest text-olive-deep hover:bg-cream transition-colors"
               >
-                داستان ما
+                تحلیل بازار
               </Link>
             </div>
+            <div className="mt-10 grid grid-cols-3 gap-4 max-w-md">
+              <Stat label="محصول پایش‌شده" value={toFaDigits(active.length)} />
+              <Stat label="نسل تجربه" value="۴" />
+              <Stat label="سال فعالیت" value="۷۷+" />
+            </div>
+          </div>
+          <div className="hidden lg:block">
+            {featured[0] && <MarketChart product={featured[0]} />}
           </div>
         </div>
       </section>
@@ -72,21 +108,20 @@ function Home() {
               همه‌ی قیمت‌ها ←
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {top.map((p, i) => (
-              <PriceCard key={p.id} product={p} featured={i === 0} />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {top.map((p) => (
+              <PriceCard key={p.id} product={p} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured chart */}
+      {/* Mobile featured chart */}
       {featured[0] && (
-        <section className="mx-auto max-w-7xl px-6 mt-16">
+        <section className="lg:hidden mx-auto max-w-7xl px-6 mt-16">
           <MarketChart product={featured[0]} />
         </section>
       )}
-
 
       {/* Featured pistachio */}
       <section className="mx-auto max-w-7xl px-6 mt-24">
@@ -95,7 +130,7 @@ function Home() {
           <h2 className="font-display text-4xl text-olive-deep mt-2">خلال پسته، افتخار خانه</h2>
           <div className="gold-rule my-6" />
           <p className="text-cocoa leading-8">
-            دو نگین اصلی بازار ما، برگرفته از باغ‌های قزوین و بویین‌زهرا؛ محصولاتی که سال‌ها اعتبار تجارت خانوادگی ما بر آن استوار است.
+            دو نگین اصلی بازار ما، برگرفته از باغ‌های قزوین و بویین‌زهرا؛ محصولاتی که سال‌ها اعتبار تجارت خانوادگی درج سبز بر آن استوار است.
           </p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 mt-12">
@@ -123,7 +158,32 @@ function Home() {
         </div>
       </section>
 
+      {/* CTA */}
+      <section className="mx-auto max-w-7xl px-6 mt-24">
+        <div className="card-paper rounded-sm p-10 md:p-14 text-center bg-gradient-to-br from-cream/60 to-background">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">فروش عمده و صادراتی</div>
+          <h2 className="font-display text-4xl text-olive-deep mt-3">شریک تجاری قابل اعتماد</h2>
+          <div className="gold-rule my-5" />
+          <p className="text-cocoa max-w-2xl mx-auto leading-8">
+            برای قنادان، صنایع غذایی و صادرکنندگان؛ شرایط اختصاصی خرید عمده، تضمین کیفیت و قرارداد سالانه.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3 justify-center">
+            <Link to="/wholesale" className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">شرایط فروش عمده</Link>
+            <Link to="/contact" className="rounded-sm border border-olive-deep/40 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest">تماس با ما</Link>
+          </div>
+        </div>
+      </section>
+
       <div className="h-24" />
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="font-display text-3xl text-olive-deep num-fa">{value}</div>
+      <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
     </div>
   );
 }

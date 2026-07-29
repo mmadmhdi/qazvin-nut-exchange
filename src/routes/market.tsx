@@ -38,14 +38,14 @@ function Market() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
         <div className="space-y-3">
-          {active.map((p, i) => (
-            <button
+          {active.map((p) => (
+            <div
               key={p.id}
               onClick={() => setSelectedId(p.id)}
-              className={`w-full text-right ${selected?.id === p.id ? "ring-1 ring-brass rounded-sm" : ""}`}
+              className={`cursor-pointer transition-all ${selected?.id === p.id ? "ring-1 ring-brass rounded-sm" : ""}`}
             >
-              <PriceCard product={p} featured={i === 0 && selected?.id !== p.id ? false : false} />
-            </button>
+              <PriceCard product={p} />
+            </div>
           ))}
         </div>
         <div className="space-y-6">

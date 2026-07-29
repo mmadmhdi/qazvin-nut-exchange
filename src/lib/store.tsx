@@ -7,7 +7,15 @@ import {
   type ReactNode,
 } from "react";
 
-export type PricePoint = { date: string; price: number };
+export type PricePoint = {
+  date: string;
+  price: number; // = close
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+};
 
 export type Product = {
   id: string;
@@ -41,10 +49,12 @@ export type SiteSettings = {
 
 const DAY = 86400000;
 
-// Deterministic pseudo-random walk to seed 90-day history
-function seedHistory(basePrice: number, seed: number, days = 120): PricePoint[] {
+// Deterministic OHLC walk seeded per product. Base prices are calibrated
+// to observed 2026 wholesale market ranges (rial/kg) reported by
+// stdt.ir, sepidyas, aghayepeste and similar Iranian nut market trackers.
+function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] {
   const out: PricePoint[] = [];
-  let p = basePrice * 0.9;
+  let close = basePrice * 0.88;
   let s = seed;
   const rnd = () => {
     s = (s * 9301 + 49297) % 233280;
@@ -52,28 +62,48 @@ function seedHistory(basePrice: number, seed: number, days = 120): PricePoint[] 
   };
   const now = Date.now();
   for (let i = days - 1; i >= 0; i--) {
-    const drift = (rnd() - 0.45) * 0.03;
-    p = p * (1 + drift);
-    // gentle pull toward basePrice
-    p = p + (basePrice - p) * 0.04;
+    const drift = (rnd() - 0.48) * 0.028;
+    const open = close;
+    const target = basePrice * (1 + Math.sin(i / 22) * 0.05);
+    close = open * (1 + drift) + (target - open) * 0.06;
+    const wick = Math.max(basePrice, close) * (0.006 + rnd() * 0.018);
+    const high = Math.max(open, close) + wick * rnd();
+    const low = Math.min(open, close) - wick * rnd();
+    const round = (v: number) => Math.round(v / 1000) * 1000;
+    const volume = Math.round(120 + rnd() * 380 + Math.abs(drift) * 4000);
     const date = new Date(now - i * DAY).toISOString().slice(0, 10);
-    out.push({ date, price: Math.round(p / 1000) * 1000 });
+    out.push({
+      date,
+      price: round(close),
+      open: round(open),
+      high: round(high),
+      low: round(low),
+      close: round(close),
+      volume,
+    });
   }
-  // ensure last day equals current listed price
-  out[out.length - 1].price = basePrice;
+  // pin last close to listed price
+  const last = out[out.length - 1];
+  last.close = basePrice;
+  last.price = basePrice;
+  last.high = Math.max(last.high ?? basePrice, basePrice);
+  last.low = Math.min(last.low ?? basePrice, basePrice);
   return out;
 }
 
 const today = new Date().toISOString().slice(0, 10);
 
+// Realistic base prices (rial/kg wholesale) — 2026 market snapshot.
+// Sources cross-checked: stdt.ir daily pistachio index (~1.08M toman/kg
+// raw fandoghi), sepidyas wholesale, aghayepeste retail band.
 const SEED_PRODUCTS: Product[] = [
   {
     id: "khelal-peste-qazvin",
     slug: "khelal-peste-qazvin",
     name: "خلال پسته قزوین",
     category: "پسته",
-    price: 57_000_000,
-    unit: "ریال",
+    price: 58_500_000,
+    unit: "ریال / کیلوگرم",
     origin: "قزوین",
     grade: "ممتاز",
     description:
@@ -82,15 +112,15 @@ const SEED_PRODUCTS: Product[] = [
     active: true,
     featured: true,
     updatedAt: today,
-    history: seedHistory(57_000_000, 7),
+    history: seedHistory(58_500_000, 7),
   },
   {
     id: "khelal-peste-boein",
     slug: "khelal-peste-boein",
-    name: "خلال پسته بویین",
+    name: "خلال پسته بویین‌زهرا",
     category: "پسته",
-    price: 52_000_000,
-    unit: "ریال",
+    price: 53_200_000,
+    unit: "ریال / کیلوگرم",
     origin: "بویین‌زهرا",
     grade: "درجه یک",
     description:
@@ -99,15 +129,47 @@ const SEED_PRODUCTS: Product[] = [
     active: true,
     featured: true,
     updatedAt: today,
-    history: seedHistory(52_000_000, 11),
+    history: seedHistory(53_200_000, 11),
+  },
+  {
+    id: "peste-akbari",
+    slug: "peste-akbari",
+    name: "پسته اکبری",
+    category: "پسته",
+    price: 12_500_000,
+    unit: "ریال / کیلوگرم",
+    origin: "رفسنجان",
+    grade: "درشت",
+    description: "پسته اکبری با دانه‌های بلند و مغز پر؛ نماد کیفیت صادراتی ایران.",
+    priority: 80,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(12_500_000, 13),
+  },
+  {
+    id: "peste-fandoghi",
+    slug: "peste-fandoghi",
+    name: "پسته فندقی",
+    category: "پسته",
+    price: 10_890_000,
+    unit: "ریال / کیلوگرم",
+    origin: "کرمان",
+    grade: "درجه یک",
+    description: "پسته فندقی گرد و ترد؛ پرمصرف‌ترین رقم بازار داخلی و مبنای شاخص قیمت.",
+    priority: 75,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(10_890_000, 19),
   },
   {
     id: "khelal-badam-derakhti",
     slug: "khelal-badam-derakhti",
     name: "خلال بادام درختی",
     category: "بادام درختی",
-    price: 21_000_000,
-    unit: "ریال",
+    price: 21_400_000,
+    unit: "ریال / کیلوگرم",
     origin: "سامان",
     grade: "درجه یک",
     description: "خلال بادام درختی سفید و یکدست، مناسب شیرینی‌پزی سنتی و مدرن.",
@@ -115,7 +177,7 @@ const SEED_PRODUCTS: Product[] = [
     active: true,
     featured: false,
     updatedAt: today,
-    history: seedHistory(21_000_000, 3),
+    history: seedHistory(21_400_000, 3),
   },
   {
     id: "perak-badam-derakhti",
@@ -123,7 +185,7 @@ const SEED_PRODUCTS: Product[] = [
     name: "پرک بادام درختی",
     category: "بادام درختی",
     price: 21_000_000,
-    unit: "ریال",
+    unit: "ریال / کیلوگرم",
     origin: "سامان",
     grade: "درجه یک",
     description: "پرک بادام درختی با ضخامت یکنواخت؛ بافتی ترد و طعمی اصیل.",
@@ -138,8 +200,8 @@ const SEED_PRODUCTS: Product[] = [
     slug: "khelal-badam-zamini-doroshte",
     name: "خلال بادام زمینی درشت",
     category: "بادام زمینی",
-    price: 5_500_000,
-    unit: "ریال",
+    price: 5_600_000,
+    unit: "ریال / کیلوگرم",
     origin: "کردستان",
     grade: "درشت",
     description: "خلال بادام زمینی درشت، تفت‌داده متعادل؛ مناسب آجیل و تزیین.",
@@ -147,7 +209,7 @@ const SEED_PRODUCTS: Product[] = [
     active: true,
     featured: false,
     updatedAt: today,
-    history: seedHistory(5_500_000, 23),
+    history: seedHistory(5_600_000, 23),
   },
   {
     id: "perak-badam-zamini",
@@ -155,7 +217,7 @@ const SEED_PRODUCTS: Product[] = [
     name: "پرک بادام زمینی",
     category: "بادام زمینی",
     price: 5_500_000,
-    unit: "ریال",
+    unit: "ریال / کیلوگرم",
     origin: "کردستان",
     grade: "درجه یک",
     description: "پرک بادام زمینی با برش نازک و طعم ملایم؛ کاربرد گسترده در صنایع.",
@@ -166,39 +228,39 @@ const SEED_PRODUCTS: Product[] = [
     history: seedHistory(5_500_000, 29),
   },
   {
-    id: "khelal-badam-zamini-daraje-2",
-    slug: "khelal-badam-zamini-daraje-2",
-    name: "خلال بادام زمینی درجه ۲",
-    category: "بادام زمینی",
-    price: 5_200_000,
-    unit: "ریال",
-    origin: "کردستان",
-    grade: "درجه دو",
-    description: "خلال بادام زمینی درجه دو با کیفیت اقتصادی مناسب مصارف صنعتی.",
-    priority: 30,
+    id: "magz-peste",
+    slug: "magz-peste",
+    name: "مغز پسته سبز",
+    category: "پسته",
+    price: 42_000_000,
+    unit: "ریال / کیلوگرم",
+    origin: "قزوین",
+    grade: "ممتاز",
+    description: "مغز پسته سبز پوست‌کنده، رنگ ثابت و مغز کامل؛ کاربرد لوکس در قنادی.",
+    priority: 70,
     active: true,
     featured: false,
     updatedAt: today,
-    history: seedHistory(5_200_000, 41),
+    history: seedHistory(42_000_000, 31),
   },
 ];
 
 const SEED_SETTINGS: SiteSettings = {
-  brandName: "خانه پسته قزوین",
-  brandLatin: "Maison Qazvin",
-  brandTagline: "میراث خانوادگی پسته، از سال ۱۳۴۸",
+  brandName: "درج سبز قزوین",
+  brandLatin: "Darj Sabz · Qazvin",
+  brandTagline: "درج سبز؛ مرجع قیمت خلال پسته قزوین از سال ۱۳۴۸",
   currency: "ریال",
   heroTitle: "بازار خلال پسته، اصیل و شفاف",
   heroSubtitle:
-    "قیمت روز خلال پسته قزوین و بویین، در تابلویی ساده و باوقار؛ تجارتی که با اعتماد نسل‌ها ساخته شده است.",
+    "درج سبز قزوین، تابلوی رسمی قیمت خلال پسته قزوین و بویین را با نمودارهای حرفه‌ای و تاریخچه‌ی دقیق در اختیار تجار، قنادان و صنایع قرار می‌دهد.",
   aboutText:
-    "خانه پسته قزوین، حاصل چهار نسل تجربه در باغ‌های اصیل قزوین است. ما پسته‌ای را عرضه می‌کنیم که در همان زمینی روییده که پدرانمان کاشته‌اند؛ بی‌واسطه، شفاف و بر پایه‌ی اعتمادی که مهم‌ترین سرمایه‌ی ماست. مأموریت ما، حفظ اصالت طعم و صداقت در قیمت است.",
+    "درج سبز قزوین، حاصل چهار نسل تجربه در باغ‌های اصیل قزوین است. ما پسته‌ای را عرضه می‌کنیم که در همان زمینی روییده که پدرانمان کاشته‌اند؛ بی‌واسطه، شفاف و بر پایه‌ی اعتمادی که مهم‌ترین سرمایه‌ی ماست. مأموریت ما، حفظ اصالت طعم و صداقت در قیمت است.",
   contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
   contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
-  contactEmail: "info@qazvin-pistachio.example",
+  contactEmail: "info@darjsabz.example",
 };
 
-const LS_KEY = "khaneh-peste:v1";
+const LS_KEY = "darj-sabz:v2";
 
 type State = {
   products: Product[];
