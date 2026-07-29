@@ -1,21 +1,12 @@
 import { defineTool } from "@lovable.dev/mcp-js";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import type { Database } from "@/integrations/supabase/types";
-
-function supabasePublic() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
-}
+import { supabasePublic, enrichWithLatestPrice } from "./_shared";
 
 export default defineTool({
   name: "list_products",
   title: "فهرست محصولات",
   description:
-    "List all active dry-fruit products (Persian pistachios, saffron, etc.) with slug, category, unit, latest close price (IRR) and 24h change percent.",
+    "List all active dry-fruit products (Persian pistachios, saffron, etc.) with slug, category, unit, latest close price in Iranian Rial (IRR) and 24h change percent computed from daily price history.",
   inputSchema: {
     category: z
       .string()
@@ -27,18 +18,18 @@ export default defineTool({
     const supabase = supabasePublic();
     let query = supabase
       .from("products")
-      .select("id, slug, name, category, unit, description, featured, current_price, change_24h")
-      .eq("is_active", true)
+      .select("*")
+      .eq("active", true)
       .order("featured", { ascending: false })
+      .order("priority", { ascending: false })
       .order("name");
     if (category) query = query.eq("category", category);
     const { data, error } = await query;
-    if (error) {
-      return { content: [{ type: "text", text: error.message }], isError: true };
-    }
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    const products = await enrichWithLatestPrice(supabase, data ?? []);
     return {
-      content: [{ type: "text", text: JSON.stringify(data ?? [], null, 2) }],
-      structuredContent: { products: data ?? [] },
+      content: [{ type: "text", text: JSON.stringify(products, null, 2) }],
+      structuredContent: { products },
     };
   },
 });

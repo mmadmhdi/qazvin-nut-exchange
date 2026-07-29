@@ -15,7 +15,7 @@
       {
         "name": "list_products",
         "title": "فهرست محصولات",
-        "description": "List all active dry-fruit products (Persian pistachios, saffron, etc.) with slug, category, unit, latest close price (IRR) and 24h change percent.",
+        "description": "List all active dry-fruit products (Persian pistachios, saffron, etc.) with slug, category, unit, latest close price in Iranian Rial (IRR) and 24h change percent computed from daily price history.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -36,7 +36,7 @@
       {
         "name": "get_product",
         "title": "جزئیات محصول",
-        "description": "Get a single product's full metadata by slug: name, category, unit, description, current price (IRR), 24h change and featured flag.",
+        "description": "Get a single product's full metadata by slug, along with its latest close price (IRR) and 24h change percent.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -60,7 +60,7 @@
       {
         "name": "get_price_history",
         "title": "تاریخچه قیمت",
-        "description": "Get OHLC daily price history (in IRR) for a product by slug. Returns date, open, high, low, close, volume — newest last. Useful for charts and trend analysis.",
+        "description": "Get OHLC daily price history in Iranian Rial (IRR) for a product by slug. Returns date, open, high, low, close, volume — oldest first. Useful for charts, technical analysis and trend detection.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -75,7 +75,7 @@
               "description": "Product slug."
             },
             "days": {
-              "description": "Number of most recent days to return. Defaults to 90, hard-capped to 365.",
+              "description": "Number of most recent days to return. Defaults to 90; hard-capped to 365.",
               "type": "integer",
               "minimum": -9007199254740991,
               "maximum": 9007199254740991
@@ -90,7 +90,7 @@
       {
         "name": "market_summary",
         "title": "خلاصه بازار امروز",
-        "description": "Snapshot of today's dry-fruit market: number of products tracked, top gainers and top losers by 24h change percent, and the brand's business hours.",
+        "description": "Snapshot of today's Darj Sabz Qazvin dry-fruit market: number of tracked products, top gainers and top losers by 24h change percent (computed from OHLC history), and brand contact info.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
