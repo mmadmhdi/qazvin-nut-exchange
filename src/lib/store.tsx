@@ -1,0 +1,316 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type PricePoint = { date: string; price: number };
+
+export type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  category: "پسته" | "بادام درختی" | "بادام زمینی" | "سایر";
+  price: number;
+  unit: string;
+  origin: string;
+  grade: string;
+  description: string;
+  priority: number;
+  active: boolean;
+  featured: boolean;
+  updatedAt: string;
+  history: PricePoint[];
+};
+
+export type SiteSettings = {
+  brandName: string;
+  brandLatin: string;
+  brandTagline: string;
+  currency: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  aboutText: string;
+  contactPhone: string;
+  contactAddress: string;
+  contactEmail: string;
+};
+
+const DAY = 86400000;
+
+// Deterministic pseudo-random walk to seed 90-day history
+function seedHistory(basePrice: number, seed: number, days = 120): PricePoint[] {
+  const out: PricePoint[] = [];
+  let p = basePrice * 0.9;
+  let s = seed;
+  const rnd = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+  const now = Date.now();
+  for (let i = days - 1; i >= 0; i--) {
+    const drift = (rnd() - 0.45) * 0.03;
+    p = p * (1 + drift);
+    // gentle pull toward basePrice
+    p = p + (basePrice - p) * 0.04;
+    const date = new Date(now - i * DAY).toISOString().slice(0, 10);
+    out.push({ date, price: Math.round(p / 1000) * 1000 });
+  }
+  // ensure last day equals current listed price
+  out[out.length - 1].price = basePrice;
+  return out;
+}
+
+const today = new Date().toISOString().slice(0, 10);
+
+const SEED_PRODUCTS: Product[] = [
+  {
+    id: "khelal-peste-qazvin",
+    slug: "khelal-peste-qazvin",
+    name: "خلال پسته قزوین",
+    category: "پسته",
+    price: 57_000_000,
+    unit: "ریال",
+    origin: "قزوین",
+    grade: "ممتاز",
+    description:
+      "خلال پسته قزوین با رنگ سبز طبیعی، عطر ملایم و برش یکنواخت؛ برگزیده باغ‌های اصیل قزوین.",
+    priority: 100,
+    active: true,
+    featured: true,
+    updatedAt: today,
+    history: seedHistory(57_000_000, 7),
+  },
+  {
+    id: "khelal-peste-boein",
+    slug: "khelal-peste-boein",
+    name: "خلال پسته بویین",
+    category: "پسته",
+    price: 52_000_000,
+    unit: "ریال",
+    origin: "بویین‌زهرا",
+    grade: "درجه یک",
+    description:
+      "خلال پسته بویین با مغز پرمایه و رنگ زیتونی روشن؛ انتخابی متعادل برای قنادی و صنایع.",
+    priority: 90,
+    active: true,
+    featured: true,
+    updatedAt: today,
+    history: seedHistory(52_000_000, 11),
+  },
+  {
+    id: "khelal-badam-derakhti",
+    slug: "khelal-badam-derakhti",
+    name: "خلال بادام درختی",
+    category: "بادام درختی",
+    price: 21_000_000,
+    unit: "ریال",
+    origin: "سامان",
+    grade: "درجه یک",
+    description: "خلال بادام درختی سفید و یکدست، مناسب شیرینی‌پزی سنتی و مدرن.",
+    priority: 60,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(21_000_000, 3),
+  },
+  {
+    id: "perak-badam-derakhti",
+    slug: "perak-badam-derakhti",
+    name: "پرک بادام درختی",
+    category: "بادام درختی",
+    price: 21_000_000,
+    unit: "ریال",
+    origin: "سامان",
+    grade: "درجه یک",
+    description: "پرک بادام درختی با ضخامت یکنواخت؛ بافتی ترد و طعمی اصیل.",
+    priority: 55,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(21_000_000, 17),
+  },
+  {
+    id: "khelal-badam-zamini-doroshte",
+    slug: "khelal-badam-zamini-doroshte",
+    name: "خلال بادام زمینی درشت",
+    category: "بادام زمینی",
+    price: 5_500_000,
+    unit: "ریال",
+    origin: "کردستان",
+    grade: "درشت",
+    description: "خلال بادام زمینی درشت، تفت‌داده متعادل؛ مناسب آجیل و تزیین.",
+    priority: 40,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(5_500_000, 23),
+  },
+  {
+    id: "perak-badam-zamini",
+    slug: "perak-badam-zamini",
+    name: "پرک بادام زمینی",
+    category: "بادام زمینی",
+    price: 5_500_000,
+    unit: "ریال",
+    origin: "کردستان",
+    grade: "درجه یک",
+    description: "پرک بادام زمینی با برش نازک و طعم ملایم؛ کاربرد گسترده در صنایع.",
+    priority: 35,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(5_500_000, 29),
+  },
+  {
+    id: "khelal-badam-zamini-daraje-2",
+    slug: "khelal-badam-zamini-daraje-2",
+    name: "خلال بادام زمینی درجه ۲",
+    category: "بادام زمینی",
+    price: 5_200_000,
+    unit: "ریال",
+    origin: "کردستان",
+    grade: "درجه دو",
+    description: "خلال بادام زمینی درجه دو با کیفیت اقتصادی مناسب مصارف صنعتی.",
+    priority: 30,
+    active: true,
+    featured: false,
+    updatedAt: today,
+    history: seedHistory(5_200_000, 41),
+  },
+];
+
+const SEED_SETTINGS: SiteSettings = {
+  brandName: "خانه پسته قزوین",
+  brandLatin: "Maison Qazvin",
+  brandTagline: "میراث خانوادگی پسته، از سال ۱۳۴۸",
+  currency: "ریال",
+  heroTitle: "بازار خلال پسته، اصیل و شفاف",
+  heroSubtitle:
+    "قیمت روز خلال پسته قزوین و بویین، در تابلویی ساده و باوقار؛ تجارتی که با اعتماد نسل‌ها ساخته شده است.",
+  aboutText:
+    "خانه پسته قزوین، حاصل چهار نسل تجربه در باغ‌های اصیل قزوین است. ما پسته‌ای را عرضه می‌کنیم که در همان زمینی روییده که پدرانمان کاشته‌اند؛ بی‌واسطه، شفاف و بر پایه‌ی اعتمادی که مهم‌ترین سرمایه‌ی ماست. مأموریت ما، حفظ اصالت طعم و صداقت در قیمت است.",
+  contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
+  contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
+  contactEmail: "info@qazvin-pistachio.example",
+};
+
+const LS_KEY = "khaneh-peste:v1";
+
+type State = {
+  products: Product[];
+  settings: SiteSettings;
+};
+
+type StoreCtx = State & {
+  ready: boolean;
+  saveProduct: (p: Product) => void;
+  deleteProduct: (id: string) => void;
+  addPricePoint: (id: string, point: PricePoint) => void;
+  updateSettings: (s: Partial<SiteSettings>) => void;
+  resetAll: () => void;
+};
+
+const StoreContext = createContext<StoreCtx | null>(null);
+
+function slugify(name: string): string {
+  return name
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\p{L}\p{N}-]/gu, "")
+    .toLowerCase();
+}
+
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<State>({
+    products: SEED_PRODUCTS,
+    settings: SEED_SETTINGS,
+  });
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as State;
+        if (parsed?.products && parsed?.settings) setState(parsed);
+      }
+    } catch {}
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    } catch {}
+  }, [state, ready]);
+
+  const value: StoreCtx = useMemo(
+    () => ({
+      ...state,
+      ready,
+      saveProduct(p) {
+        setState((s) => {
+          const exists = s.products.some((x) => x.id === p.id);
+          const next = exists
+            ? s.products.map((x) => (x.id === p.id ? p : x))
+            : [...s.products, { ...p, slug: p.slug || slugify(p.name) || p.id }];
+          return { ...s, products: next };
+        });
+      },
+      deleteProduct(id) {
+        setState((s) => ({ ...s, products: s.products.filter((x) => x.id !== id) }));
+      },
+      addPricePoint(id, point) {
+        setState((s) => ({
+          ...s,
+          products: s.products.map((x) =>
+            x.id === id
+              ? {
+                  ...x,
+                  price: point.price,
+                  updatedAt: point.date,
+                  history: [...x.history.filter((h) => h.date !== point.date), point].sort(
+                    (a, b) => a.date.localeCompare(b.date),
+                  ),
+                }
+              : x,
+          ),
+        }));
+      },
+      updateSettings(s) {
+        setState((prev) => ({ ...prev, settings: { ...prev.settings, ...s } }));
+      },
+      resetAll() {
+        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS });
+      },
+    }),
+    [state, ready],
+  );
+
+  return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
+}
+
+export function useStore(): StoreCtx {
+  const ctx = useContext(StoreContext);
+  if (!ctx) throw new Error("useStore must be used within StoreProvider");
+  return ctx;
+}
+
+export function useProductBySlug(slug: string): Product | undefined {
+  const { products } = useStore();
+  return products.find((p) => p.slug === slug || p.id === slug);
+}
+
+export function computeChange(history: PricePoint[]): { pct: number; abs: number } {
+  if (history.length < 2) return { pct: 0, abs: 0 };
+  const last = history[history.length - 1].price;
+  const prev = history[history.length - 2].price;
+  return { pct: ((last - prev) / prev) * 100, abs: last - prev };
+}
+
+export { SEED_PRODUCTS, SEED_SETTINGS, slugify };
