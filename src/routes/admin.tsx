@@ -78,18 +78,19 @@ function Admin() {
           </div>
 
           <div className="card-paper rounded-sm overflow-hidden">
-            <div className="grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 text-xs text-muted-foreground bg-cream/60 hairline-b">
+            <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 text-xs text-muted-foreground bg-cream/60 hairline-b">
               <div>نام</div><div>دسته</div><div>قیمت</div><div>وضعیت</div><div className="text-left">عملیات</div>
             </div>
             {products.sort((a, b) => b.priority - a.priority).map((p) => (
               <div key={p.id} className="hairline-b last:border-0">
-                <div className="grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 items-center text-sm">
-                  <div className="text-cocoa">
-                    <div className="font-semibold">{p.name}</div>
-                    <div className="text-xs text-muted-foreground">{p.origin} · {p.grade}</div>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[2fr_1fr_1fr_120px_120px] gap-2 px-4 py-3 items-center text-sm">
+                  <div className="min-w-0 text-cocoa">
+                    <div className="font-semibold truncate">{p.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{p.origin} · {p.grade}</div>
                   </div>
-                  <div className="text-muted-foreground">{p.category}</div>
-                  <div className="num-fa text-olive-deep">{formatPrice(p.price)}</div>
+                  <div className="hidden md:block text-muted-foreground">{p.category}</div>
+                  <div className="num-fa text-olive-deep text-left md:text-right">{formatPrice(p.price)}</div>
+
                   <div className="flex gap-1">
                     <button onClick={() => { saveProduct({ ...p, active: !p.active }); }} title="فعال/غیرفعال" className="p-1 rounded hover:bg-cream">
                       {p.active ? <Eye className="h-4 w-4 text-bull" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
