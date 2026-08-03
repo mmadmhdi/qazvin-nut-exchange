@@ -58,7 +58,7 @@ export function Header() {
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label="منو"
-            className="lg:hidden grid h-9 w-9 place-items-center rounded-sm border border-olive-deep/30 text-olive-deep hover:bg-cream"
+            className="xl:hidden grid h-9 w-9 place-items-center rounded-sm border border-olive-deep/30 text-olive-deep hover:bg-cream"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -68,7 +68,7 @@ export function Header() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="lg:hidden hairline-b bg-background">
+        <div className="xl:hidden hairline-b bg-background">
           <nav className="mx-auto max-w-7xl px-4 py-3 grid grid-cols-2 gap-1 text-sm">
             {NAV.map((n) => (
               <Link
@@ -107,6 +107,8 @@ export function Footer() {
           <div><Link to="/market" className="hover:text-olive-deep">تابلوی قیمت</Link></div>
           <div><Link to="/analysis" className="hover:text-olive-deep">تحلیل</Link></div>
           <div><Link to="/news" className="hover:text-olive-deep">اخبار</Link></div>
+          <div><Link to="/taste" className="hover:text-olive-deep">آیین چشیدن</Link></div>
+          <div><Link to="/origin" className="hover:text-olive-deep">اصالت باغ</Link></div>
         </div>
         <div className="text-sm text-cocoa space-y-2">
           <div className="font-semibold text-olive-deep mb-2">شرکت</div>
