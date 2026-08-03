@@ -1,9 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useStore, slugify, type Product } from "@/lib/store";
+import { useStore, slugify, type Product, type Passport } from "@/lib/store";
+import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, toFaDigits } from "@/lib/format";
 import { toast } from "sonner";
 import { Trash2, Plus, Star, StarOff, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+
+const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
+  { key: "batch", label: "شماره بچ" },
+  { key: "harvestYear", label: "سال برداشت" },
+  { key: "region", label: "منطقه" },
+  { key: "altitude", label: "ارتفاع باغ" },
+  { key: "soil", label: "نوع خاک" },
+  { key: "process", label: "روش فرآوری" },
+  { key: "size", label: "سایز / درجه" },
+  { key: "notes", label: "نت‌های طعمی" },
+  { key: "units", label: "تیراژ تولید" },
+  { key: "certificates", label: "گواهی‌ها" },
+];
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
