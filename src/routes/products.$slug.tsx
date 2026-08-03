@@ -3,10 +3,25 @@ import { useStore, computeChange } from "@/lib/store";
 import { MarketChart } from "@/components/site/MarketChart";
 import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { PriceHistoryTable } from "@/components/site/PriceHistoryTable";
+import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, formatPercent } from "@/lib/format";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BadgeCheck } from "lucide-react";
 
 export const Route = createFileRoute("/products/$slug")({
+  head: ({ params }) => {
+    const title = `${params.slug} — قیمت، نمودار و شناسنامه | درج سبز قزوین`;
+    const desc = "قیمت روز، نمودار تکنیکال و شناسنامه دیجیتال محصول خشکبار در تابلوی درج سبز قزوین.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
   component: ProductDetail,
 });
 
