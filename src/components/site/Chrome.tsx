@@ -36,13 +36,13 @@ export function Header() {
             </div>
           </div>
         </Link>
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm text-cocoa">
+        <nav className="hidden xl:flex items-center gap-4 text-sm text-cocoa">
           {NAV.map((n) => (
             <Link
               key={n.to}
               to={n.to}
               activeOptions={n.exact ? { exact: true } : undefined}
-              className="hover:text-olive-deep [&.active]:text-olive-deep [&.active]:font-semibold"
+              className="whitespace-nowrap hover:text-olive-deep [&.active]:text-olive-deep [&.active]:font-semibold"
             >
               {n.label}
             </Link>
