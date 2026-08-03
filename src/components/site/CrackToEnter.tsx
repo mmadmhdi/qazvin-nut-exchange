@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Leaf, LineChart, Sparkles } from "lucide-react";
 
 const KEY = "darj-sabz:gate-v1";
@@ -17,13 +17,16 @@ export function CrackToEnter() {
   const startX = useRef(0);
   const audioDone = useRef(false);
 
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+
   useEffect(() => {
+    if (pathname !== "/") return;
     try {
       if (!sessionStorage.getItem(KEY)) setShow(true);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [pathname]);
 
   const dismiss = () => {
     try {
@@ -168,7 +171,7 @@ export function CrackToEnter() {
                 }}
               >
                 <path
-                  d="M100 24 C68 30 46 62 46 104 C46 146 70 176 100 182 Z"
+                  d="M100 26 A 50 62 0 0 0 100 178 Z"
                   fill="url(#shellA)"
                   stroke="oklch(0.62 0.06 80)"
                   strokeWidth="1.5"
@@ -182,7 +185,7 @@ export function CrackToEnter() {
                 }}
               >
                 <path
-                  d="M100 24 C132 30 154 62 154 104 C154 146 130 176 100 182 Z"
+                  d="M100 26 A 50 62 0 0 1 100 178 Z"
                   fill="url(#shellA)"
                   stroke="oklch(0.62 0.06 80)"
                   strokeWidth="1.5"
