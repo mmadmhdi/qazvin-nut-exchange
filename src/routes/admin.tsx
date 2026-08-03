@@ -1,9 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useStore, slugify, type Product } from "@/lib/store";
+import { useStore, slugify, type Product, type Passport } from "@/lib/store";
+import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, toFaDigits } from "@/lib/format";
 import { toast } from "sonner";
 import { Trash2, Plus, Star, StarOff, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+
+const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
+  { key: "batch", label: "شماره بچ" },
+  { key: "harvestYear", label: "سال برداشت" },
+  { key: "region", label: "منطقه" },
+  { key: "altitude", label: "ارتفاع باغ" },
+  { key: "soil", label: "نوع خاک" },
+  { key: "process", label: "روش فرآوری" },
+  { key: "size", label: "سایز / درجه" },
+  { key: "notes", label: "نت‌های طعمی" },
+  { key: "units", label: "تیراژ تولید" },
+  { key: "certificates", label: "گواهی‌ها" },
+];
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -78,18 +93,19 @@ function Admin() {
           </div>
 
           <div className="card-paper rounded-sm overflow-hidden">
-            <div className="grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 text-xs text-muted-foreground bg-cream/60 hairline-b">
+            <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 text-xs text-muted-foreground bg-cream/60 hairline-b">
               <div>نام</div><div>دسته</div><div>قیمت</div><div>وضعیت</div><div className="text-left">عملیات</div>
             </div>
             {products.sort((a, b) => b.priority - a.priority).map((p) => (
               <div key={p.id} className="hairline-b last:border-0">
-                <div className="grid grid-cols-[2fr_1fr_1fr_120px_120px] px-4 py-3 items-center text-sm">
-                  <div className="text-cocoa">
-                    <div className="font-semibold">{p.name}</div>
-                    <div className="text-xs text-muted-foreground">{p.origin} · {p.grade}</div>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[2fr_1fr_1fr_120px_120px] gap-2 px-4 py-3 items-center text-sm">
+                  <div className="min-w-0 text-cocoa">
+                    <div className="font-semibold truncate">{p.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{p.origin} · {p.grade}</div>
                   </div>
-                  <div className="text-muted-foreground">{p.category}</div>
-                  <div className="num-fa text-olive-deep">{formatPrice(p.price)}</div>
+                  <div className="hidden md:block text-muted-foreground">{p.category}</div>
+                  <div className="num-fa text-olive-deep text-left md:text-right">{formatPrice(p.price)}</div>
+
                   <div className="flex gap-1">
                     <button onClick={() => { saveProduct({ ...p, active: !p.active }); }} title="فعال/غیرفعال" className="p-1 rounded hover:bg-cream">
                       {p.active ? <Eye className="h-4 w-4 text-bull" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
@@ -207,7 +223,45 @@ function ProductEditor({ product, onSave, onCancel }: { product: Product; onSave
               <input type="checkbox" checked={p.featured} onChange={(e) => setP({ ...p, featured: e.target.checked })} /> ویژه (کارت بزرگ)
             </label>
           </div>
+
+          {/* Passport */}
+          <div className="md:col-span-2 hairline-t pt-4">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <div className="min-w-0">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Pistachio Passport</div>
+                <div className="font-display text-lg text-olive-deep">شناسنامه محصول</div>
+              </div>
+              <button
+                onClick={() => setP({ ...p, passport: p.passport ? undefined : getPassport(p) })}
+                className="shrink-0 rounded-sm border border-border px-3 py-1.5 text-xs hover:bg-cream"
+              >
+                {p.passport ? "بازگشت به خودکار" : "ویرایش دستی"}
+              </button>
+            </div>
+            {p.passport ? (
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {PASSPORT_FIELDS.map((f) => (
+                  <TextField
+                    key={f.key}
+                    label={f.label}
+                    value={p.passport![f.key]}
+                    onChange={(v) => setP({ ...p, passport: { ...p.passport!, [f.key]: v } })}
+                  />
+                ))}
+              </div>
+            ) : (
+              <dl className="mt-3 grid gap-x-6 text-xs md:grid-cols-2">
+                {passportRows(getPassport(p)).map((r) => (
+                  <div key={r.label} className="grid grid-cols-[minmax(0,100px)_minmax(0,1fr)] gap-2 border-b border-border/40 py-1.5">
+                    <dt className="text-muted-foreground">{r.label}</dt>
+                    <dd className="min-w-0 text-cocoa">{r.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
         </div>
+
         <div className="px-6 py-4 hairline-t flex justify-end gap-3">
           <button onClick={onCancel} className="rounded-sm border border-border px-4 py-2 text-sm">انصراف</button>
           <button onClick={() => onSave(p)} className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">ذخیره</button>

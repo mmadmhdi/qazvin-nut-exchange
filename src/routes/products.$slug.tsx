@@ -3,10 +3,25 @@ import { useStore, computeChange } from "@/lib/store";
 import { MarketChart } from "@/components/site/MarketChart";
 import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { PriceHistoryTable } from "@/components/site/PriceHistoryTable";
+import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, formatPercent } from "@/lib/format";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BadgeCheck } from "lucide-react";
 
 export const Route = createFileRoute("/products/$slug")({
+  head: ({ params }) => {
+    const title = `${params.slug} — قیمت، نمودار و شناسنامه | درج سبز قزوین`;
+    const desc = "قیمت روز، نمودار تکنیکال و شناسنامه دیجیتال محصول خشکبار در تابلوی درج سبز قزوین.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
   component: ProductDetail,
 });
 
@@ -78,6 +93,34 @@ function ProductDetail() {
             <Meta k="درجه کیفی" v={product.grade} />
             <Meta k="آخرین به‌روزرسانی" v={formatJalali(new Date(product.updatedAt))} />
           </div>
+
+          {/* Pistachio Passport */}
+          <div className="mt-10 card-paper rounded-sm p-5 sm:p-6">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+              <div className="min-w-0">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Pistachio Passport</div>
+                <h2 className="mt-1 font-display text-2xl text-olive-deep">شناسنامه محصول</h2>
+              </div>
+              <BadgeCheck className="h-5 w-5 shrink-0 text-brass-dark" />
+            </div>
+            <div className="gold-rule my-4" />
+            <dl className="grid gap-x-8 gap-y-0 sm:grid-cols-2">
+              {passportRows(getPassport(product)).map((r) => (
+                <div
+                  key={r.label}
+                  className="grid grid-cols-[minmax(0,110px)_minmax(0,1fr)] gap-3 border-b border-border/50 py-2 text-sm"
+                >
+                  <dt className="text-xs text-muted-foreground">{r.label}</dt>
+                  <dd className="min-w-0 text-cocoa">{r.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <Link to="/origin" className="mt-4 inline-block text-xs tracking-widest text-brass-dark hover:text-olive-deep">
+              مسیر از باغ تا بسته ←
+            </Link>
+          </div>
+
+
 
           <div className="mt-10 flex flex-wrap gap-3">
             <a href={`tel:${settings.contactPhone}`} className="inline-flex items-center rounded-sm bg-olive-deep px-6 py-3 text-sm tracking-widest text-paper hover:bg-olive">

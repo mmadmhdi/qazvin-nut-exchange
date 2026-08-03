@@ -13,6 +13,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "@/lib/store";
 import { Header, Footer } from "@/components/site/Chrome";
 import { Toaster } from "sonner";
+import { CrackToEnter } from "@/components/site/CrackToEnter";
+import { GreenCurator } from "@/components/site/GreenCurator";
 
 function NotFoundComponent() {
   return (
@@ -105,6 +107,8 @@ function RootComponent() {
           <main className="flex-1"><Outlet /></main>
           <Footer />
         </div>
+        <CrackToEnter />
+        <GreenCurator />
         <Toaster richColors position="top-center" dir="rtl" />
       </StoreProvider>
     </QueryClientProvider>

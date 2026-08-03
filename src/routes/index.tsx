@@ -127,6 +127,21 @@ function Home() {
         </div>
       </section>
 
+      {/* Three paths */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Taste · Origin · Trade</div>
+          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">سه مسیر خانه‌ی سبز</h2>
+          <div className="gold-rule my-6" />
+        </div>
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+          <PathCard to="/taste" latin="Taste" title="آیین چشیدن" desc="با چهار پرسش کوتاه، آیین شخصی و محصول متناسب ذائقه‌تان را بسازید." />
+          <PathCard to="/origin" latin="Origin" title="اصالت باغ" desc="مسیر هشت‌مرحله‌ای از باغ تا بسته و شناسنامه دیجیتال هر بچ تولید." />
+          <PathCard to="/wholesale" latin="Trade" title="تجارت" desc="سایز، بسته‌بندی صادراتی، تخفیف پلکانی و قرارداد سالانه." />
+        </div>
+      </section>
+
+
       {/* Movers */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
@@ -231,6 +246,17 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className="font-display text-2xl sm:text-3xl text-olive-deep num-fa">{value}</div>
       <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
     </div>
+  );
+}
+
+function PathCard({ to, latin, title, desc }: { to: string; latin: string; title: string; desc: string }) {
+  return (
+    <Link to={to} className="card-paper rounded-sm p-6 transition-transform hover:-translate-y-0.5">
+      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{latin}</div>
+      <div className="mt-2 font-display text-2xl text-olive-deep">{title}</div>
+      <p className="mt-2 text-sm leading-7 text-cocoa">{desc}</p>
+      <span className="mt-4 inline-block text-xs tracking-widest text-brass-dark">ورود ←</span>
+    </Link>
   );
 }
 

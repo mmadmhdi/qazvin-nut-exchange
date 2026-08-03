@@ -17,7 +17,21 @@ export type PricePoint = {
   volume?: number;
 };
 
+export type Passport = {
+  batch: string;
+  harvestYear: string;
+  region: string;
+  altitude: string;
+  soil: string;
+  process: string;
+  size: string;
+  notes: string;
+  units: string;
+  certificates: string;
+};
+
 export type Product = {
+  passport?: Passport;
   id: string;
   slug: string;
   name: string;

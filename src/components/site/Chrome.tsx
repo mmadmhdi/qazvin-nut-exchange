@@ -8,6 +8,8 @@ const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/market", label: "بازار پسته" },
   { to: "/compare", label: "مقایسه" },
   { to: "/analysis", label: "تحلیل بازار" },
+  { to: "/taste", label: "آیین چشیدن" },
+  { to: "/origin", label: "اصالت باغ" },
   { to: "/news", label: "اخبار خشکبار" },
   { to: "/products", label: "محصولات" },
   { to: "/wholesale", label: "فروش عمده" },
@@ -34,13 +36,13 @@ export function Header() {
             </div>
           </div>
         </Link>
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-sm text-cocoa">
+        <nav className="hidden xl:flex items-center gap-4 text-sm text-cocoa">
           {NAV.map((n) => (
             <Link
               key={n.to}
               to={n.to}
               activeOptions={n.exact ? { exact: true } : undefined}
-              className="hover:text-olive-deep [&.active]:text-olive-deep [&.active]:font-semibold"
+              className="whitespace-nowrap hover:text-olive-deep [&.active]:text-olive-deep [&.active]:font-semibold"
             >
               {n.label}
             </Link>
@@ -56,7 +58,7 @@ export function Header() {
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label="منو"
-            className="lg:hidden grid h-9 w-9 place-items-center rounded-sm border border-olive-deep/30 text-olive-deep hover:bg-cream"
+            className="xl:hidden grid h-9 w-9 place-items-center rounded-sm border border-olive-deep/30 text-olive-deep hover:bg-cream"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
@@ -66,7 +68,7 @@ export function Header() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="lg:hidden hairline-b bg-background">
+        <div className="xl:hidden hairline-b bg-background">
           <nav className="mx-auto max-w-7xl px-4 py-3 grid grid-cols-2 gap-1 text-sm">
             {NAV.map((n) => (
               <Link
@@ -105,6 +107,8 @@ export function Footer() {
           <div><Link to="/market" className="hover:text-olive-deep">تابلوی قیمت</Link></div>
           <div><Link to="/analysis" className="hover:text-olive-deep">تحلیل</Link></div>
           <div><Link to="/news" className="hover:text-olive-deep">اخبار</Link></div>
+          <div><Link to="/taste" className="hover:text-olive-deep">آیین چشیدن</Link></div>
+          <div><Link to="/origin" className="hover:text-olive-deep">اصالت باغ</Link></div>
         </div>
         <div className="text-sm text-cocoa space-y-2">
           <div className="font-semibold text-olive-deep mb-2">شرکت</div>

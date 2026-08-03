@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
+import { Route as TasteRouteImport } from './routes/taste'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -26,9 +28,19 @@ const WholesaleRoute = WholesaleRouteImport.update({
   path: '/wholesale',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasteRoute = TasteRouteImport.update({
+  id: '/taste',
+  path: '/taste',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OriginRoute = OriginRouteImport.update({
+  id: '/origin',
+  path: '/origin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -86,7 +98,9 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -99,7 +113,9 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -113,7 +129,9 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -128,7 +146,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -141,7 +161,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   id:
@@ -154,7 +176,9 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   fileRoutesById: FileRoutesById
@@ -168,7 +192,9 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
+  OriginRoute: typeof OriginRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  TasteRoute: typeof TasteRoute
   WholesaleRoute: typeof WholesaleRoute
 }
 
@@ -181,11 +207,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WholesaleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/taste': {
+      id: '/taste'
+      path: '/taste'
+      fullPath: '/taste'
+      preLoaderRoute: typeof TasteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/origin': {
+      id: '/origin'
+      path: '/origin'
+      fullPath: '/origin'
+      preLoaderRoute: typeof OriginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -275,7 +315,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
+  OriginRoute: OriginRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  TasteRoute: TasteRoute,
   WholesaleRoute: WholesaleRoute,
 }
 export const routeTree = rootRouteImport
