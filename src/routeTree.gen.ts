@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -29,6 +30,11 @@ const WholesaleRoute = WholesaleRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OriginRoute = OriginRouteImport.update({
+  id: '/origin',
+  path: '/origin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
+  '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
     | '/wholesale'
     | '/products/$slug'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
     | '/wholesale'
     | '/products/$slug'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/market'
     | '/news'
+    | '/origin'
     | '/products'
     | '/wholesale'
     | '/products/$slug'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
+  OriginRoute: typeof OriginRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   WholesaleRoute: typeof WholesaleRoute
 }
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/origin': {
+      id: '/origin'
+      path: '/origin'
+      fullPath: '/origin'
+      preLoaderRoute: typeof OriginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -275,6 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
+  OriginRoute: OriginRoute,
   ProductsRoute: ProductsRouteWithChildren,
   WholesaleRoute: WholesaleRoute,
 }
