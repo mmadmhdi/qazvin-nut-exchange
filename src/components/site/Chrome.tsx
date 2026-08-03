@@ -8,6 +8,8 @@ const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/market", label: "بازار پسته" },
   { to: "/compare", label: "مقایسه" },
   { to: "/analysis", label: "تحلیل بازار" },
+  { to: "/taste", label: "آیین چشیدن" },
+  { to: "/origin", label: "اصالت باغ" },
   { to: "/news", label: "اخبار خشکبار" },
   { to: "/products", label: "محصولات" },
   { to: "/wholesale", label: "فروش عمده" },

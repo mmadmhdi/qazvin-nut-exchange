@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
+import { Route as TasteRouteImport } from './routes/taste'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
@@ -25,6 +26,11 @@ import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 const WholesaleRoute = WholesaleRouteImport.update({
   id: '/wholesale',
   path: '/wholesale',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasteRoute = TasteRouteImport.update({
+  id: '/taste',
+  path: '/taste',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
+  '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/origin'
     | '/products'
+    | '/taste'
     | '/wholesale'
     | '/products/$slug'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   OriginRoute: typeof OriginRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  TasteRoute: typeof TasteRoute
   WholesaleRoute: typeof WholesaleRoute
 }
 
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/wholesale'
       fullPath: '/wholesale'
       preLoaderRoute: typeof WholesaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/taste': {
+      id: '/taste'
+      path: '/taste'
+      fullPath: '/taste'
+      preLoaderRoute: typeof TasteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -297,6 +317,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   OriginRoute: OriginRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  TasteRoute: TasteRoute,
   WholesaleRoute: WholesaleRoute,
 }
 export const routeTree = rootRouteImport
