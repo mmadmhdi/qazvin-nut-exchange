@@ -249,6 +249,17 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function PathCard({ to, latin, title, desc }: { to: string; latin: string; title: string; desc: string }) {
+  return (
+    <Link to={to} className="card-paper rounded-sm p-6 transition-transform hover:-translate-y-0.5">
+      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{latin}</div>
+      <div className="mt-2 font-display text-2xl text-olive-deep">{title}</div>
+      <p className="mt-2 text-sm leading-7 text-cocoa">{desc}</p>
+      <span className="mt-4 inline-block text-xs tracking-widest text-brass-dark">ورود ←</span>
+    </Link>
+  );
+}
+
 function ValueProp({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
     <div className="card-paper rounded-sm p-5">
