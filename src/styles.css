@@ -166,3 +166,16 @@
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
 }
+
+/* Green Curator markdown */
+.curator-md p { margin-block: 0.35rem; }
+.curator-md strong { color: var(--olive-deep); font-weight: 600; }
+.curator-md ul { list-style: disc; padding-inline-start: 1.1rem; margin-block: 0.35rem; }
+.curator-md ol { list-style: decimal; padding-inline-start: 1.1rem; margin-block: 0.35rem; }
+.curator-md li { margin-block: 0.15rem; }
+.curator-md a { color: var(--brass-dark); text-decoration: underline; }
+.curator-md h1, .curator-md h2, .curator-md h3 {
+  font-family: var(--font-display, inherit);
+  color: var(--olive-deep);
+  margin-block: 0.4rem;
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { askCurator } from "@/lib/curator.functions";
 import { Leaf, Send, X, MessageCircle } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Intent = "taste" | "gift" | "trade";
@@ -121,7 +122,13 @@ export function GreenCurator() {
                           : "me-4 rounded-sm border border-border bg-background px-3 py-2 text-cocoa"
                       }
                     >
-                      <p className="whitespace-pre-wrap leading-7">{m.content}</p>
+                      {m.role === "assistant" ? (
+                        <div className="curator-md leading-7">
+                          <ReactMarkdown>{m.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap leading-7">{m.content}</p>
+                      )}
                     </div>
                   ))}
                   {busy && <div className="text-xs text-muted-foreground">در حال اندیشیدن…</div>}
