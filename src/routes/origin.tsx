@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { getPassport, passportRows } from "@/lib/passport";
 import { Search, Sprout, Scissors, Filter, Flame, ShieldCheck, Package, Truck, MapPin } from "lucide-react";
@@ -36,6 +36,8 @@ const STEPS = [
 function OriginPage() {
   const { products, settings } = useStore();
   const [query, setQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const passports = useMemo(
     () => products.filter((p) => p.active).map((p) => ({ p, pp: getPassport(p) })),
@@ -147,7 +149,7 @@ function OriginPage() {
             </div>
           )}
 
-          {!query && (
+          {!query && mounted && (
             <div className="mt-6">
               <div className="mb-3 text-xs text-muted-foreground">شماره‌های فعال تولید:</div>
               <div className="flex flex-wrap gap-2">
