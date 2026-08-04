@@ -99,11 +99,15 @@ function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] 
     s = (s * 9301 + 49297) % 233280;
     return s / 233280;
   };
+  // per-product cycle phase + long trend so products don't all move together
+  const phase = ((seed * 37) % 100) / 100 * Math.PI * 2;
+  const period = 18 + (seed % 5) * 6;
+  const trend = (((seed * 13) % 9) - 4) * 0.00045;
   const now = Date.now();
   for (let i = days - 1; i >= 0; i--) {
-    const drift = (rnd() - 0.48) * 0.028;
+    const drift = (rnd() - 0.48) * 0.028 + trend;
     const open = close;
-    const target = basePrice * (1 + Math.sin(i / 22) * 0.05);
+    const target = basePrice * (1 + Math.sin(i / period + phase) * 0.05);
     close = open * (1 + drift) + (target - open) * 0.06;
     const wick = Math.max(basePrice, close) * (0.006 + rnd() * 0.018);
     const high = Math.max(open, close) + wick * rnd();
