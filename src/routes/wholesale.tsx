@@ -34,6 +34,8 @@ const DEFAULT_BENEFITS: WholesaleBenefit[] = [
 function Wholesale() {
   const { products, settings } = useStore();
   const pist = products.filter((p) => p.category === "پسته" && p.active);
+  const tiers = settings.wholesaleTiers ?? DEFAULT_TIERS;
+  const benefits = settings.wholesaleBenefits ?? DEFAULT_BENEFITS;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
