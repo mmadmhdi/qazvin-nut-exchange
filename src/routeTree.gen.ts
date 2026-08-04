@@ -11,18 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
 import { Route as TasteRouteImport } from './routes/taste'
-import { Route as ProductsRouteImport } from './routes/products'
 import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as LicensesRouteImport } from './routes/licenses'
-import { Route as JournalRouteImport } from './routes/journal'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as JournalIndexRouteImport } from './routes/journal.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as JournalSlugRouteImport } from './routes/journal.$slug'
 
@@ -34,11 +34,6 @@ const WholesaleRoute = WholesaleRouteImport.update({
 const TasteRoute = TasteRouteImport.update({
   id: '/taste',
   path: '/taste',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsRoute = ProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OriginRoute = OriginRouteImport.update({
@@ -59,11 +54,6 @@ const MarketRoute = MarketRouteImport.update({
 const LicensesRoute = LicensesRouteImport.update({
   id: '/licenses',
   path: '/licenses',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const JournalRoute = JournalRouteImport.update({
-  id: '/journal',
-  path: '/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -96,15 +86,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalIndexRoute = JournalIndexRouteImport.update({
+  id: '/journal/',
+  path: '/journal/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ProductsRoute,
+  id: '/products/$slug',
+  path: '/products/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const JournalSlugRoute = JournalSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => JournalRoute,
+  id: '/journal/$slug',
+  path: '/journal/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -114,16 +114,16 @@ export interface FileRoutesByFullPath {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
-  '/journal': typeof JournalRouteWithChildren
   '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/journal/': typeof JournalIndexRoute
+  '/products/': typeof ProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,16 +132,16 @@ export interface FileRoutesByTo {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
-  '/journal': typeof JournalRouteWithChildren
   '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/journal': typeof JournalIndexRoute
+  '/products': typeof ProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,16 +151,16 @@ export interface FileRoutesById {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
-  '/journal': typeof JournalRouteWithChildren
   '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
+  '/journal/': typeof JournalIndexRoute
+  '/products/': typeof ProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,16 +171,16 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
-    | '/journal'
     | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
-    | '/products'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
     | '/products/$slug'
+    | '/journal/'
+    | '/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -189,16 +189,16 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
-    | '/journal'
     | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
-    | '/products'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
     | '/products/$slug'
+    | '/journal'
+    | '/products'
   id:
     | '__root__'
     | '/'
@@ -207,16 +207,16 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
-    | '/journal'
     | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
-    | '/products'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
     | '/products/$slug'
+    | '/journal/'
+    | '/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,14 +226,16 @@ export interface RootRouteChildren {
   AnalysisRoute: typeof AnalysisRoute
   CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
-  JournalRoute: typeof JournalRouteWithChildren
   LicensesRoute: typeof LicensesRoute
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
   OriginRoute: typeof OriginRoute
-  ProductsRoute: typeof ProductsRouteWithChildren
   TasteRoute: typeof TasteRoute
   WholesaleRoute: typeof WholesaleRoute
+  JournalSlugRoute: typeof JournalSlugRoute
+  ProductsSlugRoute: typeof ProductsSlugRoute
+  JournalIndexRoute: typeof JournalIndexRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -250,13 +252,6 @@ declare module '@tanstack/react-router' {
       path: '/taste'
       fullPath: '/taste'
       preLoaderRoute: typeof TasteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/products': {
-      id: '/products'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/origin': {
@@ -285,13 +280,6 @@ declare module '@tanstack/react-router' {
       path: '/licenses'
       fullPath: '/licenses'
       preLoaderRoute: typeof LicensesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/journal': {
-      id: '/journal'
-      path: '/journal'
-      fullPath: '/journal'
-      preLoaderRoute: typeof JournalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -336,45 +324,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal/': {
+      id: '/journal/'
+      path: '/journal'
+      fullPath: '/journal/'
+      preLoaderRoute: typeof JournalIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products/$slug': {
       id: '/products/$slug'
-      path: '/$slug'
+      path: '/products/$slug'
       fullPath: '/products/$slug'
       preLoaderRoute: typeof ProductsSlugRouteImport
-      parentRoute: typeof ProductsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/journal/$slug': {
       id: '/journal/$slug'
-      path: '/$slug'
+      path: '/journal/$slug'
       fullPath: '/journal/$slug'
       preLoaderRoute: typeof JournalSlugRouteImport
-      parentRoute: typeof JournalRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface JournalRouteChildren {
-  JournalSlugRoute: typeof JournalSlugRoute
-}
-
-const JournalRouteChildren: JournalRouteChildren = {
-  JournalSlugRoute: JournalSlugRoute,
-}
-
-const JournalRouteWithChildren =
-  JournalRoute._addFileChildren(JournalRouteChildren)
-
-interface ProductsRouteChildren {
-  ProductsSlugRoute: typeof ProductsSlugRoute
-}
-
-const ProductsRouteChildren: ProductsRouteChildren = {
-  ProductsSlugRoute: ProductsSlugRoute,
-}
-
-const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
-  ProductsRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -383,15 +362,27 @@ const rootRouteChildren: RootRouteChildren = {
   AnalysisRoute: AnalysisRoute,
   CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
-  JournalRoute: JournalRouteWithChildren,
   LicensesRoute: LicensesRoute,
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
   OriginRoute: OriginRoute,
-  ProductsRoute: ProductsRouteWithChildren,
   TasteRoute: TasteRoute,
   WholesaleRoute: WholesaleRoute,
+  JournalSlugRoute: JournalSlugRoute,
+  ProductsSlugRoute: ProductsSlugRoute,
+  JournalIndexRoute: JournalIndexRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
