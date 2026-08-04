@@ -381,12 +381,22 @@ export function MarketChart({ product, compact = false }: { product: Product; co
 
       {/* Volume panel */}
       {panels.volume && (
-        <div className="h-20 bg-tv-bg border-t border-tv-border">
+        <div className="h-24 bg-tv-bg border-t border-tv-border">
           <PanelLabel>حجم معاملات</PanelLabel>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 4 }}>
-              <XAxis dataKey="label" reversed hide />
+            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 2 }}>
+              <XAxis
+                dataKey="label"
+                reversed
+                height={20}
+                interval="preserveStartEnd"
+                minTickGap={48}
+                tick={{ fill: "var(--tv-muted)", fontSize: 9 }}
+                tickLine={false}
+                axisLine={{ stroke: "var(--tv-border)" }}
+              />
               <YAxis orientation="right" width={44} hide />
+
               <Tooltip
                 cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
                 contentStyle={{ background: "var(--tv-bg)", border: "1px solid var(--tv-border)", fontSize: 11, color: "var(--tv-text)" }}
