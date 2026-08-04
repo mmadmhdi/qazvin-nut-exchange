@@ -15,6 +15,8 @@ import { Route as ProductsRouteImport } from './routes/products'
 import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
+import { Route as LicensesRouteImport } from './routes/licenses'
+import { Route as JournalRouteImport } from './routes/journal'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AnalysisRouteImport } from './routes/analysis'
@@ -22,6 +24,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
+import { Route as JournalSlugRouteImport } from './routes/journal.$slug'
 
 const WholesaleRoute = WholesaleRouteImport.update({
   id: '/wholesale',
@@ -51,6 +54,16 @@ const NewsRoute = NewsRouteImport.update({
 const MarketRoute = MarketRouteImport.update({
   id: '/market',
   path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicensesRoute = LicensesRouteImport.update({
+  id: '/licenses',
+  path: '/licenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -88,6 +101,11 @@ const ProductsSlugRoute = ProductsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ProductsRoute,
 } as any)
+const JournalSlugRoute = JournalSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => JournalRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,12 +114,15 @@ export interface FileRoutesByFullPath {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
+  '/journal': typeof JournalRouteWithChildren
+  '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
+  '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesByTo {
@@ -111,12 +132,15 @@ export interface FileRoutesByTo {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
+  '/journal': typeof JournalRouteWithChildren
+  '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
+  '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRoutesById {
@@ -127,12 +151,15 @@ export interface FileRoutesById {
   '/analysis': typeof AnalysisRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
+  '/journal': typeof JournalRouteWithChildren
+  '/licenses': typeof LicensesRoute
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
   '/products': typeof ProductsRouteWithChildren
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
+  '/journal/$slug': typeof JournalSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
 }
 export interface FileRouteTypes {
@@ -144,12 +171,15 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
+    | '/journal'
+    | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
     | '/products'
     | '/taste'
     | '/wholesale'
+    | '/journal/$slug'
     | '/products/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -159,12 +189,15 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
+    | '/journal'
+    | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
     | '/products'
     | '/taste'
     | '/wholesale'
+    | '/journal/$slug'
     | '/products/$slug'
   id:
     | '__root__'
@@ -174,12 +207,15 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/compare'
     | '/contact'
+    | '/journal'
+    | '/licenses'
     | '/market'
     | '/news'
     | '/origin'
     | '/products'
     | '/taste'
     | '/wholesale'
+    | '/journal/$slug'
     | '/products/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -190,6 +226,8 @@ export interface RootRouteChildren {
   AnalysisRoute: typeof AnalysisRoute
   CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
+  JournalRoute: typeof JournalRouteWithChildren
+  LicensesRoute: typeof LicensesRoute
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
   OriginRoute: typeof OriginRoute
@@ -242,6 +280,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/licenses': {
+      id: '/licenses'
+      path: '/licenses'
+      fullPath: '/licenses'
+      preLoaderRoute: typeof LicensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -291,8 +343,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/journal/$slug': {
+      id: '/journal/$slug'
+      path: '/$slug'
+      fullPath: '/journal/$slug'
+      preLoaderRoute: typeof JournalSlugRouteImport
+      parentRoute: typeof JournalRoute
+    }
   }
 }
+
+interface JournalRouteChildren {
+  JournalSlugRoute: typeof JournalSlugRoute
+}
+
+const JournalRouteChildren: JournalRouteChildren = {
+  JournalSlugRoute: JournalSlugRoute,
+}
+
+const JournalRouteWithChildren =
+  JournalRoute._addFileChildren(JournalRouteChildren)
 
 interface ProductsRouteChildren {
   ProductsSlugRoute: typeof ProductsSlugRoute
@@ -313,6 +383,8 @@ const rootRouteChildren: RootRouteChildren = {
   AnalysisRoute: AnalysisRoute,
   CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
+  JournalRoute: JournalRouteWithChildren,
+  LicensesRoute: LicensesRoute,
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
   OriginRoute: OriginRoute,
