@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_login_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+          ok: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: string
+          ok?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+          ok?: boolean
+        }
+        Relationships: []
+      }
+      articles: {
+        Row: {
+          body: string[]
+          category: string
+          created_at: string
+          date: string
+          dek: string
+          id: string
+          minutes: number
+          published: boolean
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string[]
+          category?: string
+          created_at?: string
+          date?: string
+          dek?: string
+          id?: string
+          minutes?: number
+          published?: boolean
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string[]
+          category?: string
+          created_at?: string
+          date?: string
+          dek?: string
+          id?: string
+          minutes?: number
+          published?: boolean
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -99,6 +165,8 @@ export type Database = {
           id: string
           name: string
           origin: string
+          passport: Json | null
+          price: number
           priority: number
           slug: string
           unit: string
@@ -114,6 +182,8 @@ export type Database = {
           id?: string
           name: string
           origin?: string
+          passport?: Json | null
+          price?: number
           priority?: number
           slug: string
           unit?: string
@@ -129,6 +199,8 @@ export type Database = {
           id?: string
           name?: string
           origin?: string
+          passport?: Json | null
+          price?: number
           priority?: number
           slug?: string
           unit?: string
@@ -139,45 +211,87 @@ export type Database = {
       site_settings: {
         Row: {
           about_text: string
+          announcement: string
           brand_latin: string
           brand_name: string
           brand_tagline: string
           contact_address: string
           contact_email: string
           contact_phone: string
+          contact_whatsapp: string
           currency: string
+          export_text: string
+          founded_year: string
           hero_subtitle: string
           hero_title: string
           id: number
+          instagram: string
+          mission_text: string
+          price_source: string
+          seo_description: string
+          seo_title: string
+          site_url: string
+          telegram: string
           updated_at: string
+          wholesale_benefits: Json
+          wholesale_tiers: Json
+          working_hours: string
         }
         Insert: {
           about_text: string
+          announcement?: string
           brand_latin: string
           brand_name: string
           brand_tagline: string
           contact_address: string
           contact_email: string
           contact_phone: string
+          contact_whatsapp?: string
           currency?: string
+          export_text?: string
+          founded_year?: string
           hero_subtitle: string
           hero_title: string
           id?: number
+          instagram?: string
+          mission_text?: string
+          price_source?: string
+          seo_description?: string
+          seo_title?: string
+          site_url?: string
+          telegram?: string
           updated_at?: string
+          wholesale_benefits?: Json
+          wholesale_tiers?: Json
+          working_hours?: string
         }
         Update: {
           about_text?: string
+          announcement?: string
           brand_latin?: string
           brand_name?: string
           brand_tagline?: string
           contact_address?: string
           contact_email?: string
           contact_phone?: string
+          contact_whatsapp?: string
           currency?: string
+          export_text?: string
+          founded_year?: string
           hero_subtitle?: string
           hero_title?: string
           id?: number
+          instagram?: string
+          mission_text?: string
+          price_source?: string
+          seo_description?: string
+          seo_title?: string
+          site_url?: string
+          telegram?: string
           updated_at?: string
+          wholesale_benefits?: Json
+          wholesale_tiers?: Json
+          working_hours?: string
         }
         Relationships: []
       }

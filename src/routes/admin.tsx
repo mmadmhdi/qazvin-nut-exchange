@@ -158,7 +158,7 @@ const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
 
 function Admin({ onLock }: { onLock: () => void }) {
   const store = useStore();
-  const { products, settings, saveProduct, deleteProduct, resetAll } = store;
+  const { products, settings, saveProduct, deleteProduct, refresh } = store;
   const [tab, setTab] = useState<TabId>("dashboard");
   const [editing, setEditing] = useState<Product | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -180,14 +180,12 @@ function Admin({ onLock }: { onLock: () => void }) {
         <div className="flex gap-2">
           <button
             onClick={() => {
-              if (confirm("همه داده‌ها به مقادیر اولیه بازگردد؟")) {
-                resetAll();
-                toast.success("داده‌ها بازنشانی شد");
-              }
+              void refresh();
+              toast.success("داده‌ها از پایگاه داده بازخوانی شد");
             }}
             className="text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
           >
-            بازنشانی
+            بازخوانی
           </button>
           <button
             onClick={logout}
@@ -930,8 +928,8 @@ function BackupTab() {
           className="mt-3 w-full rounded-sm border border-input bg-background px-3 py-2 text-xs font-mono"
         />
         <button
-          onClick={() => {
-            if (importData(text)) {
+          onClick={async () => {
+            if (await importData(text)) {
               toast.success("داده‌ها بازیابی شد");
               setText("");
             } else toast.error("فایل نامعتبر است");
