@@ -61,6 +61,17 @@ export type SiteSettings = {
   contactPhone: string;
   contactAddress: string;
   contactEmail: string;
+  contactWhatsapp?: string;
+  instagram?: string;
+  telegram?: string;
+  workingHours?: string;
+  foundedYear?: string;
+  missionText?: string;
+  exportText?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  announcement?: string;
+
 };
 
 const DAY = 86400000;
