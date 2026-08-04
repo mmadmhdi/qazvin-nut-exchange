@@ -315,8 +315,8 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             )}
             {style === "candle" || style === "ha" ? (
               <>
-                <Bar dataKey="range" stackId="candle" shape={<Candle />} isAnimationActive={false} />
                 <Bar dataKey="base" stackId="candle" fill="transparent" isAnimationActive={false} />
+                <Bar dataKey="range" stackId="candle" shape={<Candle />} isAnimationActive={false} />
               </>
             ) : style === "area" ? (
               <Area
