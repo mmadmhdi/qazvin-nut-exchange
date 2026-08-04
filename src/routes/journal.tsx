@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/lib/articles";
+import { useStore } from "@/lib/store";
+
 import { formatJalali, toFaDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/journal")({
@@ -22,9 +24,11 @@ export const Route = createFileRoute("/journal")({
 });
 
 function Journal() {
+  const { articles: custom } = useStore();
   const [cat, setCat] = useState<ArticleCategoryId | "all">("all");
   const [q, setQ] = useState("");
-  const list = ARTICLES.filter(
+  const all = [...custom, ...ARTICLES].sort((a, b) => b.date.localeCompare(a.date));
+  const list = all.filter(
     (a) =>
       (cat === "all" || a.category === cat) &&
       (q.trim() === "" ||
@@ -32,6 +36,7 @@ function Journal() {
         a.dek.includes(q.trim()) ||
         a.tags.some((t) => t.includes(q.trim()))),
   );
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14">

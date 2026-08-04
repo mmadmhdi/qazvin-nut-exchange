@@ -11,10 +11,13 @@ const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/taste", label: "آیین چشیدن" },
   { to: "/origin", label: "اصالت باغ" },
   { to: "/news", label: "اخبار خشکبار" },
+  { to: "/journal", label: "دفتر سبز" },
   { to: "/products", label: "محصولات" },
   { to: "/wholesale", label: "فروش عمده" },
+  { to: "/licenses", label: "مجوزها" },
   { to: "/about", label: "درباره ما" },
   { to: "/contact", label: "تماس" },
+
 ];
 
 export function Header() {

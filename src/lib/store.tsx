@@ -1,4 +1,6 @@
+import type { Article } from "./articles-types";
 import {
+
   createContext,
   useContext,
   useEffect,
@@ -59,6 +61,17 @@ export type SiteSettings = {
   contactPhone: string;
   contactAddress: string;
   contactEmail: string;
+  contactWhatsapp?: string;
+  instagram?: string;
+  telegram?: string;
+  workingHours?: string;
+  foundedYear?: string;
+  missionText?: string;
+  exportText?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  announcement?: string;
+
 };
 
 const DAY = 86400000;
@@ -272,6 +285,20 @@ const SEED_SETTINGS: SiteSettings = {
   contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
   contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
   contactEmail: "info@darjsabz.example",
+  contactWhatsapp: "۰۹۱۲۰۰۰۰۰۰۰",
+  instagram: "darjsabz.qazvin",
+  telegram: "darjsabz",
+  workingHours: "شنبه تا پنجشنبه، ۹ تا ۱۸",
+  foundedYear: "۱۳۴۸",
+  missionText:
+    "ما به اعتماد شما بیش از سود خود اهمیت می‌دهیم؛ قیمت شفاف، کیفیت آزمایش‌شده و تعهد به تحویل در موعد.",
+  exportText:
+    "بسته‌بندی صادراتی ۱۰ و ۲۵ کیلوگرمی با گواهی بهداشت و آزمون آفلاتوکسین، آماده تحویل FOB/CFR.",
+  seoTitle: "درج سبز قزوین — مرجع قیمت خلال پسته و خشکبار",
+  seoDescription:
+    "تابلوی قیمت روز خلال پسته قزوین، نمودار تحلیلی حرفه‌ای، فروش عمده و صادرات خشکبار با کیفیت ممتاز.",
+  announcement: "قیمت‌های امروز بر مبنای معاملات بازار قزوین به‌روزرسانی شد.",
+
 };
 
 const LS_KEY = "darj-sabz:v2";
@@ -279,6 +306,7 @@ const LS_KEY = "darj-sabz:v2";
 type State = {
   products: Product[];
   settings: SiteSettings;
+  articles: Article[];
 };
 
 type StoreCtx = State & {
@@ -286,7 +314,13 @@ type StoreCtx = State & {
   saveProduct: (p: Product) => void;
   deleteProduct: (id: string) => void;
   addPricePoint: (id: string, point: PricePoint) => void;
+  removePricePoint: (id: string, date: string) => void;
+  bulkPricePoints: (id: string, points: PricePoint[]) => void;
   updateSettings: (s: Partial<SiteSettings>) => void;
+  saveArticle: (a: Article) => void;
+  deleteArticle: (slug: string) => void;
+  exportData: () => string;
+  importData: (json: string) => boolean;
   resetAll: () => void;
 };
 
@@ -304,6 +338,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>({
     products: SEED_PRODUCTS,
     settings: SEED_SETTINGS,
+    articles: [],
   });
   const [ready, setReady] = useState(false);
 
@@ -311,10 +346,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as State;
-        if (parsed?.products && parsed?.settings) setState(parsed);
+        const parsed = JSON.parse(raw) as Partial<State>;
+        if (parsed?.products && parsed?.settings)
+          setState({
+            products: parsed.products,
+            settings: { ...SEED_SETTINGS, ...parsed.settings },
+            articles: parsed.articles ?? [],
+          });
       }
     } catch {}
+
     setReady(true);
   }, []);
 
@@ -358,12 +399,64 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ),
         }));
       },
+      removePricePoint(id, date) {
+        setState((s) => ({
+          ...s,
+          products: s.products.map((x) =>
+            x.id === id ? { ...x, history: x.history.filter((h) => h.date !== date) } : x,
+          ),
+        }));
+      },
+      bulkPricePoints(id, points) {
+        setState((s) => ({
+          ...s,
+          products: s.products.map((x) => {
+            if (x.id !== id) return x;
+            const dates = new Set(points.map((p) => p.date));
+            const history = [...x.history.filter((h) => !dates.has(h.date)), ...points].sort(
+              (a, b) => a.date.localeCompare(b.date),
+            );
+            const last = history[history.length - 1];
+            return { ...x, history, price: last?.price ?? x.price, updatedAt: last?.date ?? x.updatedAt };
+          }),
+        }));
+      },
       updateSettings(s) {
         setState((prev) => ({ ...prev, settings: { ...prev.settings, ...s } }));
       },
-      resetAll() {
-        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS });
+      saveArticle(a) {
+        setState((s) => {
+          const exists = s.articles.some((x) => x.slug === a.slug);
+          return {
+            ...s,
+            articles: exists ? s.articles.map((x) => (x.slug === a.slug ? a : x)) : [a, ...s.articles],
+          };
+        });
       },
+      deleteArticle(slug) {
+        setState((s) => ({ ...s, articles: s.articles.filter((x) => x.slug !== slug) }));
+      },
+      exportData() {
+        return JSON.stringify(state, null, 2);
+      },
+      importData(json) {
+        try {
+          const parsed = JSON.parse(json) as Partial<State>;
+          if (!parsed?.products || !parsed?.settings) return false;
+          setState({
+            products: parsed.products,
+            settings: { ...SEED_SETTINGS, ...parsed.settings },
+            articles: parsed.articles ?? [],
+          });
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      resetAll() {
+        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS, articles: [] });
+      },
+
     }),
     [state, ready],
   );
