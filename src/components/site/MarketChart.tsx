@@ -61,31 +61,37 @@ type Overlays = {
 };
 type SubPanel = "volume" | "rsi" | "macd" | "stoch";
 
-// ─────────────────────────── Candle shape ───────────────────────────
-function Candle(props: any) {
-  const { x, y, width, height, payload } = props;
-  if (!payload || payload.open == null) return null;
-  const { open, close, high, low } = payload;
-  const cx = x + width / 2;
-  const up = close >= open;
-  const color = up ? "var(--bull)" : "var(--bear)";
-  const range = high - low || 1;
-  const yFromValue = (v: number) => y + ((high - v) / range) * height;
-  const bodyTop = yFromValue(Math.max(open, close));
-  const bodyBottom = yFromValue(Math.min(open, close));
-  const bodyH = Math.max(1, bodyBottom - bodyTop);
-  const bodyW = Math.max(2, width * 0.62);
+// ─────────────────── Candle layer (uses real chart scales) ───────────────────
+function CandleLayer(props: any) {
+  const { xAxisMap, yAxisMap, data } = props;
+  const xAxis: any = xAxisMap && Object.values(xAxisMap)[0];
+  const yAxis: any = yAxisMap && Object.values(yAxisMap)[0];
+  if (!xAxis?.scale || !yAxis?.scale || !Array.isArray(data) || !data.length) return null;
+  const xs = xAxis.scale;
+  const ys = yAxis.scale;
+  const band = typeof xs.bandwidth === "function" ? xs.bandwidth() : xAxis.width / data.length;
+  const slot = Math.max(2, Math.abs(band) || xAxis.width / data.length);
+  const bodyW = Math.max(1.5, slot * 0.6);
   return (
-    <g>
-      <line x1={cx} x2={cx} y1={y} y2={y + height} stroke={color} strokeWidth={1} />
-      <rect
-        x={cx - bodyW / 2}
-        y={bodyTop}
-        width={bodyW}
-        height={bodyH}
-        fill={color}
-        stroke={color}
-      />
+    <g className="darj-candles">
+      {data.map((d: any, i: number) => {
+        if (d.open == null || d.close == null) return null;
+        const cx = xs(d.label) + (typeof xs.bandwidth === "function" ? band / 2 : 0);
+        if (!Number.isFinite(cx)) return null;
+        const up = d.close >= d.open;
+        const color = up ? "var(--bull)" : "var(--bear)";
+        const yHigh = ys(d.high);
+        const yLow = ys(d.low);
+        const yTop = ys(Math.max(d.open, d.close));
+        const yBottom = ys(Math.min(d.open, d.close));
+        const h = Math.max(1, yBottom - yTop);
+        return (
+          <g key={d.date ?? i}>
+            <line x1={cx} x2={cx} y1={yHigh} y2={yLow} stroke={color} strokeWidth={1} />
+            <rect x={cx - bodyW / 2} y={yTop} width={bodyW} height={h} fill={color} stroke={color} />
+          </g>
+        );
+      })}
     </g>
   );
 }
