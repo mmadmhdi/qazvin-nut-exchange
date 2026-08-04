@@ -99,6 +99,11 @@ export function Footer() {
     <footer className="hairline-t mt-16 sm:mt-24 bg-cream/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
+          <img
+            src={logoAsset.url}
+            alt="لوگوی درج سبز قزوین"
+            className="mb-4 h-16 w-16 rounded-full border border-brass/50 object-cover"
+          />
           <div className="font-display text-xl text-olive-deep">{settings.brandName}</div>
           <div className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mt-1">
             {settings.brandLatin} · Est. ۱۳۴۸
