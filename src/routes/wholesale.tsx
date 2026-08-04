@@ -47,7 +47,7 @@ function Wholesale() {
       </p>
 
       <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-10">
-        {TIERS.map((t, i) => (
+        {tiers.map((t, i) => (
           <div key={t.name} className={`card-paper rounded-sm p-6 ${i === 1 ? "border-brass/60" : ""}`}>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t.name}</div>
             <div className="font-display text-3xl text-olive-deep mt-2 num-fa">
