@@ -323,6 +323,9 @@ export function MarketChart({ product, compact = false }: { product: Product; co
               <Line type="monotone" dataKey="bbM" stroke="var(--olive)" strokeOpacity={0.7} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
             )}
             {(style === "candle" || style === "ha") && (
+              <Line type="monotone" dataKey="close" stroke="transparent" strokeWidth={0} dot={false} isAnimationActive={false} />
+            )}
+            {(style === "candle" || style === "ha") && (
               <Customized component={CandleLayer} />
             )}
             {style === "area" && (
