@@ -285,6 +285,20 @@ const SEED_SETTINGS: SiteSettings = {
   contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
   contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
   contactEmail: "info@darjsabz.example",
+  contactWhatsapp: "۰۹۱۲۰۰۰۰۰۰۰",
+  instagram: "darjsabz.qazvin",
+  telegram: "darjsabz",
+  workingHours: "شنبه تا پنجشنبه، ۹ تا ۱۸",
+  foundedYear: "۱۳۴۸",
+  missionText:
+    "ما به اعتماد شما بیش از سود خود اهمیت می‌دهیم؛ قیمت شفاف، کیفیت آزمایش‌شده و تعهد به تحویل در موعد.",
+  exportText:
+    "بسته‌بندی صادراتی ۱۰ و ۲۵ کیلوگرمی با گواهی بهداشت و آزمون آفلاتوکسین، آماده تحویل FOB/CFR.",
+  seoTitle: "درج سبز قزوین — مرجع قیمت خلال پسته و خشکبار",
+  seoDescription:
+    "تابلوی قیمت روز خلال پسته قزوین، نمودار تحلیلی حرفه‌ای، فروش عمده و صادرات خشکبار با کیفیت ممتاز.",
+  announcement: "قیمت‌های امروز بر مبنای معاملات بازار قزوین به‌روزرسانی شد.",
+
 };
 
 const LS_KEY = "darj-sabz:v2";
