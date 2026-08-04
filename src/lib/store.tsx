@@ -279,6 +279,7 @@ const LS_KEY = "darj-sabz:v2";
 type State = {
   products: Product[];
   settings: SiteSettings;
+  articles: Article[];
 };
 
 type StoreCtx = State & {
@@ -286,7 +287,13 @@ type StoreCtx = State & {
   saveProduct: (p: Product) => void;
   deleteProduct: (id: string) => void;
   addPricePoint: (id: string, point: PricePoint) => void;
+  removePricePoint: (id: string, date: string) => void;
+  bulkPricePoints: (id: string, points: PricePoint[]) => void;
   updateSettings: (s: Partial<SiteSettings>) => void;
+  saveArticle: (a: Article) => void;
+  deleteArticle: (slug: string) => void;
+  exportData: () => string;
+  importData: (json: string) => boolean;
   resetAll: () => void;
 };
 
@@ -304,6 +311,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>({
     products: SEED_PRODUCTS,
     settings: SEED_SETTINGS,
+    articles: [],
   });
   const [ready, setReady] = useState(false);
 
@@ -311,10 +319,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as State;
-        if (parsed?.products && parsed?.settings) setState(parsed);
+        const parsed = JSON.parse(raw) as Partial<State>;
+        if (parsed?.products && parsed?.settings)
+          setState({
+            products: parsed.products,
+            settings: { ...SEED_SETTINGS, ...parsed.settings },
+            articles: parsed.articles ?? [],
+          });
       }
     } catch {}
+
     setReady(true);
   }, []);
 
