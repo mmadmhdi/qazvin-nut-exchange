@@ -309,6 +309,9 @@ function Admin({ onLock }: { onLock: () => void }) {
 
       {tab === "prices" && <PricesTab />}
       {tab === "articles" && <ArticlesTab />}
+
+      {tab === "wholesale" && <WholesaleTab />}
+
       {tab === "settings" && <SettingsTab />}
       {tab === "backup" && <BackupTab />}
 
