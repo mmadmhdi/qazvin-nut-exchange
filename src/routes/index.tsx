@@ -4,6 +4,8 @@ import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
 import { MarketChart } from "@/components/site/MarketChart";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
+import { ShellGate } from "@/components/site/ShellGate";
+
 import { formatPercent, formatPrice, toFaDigits } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, ShieldCheck, Leaf, Boxes, BarChart3 } from "lucide-react";
 
