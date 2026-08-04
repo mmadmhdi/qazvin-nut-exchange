@@ -13,7 +13,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "@/lib/store";
 import { Header, Footer } from "@/components/site/Chrome";
 import { Toaster } from "sonner";
-import { CrackToEnter } from "@/components/site/CrackToEnter";
+import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
 
 function NotFoundComponent() {
@@ -61,9 +61,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "خانه پسته قزوین — بازار خلال پسته" },
+      { title: "درج سبز قزوین — بازار خلال پسته" },
       { name: "description", content: "قیمت روز و نمودار تاریخی خلال پسته قزوین و بویین، به همراه سایر محصولات خشکبار." },
-      { property: "og:title", content: "خانه پسته قزوین — بازار خلال پسته" },
+      { property: "og:title", content: "درج سبز قزوین — بازار خلال پسته" },
       { property: "og:description", content: "قیمت شفاف خلال پسته و خشکبار، با روایتی از میراث خانوادگی قزوین." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -107,7 +107,7 @@ function RootComponent() {
           <main className="flex-1"><Outlet /></main>
           <Footer />
         </div>
-        <CrackToEnter />
+        <WhatsAppFab />
         <GreenCurator />
         <Toaster richColors position="top-center" dir="rtl" />
       </StoreProvider>
