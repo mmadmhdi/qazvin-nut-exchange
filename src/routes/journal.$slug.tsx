@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { articleBySlug, categoryLabel, relatedArticles } from "@/lib/articles";
 import { useStore } from "@/lib/store";
 
