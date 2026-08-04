@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useStore, slugify, type Product, type Passport, type PricePoint } from "@/lib/store";
+import {
+  useStore,
+  slugify,
+  type Product,
+  type Passport,
+  type PricePoint,
+  type WholesaleTier,
+  type WholesaleBenefit,
+} from "@/lib/store";
 import { getPassport, passportRows } from "@/lib/passport";
 import { ARTICLES, CATEGORIES, categoryLabel } from "@/lib/articles";
 import type { Article, ArticleCategoryId } from "@/lib/articles-types";
@@ -26,6 +34,7 @@ import {
   FileText,
   Settings2,
   DatabaseBackup,
+  Store,
 } from "lucide-react";
 
 const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
