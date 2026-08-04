@@ -106,10 +106,10 @@ function Wholesale() {
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">تعهدات درج سبز</div>
           <div className="gold-rule my-4" />
           <ul className="space-y-3 text-cocoa">
-            {BENEFITS.map((b) => (
-              <li key={b} className="flex items-start gap-3 text-sm">
+            {benefits.map((b) => (
+              <li key={b.text} className="flex items-start gap-3 text-sm">
                 <Check className="h-4 w-4 text-bull mt-0.5 shrink-0" />
-                <span>{b}</span>
+                <span>{b.text}</span>
               </li>
             ))}
           </ul>
