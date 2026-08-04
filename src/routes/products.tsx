@@ -5,10 +5,10 @@ import { ProductCard } from "@/components/site/ProductCard";
 export const Route = createFileRoute("/products")({
   head: () => ({
     meta: [
-      { title: "محصولات — خانه پسته قزوین" },
-      { name: "description", content: "فهرست کامل محصولات خشکبار: خلال پسته، بادام درختی و بادام زمینی." },
-      { property: "og:title", content: "محصولات خانه پسته قزوین" },
-      { property: "og:description", content: "همه محصولات اصیل، از خلال پسته قزوین تا پرک بادام." },
+      { title: "محصولات — درج سبز قزوین" },
+      { name: "description", content: "فهرست کامل محصولات خشکبار: خلال مغز پسته، خلال بادام درختی و بادام زمینی." },
+      { property: "og:title", content: "محصولات درج سبز قزوین" },
+      { property: "og:description", content: "همه محصولات اصیل، از خلال پسته قزوین تا خلال بادام درختی." },
     ],
   }),
   component: Products,
