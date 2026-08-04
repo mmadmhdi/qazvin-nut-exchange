@@ -50,6 +50,17 @@ export type Product = {
   history: PricePoint[];
 };
 
+export type WholesaleTier = {
+  name: string;
+  min: number;
+  discount: number;
+  note: string;
+};
+
+export type WholesaleBenefit = {
+  text: string;
+};
+
 export type SiteSettings = {
   brandName: string;
   brandLatin: string;
@@ -71,7 +82,8 @@ export type SiteSettings = {
   seoTitle?: string;
   seoDescription?: string;
   announcement?: string;
-
+  wholesaleTiers?: WholesaleTier[];
+  wholesaleBenefits?: WholesaleBenefit[];
 };
 
 const DAY = 86400000;
