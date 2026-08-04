@@ -23,9 +23,11 @@ export const Route = createFileRoute("/journal/$slug")({
 
 function ArticlePage() {
   const { slug } = Route.useParams();
-  const article = articleBySlug(slug);
+  const { articles: custom } = useStore();
+  const article = articleBySlug(slug) ?? custom.find((a) => a.slug === slug);
   if (!article) throw notFound();
   const related = relatedArticles(article, 3);
+
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
