@@ -127,19 +127,11 @@ function Home() {
         </div>
       </section>
 
-      {/* Three paths */}
+      {/* Three paths — brand signature, inline (no loading overlay) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Taste · Origin · Trade</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">سه مسیر خانه‌ی سبز</h2>
-          <div className="gold-rule my-6" />
-        </div>
-        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
-          <PathCard to="/taste" latin="Taste" title="آیین چشیدن" desc="با چهار پرسش کوتاه، آیین شخصی و محصول متناسب ذائقه‌تان را بسازید." />
-          <PathCard to="/origin" latin="Origin" title="اصالت باغ" desc="مسیر هشت‌مرحله‌ای از باغ تا بسته و شناسنامه دیجیتال هر بچ تولید." />
-          <PathCard to="/wholesale" latin="Trade" title="تجارت" desc="سایز، بسته‌بندی صادراتی، تخفیف پلکانی و قرارداد سالانه." />
-        </div>
+        <ShellGate />
       </section>
+
 
 
       {/* Movers */}
