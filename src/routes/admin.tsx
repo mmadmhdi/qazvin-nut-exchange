@@ -658,6 +658,8 @@ function ArticlesTab() {
   );
 }
 
+      {tab === "wholesale" && <WholesaleTab />}
+
 /* -------------------------------- settings -------------------------------- */
 
 function SettingsTab() {
