@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { articleBySlug, categoryLabel, relatedArticles } from "@/lib/articles";
 import { useStore } from "@/lib/store";
 
@@ -27,7 +27,17 @@ function ArticlePage() {
   const { slug } = Route.useParams();
   const { articles: custom } = useStore();
   const article = articleBySlug(slug) ?? custom.find((a) => a.slug === slug);
-  if (!article) throw notFound();
+  if (!article) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <h1 className="font-display text-3xl text-olive-deep">مقاله یافت نشد</h1>
+        <p className="mt-3 text-muted-foreground">این نوشته در دفتر سبز موجود نیست یا حذف شده است.</p>
+        <Link to="/journal" className="mt-6 inline-block text-brass-dark hover:text-olive-deep">
+          بازگشت به دفتر سبز ←
+        </Link>
+      </div>
+    );
+  }
   const related = relatedArticles(article, 3);
 
 

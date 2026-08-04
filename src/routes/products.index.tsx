@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { ProductCard } from "@/components/site/ProductCard";
 
-export const Route = createFileRoute("/products")({
+export const Route = createFileRoute("/products/")({
   head: () => ({
     meta: [
       { title: "محصولات — درج سبز قزوین" },

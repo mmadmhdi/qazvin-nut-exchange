@@ -4,6 +4,7 @@ import {
   Bar,
   Cell,
   ComposedChart,
+  Customized,
   Line,
   ReferenceLine,
   ResponsiveContainer,
@@ -60,31 +61,37 @@ type Overlays = {
 };
 type SubPanel = "volume" | "rsi" | "macd" | "stoch";
 
-// ─────────────────────────── Candle shape ───────────────────────────
-function Candle(props: any) {
-  const { x, y, width, height, payload } = props;
-  if (!payload || payload.open == null) return null;
-  const { open, close, high, low } = payload;
-  const cx = x + width / 2;
-  const up = close >= open;
-  const color = up ? "var(--bull)" : "var(--bear)";
-  const range = high - low || 1;
-  const yFromValue = (v: number) => y + ((high - v) / range) * height;
-  const bodyTop = yFromValue(Math.max(open, close));
-  const bodyBottom = yFromValue(Math.min(open, close));
-  const bodyH = Math.max(1, bodyBottom - bodyTop);
-  const bodyW = Math.max(2, width * 0.62);
+// ─────────────────── Candle layer (uses real chart scales) ───────────────────
+function CandleLayer(props: any) {
+  const { xAxisMap, yAxisMap, data } = props;
+  const xAxis: any = xAxisMap && Object.values(xAxisMap)[0];
+  const yAxis: any = yAxisMap && Object.values(yAxisMap)[0];
+  if (!xAxis?.scale || !yAxis?.scale || !Array.isArray(data) || !data.length) return null;
+  const xs = xAxis.scale;
+  const ys = yAxis.scale;
+  const band = typeof xs.bandwidth === "function" ? xs.bandwidth() : xAxis.width / data.length;
+  const slot = Math.max(2, Math.abs(band) || xAxis.width / data.length);
+  const bodyW = Math.max(1.5, slot * 0.6);
   return (
-    <g>
-      <line x1={cx} x2={cx} y1={y} y2={y + height} stroke={color} strokeWidth={1} />
-      <rect
-        x={cx - bodyW / 2}
-        y={bodyTop}
-        width={bodyW}
-        height={bodyH}
-        fill={color}
-        stroke={color}
-      />
+    <g className="darj-candles">
+      {data.map((d: any, i: number) => {
+        if (d.open == null || d.close == null) return null;
+        const cx = xs(d.label) + (typeof xs.bandwidth === "function" ? band / 2 : 0);
+        if (!Number.isFinite(cx)) return null;
+        const up = d.close >= d.open;
+        const color = up ? "var(--bull)" : "var(--bear)";
+        const yHigh = ys(d.high);
+        const yLow = ys(d.low);
+        const yTop = ys(Math.max(d.open, d.close));
+        const yBottom = ys(Math.min(d.open, d.close));
+        const h = Math.max(1, yBottom - yTop);
+        return (
+          <g key={d.date ?? i}>
+            <line x1={cx} x2={cx} y1={yHigh} y2={yLow} stroke={color} strokeWidth={1} />
+            <rect x={cx - bodyW / 2} y={yTop} width={bodyW} height={h} fill={color} stroke={color} />
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -307,18 +314,21 @@ export function MarketChart({ product, compact = false }: { product: Product; co
               }}
             />
             {overlays.bb && (
-              <>
-                <Area type="monotone" dataKey="bbU" stroke="var(--olive)" strokeOpacity={0.5} fill="color-mix(in oklab, var(--olive) 12%, transparent)" isAnimationActive={false} />
-                <Line type="monotone" dataKey="bbL" stroke="var(--olive)" strokeOpacity={0.5} strokeWidth={1} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="bbM" stroke="var(--olive)" strokeOpacity={0.7} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
-              </>
+              <Area type="monotone" dataKey="bbU" stroke="var(--olive)" strokeOpacity={0.5} fill="color-mix(in oklab, var(--olive) 12%, transparent)" isAnimationActive={false} />
             )}
-            {style === "candle" || style === "ha" ? (
-              <>
-                <Bar dataKey="range" stackId="candle" shape={<Candle />} isAnimationActive={false} />
-                <Bar dataKey="base" stackId="candle" fill="transparent" isAnimationActive={false} />
-              </>
-            ) : style === "area" ? (
+            {overlays.bb && (
+              <Line type="monotone" dataKey="bbL" stroke="var(--olive)" strokeOpacity={0.5} strokeWidth={1} dot={false} isAnimationActive={false} />
+            )}
+            {overlays.bb && (
+              <Line type="monotone" dataKey="bbM" stroke="var(--olive)" strokeOpacity={0.7} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
+            )}
+            {(style === "candle" || style === "ha") && (
+              <Line type="monotone" dataKey="close" stroke="transparent" strokeWidth={0} dot={false} isAnimationActive={false} />
+            )}
+            {(style === "candle" || style === "ha") && (
+              <Customized component={CandleLayer} />
+            )}
+            {style === "area" && (
               <Area
                 type="monotone"
                 dataKey="close"
@@ -327,7 +337,8 @@ export function MarketChart({ product, compact = false }: { product: Product; co
                 fill="color-mix(in oklab, var(--brass) 22%, transparent)"
                 isAnimationActive={false}
               />
-            ) : (
+            )}
+            {style === "line" && (
               <Line
                 type="monotone"
                 dataKey="close"
@@ -370,12 +381,22 @@ export function MarketChart({ product, compact = false }: { product: Product; co
 
       {/* Volume panel */}
       {panels.volume && (
-        <div className="h-20 bg-tv-bg border-t border-tv-border">
+        <div className="h-24 bg-tv-bg border-t border-tv-border">
           <PanelLabel>حجم معاملات</PanelLabel>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 4 }}>
-              <XAxis dataKey="label" reversed hide />
+            <ComposedChart data={data} margin={{ top: 4, right: 46, left: 4, bottom: 2 }}>
+              <XAxis
+                dataKey="label"
+                reversed
+                height={20}
+                interval="preserveStartEnd"
+                minTickGap={48}
+                tick={{ fill: "var(--tv-muted)", fontSize: 9 }}
+                tickLine={false}
+                axisLine={{ stroke: "var(--tv-border)" }}
+              />
               <YAxis orientation="right" width={44} hide />
+
               <Tooltip
                 cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
                 contentStyle={{ background: "var(--tv-bg)", border: "1px solid var(--tv-border)", fontSize: 11, color: "var(--tv-text)" }}

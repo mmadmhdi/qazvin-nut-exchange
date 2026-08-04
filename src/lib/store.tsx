@@ -99,11 +99,15 @@ function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] 
     s = (s * 9301 + 49297) % 233280;
     return s / 233280;
   };
+  // per-product cycle phase + long trend so products don't all move together
+  const phase = ((seed * 37) % 100) / 100 * Math.PI * 2;
+  const period = 18 + (seed % 5) * 6;
+  const trend = (((seed * 13) % 9) - 4) * 0.00045;
   const now = Date.now();
   for (let i = days - 1; i >= 0; i--) {
-    const drift = (rnd() - 0.48) * 0.028;
+    const drift = (rnd() - 0.48) * 0.028 + trend;
     const open = close;
-    const target = basePrice * (1 + Math.sin(i / 22) * 0.05);
+    const target = basePrice * (1 + Math.sin(i / period + phase) * 0.05);
     close = open * (1 + drift) + (target - open) * 0.06;
     const wick = Math.max(basePrice, close) * (0.006 + rnd() * 0.018);
     const high = Math.max(open, close) + wick * rnd();
@@ -121,7 +125,18 @@ function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] 
       volume,
     });
   }
-  // pin last close to listed price
+  // normalize the whole series so the last close equals the listed price
+  // (scaling instead of pinning avoids a fake jump on the final candle)
+  const lastClose = out[out.length - 1].close ?? basePrice;
+  const k = basePrice / (lastClose || basePrice);
+  const round = (v: number) => Math.round((v * k) / 1000) * 1000;
+  for (const p of out) {
+    p.open = round(p.open ?? p.price);
+    p.high = round(p.high ?? p.price);
+    p.low = round(p.low ?? p.price);
+    p.close = round(p.close ?? p.price);
+    p.price = p.close;
+  }
   const last = out[out.length - 1];
   last.close = basePrice;
   last.price = basePrice;
@@ -326,7 +341,7 @@ const SEED_SETTINGS: SiteSettings = {
   ],
 };
 
-const LS_KEY = "darj-sabz:v3";
+const LS_KEY = "darj-sabz:v4";
 
 
 type State = {

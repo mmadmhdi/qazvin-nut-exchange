@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 
 import { formatJalali, toFaDigits } from "@/lib/format";
 
-export const Route = createFileRoute("/journal")({
+export const Route = createFileRoute("/journal/")({
   head: () => ({
     meta: [
       { title: "دفتر سبز — مقالات بازار، باغ و فرآوری پسته" },
