@@ -341,7 +341,7 @@ const SEED_SETTINGS: SiteSettings = {
   ],
 };
 
-const LS_KEY = "darj-sabz:v3";
+const LS_KEY = "darj-sabz:v4";
 
 
 type State = {
