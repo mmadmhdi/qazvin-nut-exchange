@@ -66,7 +66,6 @@ function CandleLayer(props: any) {
   const { xAxisMap, yAxisMap, data } = props;
   const xAxis: any = xAxisMap && Object.values(xAxisMap)[0];
   const yAxis: any = yAxisMap && Object.values(yAxisMap)[0];
-  if (typeof window !== "undefined" && (window as any).__dbg) console.log("DBG", JSON.stringify({yd: yAxis?.scale?.domain?.(), yr: yAxis?.scale?.range?.()}));
   if (!xAxis?.scale || !yAxis?.scale || !Array.isArray(data) || !data.length) return null;
   const xs = xAxis.scale;
   const ys = yAxis.scale;
