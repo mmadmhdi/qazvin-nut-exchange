@@ -158,7 +158,7 @@ const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
 
 function Admin({ onLock }: { onLock: () => void }) {
   const store = useStore();
-  const { products, settings, saveProduct, deleteProduct, resetAll } = store;
+  const { products, settings, saveProduct, deleteProduct, refresh } = store;
   const [tab, setTab] = useState<TabId>("dashboard");
   const [editing, setEditing] = useState<Product | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
