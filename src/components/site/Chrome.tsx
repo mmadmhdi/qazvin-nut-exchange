@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import logoAsset from "@/assets/dorjesabz-logo.jpg.asset.json";
 
 const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "خانه", exact: true },
