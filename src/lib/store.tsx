@@ -274,20 +274,21 @@ const SEED_PRODUCTS: Product[] = [
 
 const SEED_SETTINGS: SiteSettings = {
   brandName: "درج سبز قزوین",
-  brandLatin: "Darj Sabz · Qazvin",
-  brandTagline: "درج سبز؛ مرجع قیمت خلال پسته قزوین از سال ۱۳۴۸",
+  brandLatin: "DorjeSabz · Qazvin",
+  brandTagline: "درج سبز؛ مرجع قیمت خلال پسته و بادام قزوین",
   currency: "ریال",
   heroTitle: "بازار خلال پسته، اصیل و شفاف",
   heroSubtitle:
     "درج سبز قزوین، تابلوی رسمی قیمت خلال پسته قزوین و بویین را با نمودارهای حرفه‌ای و تاریخچه‌ی دقیق در اختیار تجار، قنادان و صنایع قرار می‌دهد.",
   aboutText:
-    "درج سبز قزوین، حاصل چهار نسل تجربه در باغ‌های اصیل قزوین است. ما پسته‌ای را عرضه می‌کنیم که در همان زمینی روییده که پدرانمان کاشته‌اند؛ بی‌واسطه، شفاف و بر پایه‌ی اعتمادی که مهم‌ترین سرمایه‌ی ماست. مأموریت ما، حفظ اصالت طعم و صداقت در قیمت است.",
-  contactPhone: "۰۲۸-۳۳۳۳۳۳۳۳",
-  contactAddress: "قزوین، خیابان طالقانی، بازار خشکبار، پلاک ۱۲",
-  contactEmail: "info@darjsabz.example",
-  contactWhatsapp: "۰۹۱۲۰۰۰۰۰۰۰",
-  instagram: "darjsabz.qazvin",
-  telegram: "darjsabz",
+    "درج سبز، نام تجاری شرکت «درج تجارت لیا» است؛ واحد تولیدی خلال مغز پسته و بادام در شهرک صنعتی لیای قزوین، دارای پروانه‌های بهداشتی ساخت از معاونت غذا و داروی دانشگاه علوم پزشکی قزوین. مأموریت ما حفظ اصالت طعم و صداقت در قیمت است: ما اعتماد شما را به سرمایه‌ی خود ترجیح می‌دهیم.",
+  contactPhone: "۰۲۸-۳۳۴۵۵۰۱۰",
+  contactAddress:
+    "استان قزوین، شهرک صنعتی لیا، خیابان کاوشگران، نبش خیابان خلاقیت — شرکت درج تجارت لیا",
+  contactEmail: "mmd85mmd@gmail.com",
+  contactWhatsapp: "",
+  instagram: "dorjesabz",
+  telegram: "dorjesabz",
   workingHours: "شنبه تا پنجشنبه، ۹ تا ۱۸",
   foundedYear: "۱۳۴۸",
   missionText:
@@ -301,7 +302,8 @@ const SEED_SETTINGS: SiteSettings = {
 
 };
 
-const LS_KEY = "darj-sabz:v2";
+const LS_KEY = "darj-sabz:v3";
+
 
 type State = {
   products: Product[];
