@@ -3,6 +3,7 @@ import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import logoAsset from "@/assets/dorjesabz-logo.jpg.asset.json";
+import { jalaliYear } from "@/lib/format";
 
 const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "خانه", exact: true },
@@ -137,7 +138,7 @@ export function Footer() {
       </div>
       <div className="gold-rule" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 text-xs text-muted-foreground flex flex-wrap justify-between gap-2">
-        <span>© {new Intl.DateTimeFormat("fa-IR-u-nu-arabext-ca-persian",{year:"numeric"}).format(new Date())} · تمام حقوق برای درج سبز قزوین محفوظ است</span>
+        <span className="num-fa">© {jalaliYear()} · تمام حقوق برای درج سبز قزوین (درج تجارت لیا) محفوظ است</span>
         <span className="tracking-widest uppercase">Since MCMLXIX</span>
       </div>
     </footer>
