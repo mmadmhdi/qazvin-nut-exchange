@@ -1,3 +1,5 @@
+import type { Article } from "./articles-types";
+
 export type PricePoint = {
   date: string;
   price: number; // = close
@@ -79,16 +81,7 @@ export type SiteSettings = {
   wholesaleBenefits?: WholesaleBenefit[];
 };
 
-export type Article = {
-  slug: string;
-  title: string;
-  dek: string;
-  category: string;
-  date: string;
-  minutes: number;
-  tags: string[];
-  body: string[];
-};
+export type { Article } from "./articles-types";
 
 export type SiteData = {
   products: Product[];
