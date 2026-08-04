@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useStore } from "@/lib/store";
+import { useStore, type WholesaleTier, type WholesaleBenefit } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
 import { Check } from "lucide-react";
 import { telHref, waHref } from "@/lib/contact";
@@ -16,19 +16,19 @@ export const Route = createFileRoute("/wholesale")({
   component: Wholesale,
 });
 
-const TIERS = [
+const DEFAULT_TIERS: WholesaleTier[] = [
   { name: "قنادی و بوتیک", min: 20, discount: 0, note: "قیمت تابلو، ارسال از انبار قزوین" },
   { name: "صنایع غذایی", min: 100, discount: 4, note: "تخفیف پلکانی، بسته‌بندی درخواستی" },
   { name: "صادرات و پروژه", min: 500, discount: 8, note: "قرارداد سالانه، ثبت سفارش صادراتی" },
 ];
 
-const BENEFITS = [
-  "مبدأ باغ‌های اصیل قزوین و بویین‌زهرا",
-  "کنترل کیفیت سه‌مرحله‌ای رنگ، رطوبت و اندازه",
-  "بسته‌بندی خلأ (Vacuum) و کارتن صادراتی",
-  "امکان درج برند شخصی (Private Label)",
-  "گواهی بهداشت و آنالیز آزمایشگاهی همراه محموله",
-  "قرارداد قیمت تضمینی سه ماهه برای مشتریان دائم",
+const DEFAULT_BENEFITS: WholesaleBenefit[] = [
+  { text: "مبدأ باغ‌های اصیل قزوین و بویین‌زهرا" },
+  { text: "کنترل کیفیت سه‌مرحله‌ای رنگ، رطوبت و اندازه" },
+  { text: "بسته‌بندی خلأ (Vacuum) و کارتن صادراتی" },
+  { text: "امکان درج برند شخصی (Private Label)" },
+  { text: "گواهی بهداشت و آنالیز آزمایشگاهی همراه محموله" },
+  { text: "قرارداد قیمت تضمینی سه ماهه برای مشتریان دائم" },
 ];
 
 function Wholesale() {
