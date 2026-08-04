@@ -180,14 +180,12 @@ function Admin({ onLock }: { onLock: () => void }) {
         <div className="flex gap-2">
           <button
             onClick={() => {
-              if (confirm("همه داده‌ها به مقادیر اولیه بازگردد؟")) {
-                resetAll();
-                toast.success("داده‌ها بازنشانی شد");
-              }
+              void refresh();
+              toast.success("داده‌ها از پایگاه داده بازخوانی شد");
             }}
             className="text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
           >
-            بازنشانی
+            بازخوانی
           </button>
           <button
             onClick={logout}
