@@ -125,7 +125,18 @@ function seedHistory(basePrice: number, seed: number, days = 180): PricePoint[] 
       volume,
     });
   }
-  // pin last close to listed price
+  // normalize the whole series so the last close equals the listed price
+  // (scaling instead of pinning avoids a fake jump on the final candle)
+  const lastClose = out[out.length - 1].close ?? basePrice;
+  const k = basePrice / (lastClose || basePrice);
+  const round = (v: number) => Math.round((v * k) / 1000) * 1000;
+  for (const p of out) {
+    p.open = round(p.open ?? p.price);
+    p.high = round(p.high ?? p.price);
+    p.low = round(p.low ?? p.price);
+    p.close = round(p.close ?? p.price);
+    p.price = p.close;
+  }
   const last = out[out.length - 1];
   last.close = basePrice;
   last.price = basePrice;
