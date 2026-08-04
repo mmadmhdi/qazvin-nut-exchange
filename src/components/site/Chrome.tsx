@@ -28,9 +28,10 @@ export function Header() {
     <header className="hairline-b bg-background/85 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-full border border-brass/60 bg-olive-deep text-brass font-display text-base sm:text-lg">
-            درج
+          <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-brass/60 bg-paper">
+            <img src={logoAsset.url} alt="نشان درج سبز قزوین" className="h-full w-full object-cover" />
           </div>
+
           <div className="min-w-0 leading-tight">
             <div className="font-display text-base sm:text-lg text-olive-deep truncate">
               {settings.brandName}
