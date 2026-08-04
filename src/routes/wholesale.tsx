@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
 import { Check } from "lucide-react";
+import { telHref, waHref } from "@/lib/contact";
 
 export const Route = createFileRoute("/wholesale")({
   head: () => ({
@@ -118,9 +119,20 @@ function Wholesale() {
             برای دریافت پیش‌فاکتور صادراتی، نمونه محصول یا قرارداد سالانه، با ما تماس بگیرید.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href={`tel:${settings.contactPhone}`} className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">تماس با فروش</a>
+            <a href={telHref(settings.contactPhone)} className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">تماس با فروش</a>
+            {(settings.contactWhatsapp ?? "").trim() ? (
+              <a
+                href={waHref(settings.contactWhatsapp!, `سلام، برای خرید عمده از وب‌سایت ${settings.brandName} تماس می‌گیرم.`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-sm border border-brass/50 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest"
+              >
+                واتساپ فروش
+              </a>
+            ) : null}
             <Link to="/contact" className="rounded-sm border border-olive-deep/40 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest">فرم درخواست</Link>
           </div>
+
         </div>
       </div>
     </div>
