@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import logoAsset from "@/assets/dorjesabz-logo.jpg.asset.json";
 import { jalaliYear } from "@/lib/format";
 
 const NAV: { to: string; label: string; exact?: boolean }[] = [
@@ -30,7 +29,7 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <Link to="/" className="flex min-w-0 items-center gap-3">
           <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-brass/60 bg-paper">
-            <img src={logoAsset.url} alt="نشان درج سبز قزوین" className="h-full w-full object-cover" />
+            <img src={"/images/dorjesabz-logo.jpg"} alt="نشان درج سبز قزوین" className="h-full w-full object-cover" />
           </div>
 
           <div className="min-w-0 leading-tight">
@@ -101,7 +100,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <img
-            src={logoAsset.url}
+            src={"/images/dorjesabz-logo.jpg"}
             alt="لوگوی درج سبز قزوین"
             className="mb-4 h-16 w-16 rounded-full border border-brass/50 object-cover"
           />
@@ -127,7 +126,6 @@ export function Footer() {
           <div><Link to="/wholesale" className="hover:text-olive-deep">فروش عمده</Link></div>
           <div><Link to="/about" className="hover:text-olive-deep">درباره ما</Link></div>
           <div><Link to="/contact" className="hover:text-olive-deep">تماس</Link></div>
-          <div><Link to="/admin" className="text-muted-foreground hover:text-olive-deep">پنل مدیریت</Link></div>
         </div>
         <div className="text-sm text-cocoa space-y-2">
           <div className="font-semibold text-olive-deep mb-2">تماس</div>
