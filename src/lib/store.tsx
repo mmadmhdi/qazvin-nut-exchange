@@ -50,6 +50,17 @@ export type Product = {
   history: PricePoint[];
 };
 
+export type WholesaleTier = {
+  name: string;
+  min: number;
+  discount: number;
+  note: string;
+};
+
+export type WholesaleBenefit = {
+  text: string;
+};
+
 export type SiteSettings = {
   brandName: string;
   brandLatin: string;
@@ -71,7 +82,8 @@ export type SiteSettings = {
   seoTitle?: string;
   seoDescription?: string;
   announcement?: string;
-
+  wholesaleTiers?: WholesaleTier[];
+  wholesaleBenefits?: WholesaleBenefit[];
 };
 
 const DAY = 86400000;
@@ -299,7 +311,19 @@ const SEED_SETTINGS: SiteSettings = {
   seoDescription:
     "تابلوی قیمت روز خلال پسته قزوین، نمودار تحلیلی حرفه‌ای، فروش عمده و صادرات خشکبار با کیفیت ممتاز.",
   announcement: "قیمت‌های امروز بر مبنای معاملات بازار قزوین به‌روزرسانی شد.",
-
+  wholesaleTiers: [
+    { name: "قنادی و بوتیک", min: 20, discount: 0, note: "قیمت تابلو، ارسال از انبار قزوین" },
+    { name: "صنایع غذایی", min: 100, discount: 4, note: "تخفیف پلکانی، بسته‌بندی درخواستی" },
+    { name: "صادرات و پروژه", min: 500, discount: 8, note: "قرارداد سالانه، ثبت سفارش صادراتی" },
+  ],
+  wholesaleBenefits: [
+    { text: "مبدأ باغ‌های اصیل قزوین و بویین‌زهرا" },
+    { text: "کنترل کیفیت سه‌مرحله‌ای رنگ، رطوبت و اندازه" },
+    { text: "بسته‌بندی خلأ (Vacuum) و کارتن صادراتی" },
+    { text: "امکان درج برند شخصی (Private Label)" },
+    { text: "گواهی بهداشت و آنالیز آزمایشگاهی همراه محموله" },
+    { text: "قرارداد قیمت تضمینی سه ماهه برای مشتریان دائم" },
+  ],
 };
 
 const LS_KEY = "darj-sabz:v3";

@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useStore, slugify, type Product, type Passport, type PricePoint } from "@/lib/store";
+import {
+  useStore,
+  slugify,
+  type Product,
+  type Passport,
+  type PricePoint,
+  type WholesaleTier,
+  type WholesaleBenefit,
+} from "@/lib/store";
 import { getPassport, passportRows } from "@/lib/passport";
 import { ARTICLES, CATEGORIES, categoryLabel } from "@/lib/articles";
 import type { Article, ArticleCategoryId } from "@/lib/articles-types";
@@ -26,6 +34,7 @@ import {
   FileText,
   Settings2,
   DatabaseBackup,
+  Store,
 } from "lucide-react";
 
 const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
@@ -135,13 +144,14 @@ function AdminGate() {
 
 /* --------------------------------- admin --------------------------------- */
 
-type TabId = "dashboard" | "products" | "prices" | "articles" | "settings" | "backup";
+type TabId = "dashboard" | "products" | "prices" | "articles" | "wholesale" | "settings" | "backup";
 
 const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
   { id: "dashboard", label: "داشبورد", icon: LayoutDashboard },
   { id: "products", label: "محصولات", icon: Package },
   { id: "prices", label: "قیمت‌ها", icon: LineChart },
   { id: "articles", label: "مقالات", icon: FileText },
+  { id: "wholesale", label: "عمده", icon: Store },
   { id: "settings", label: "تنظیمات سایت", icon: Settings2 },
   { id: "backup", label: "پشتیبان‌گیری", icon: DatabaseBackup },
 ];
@@ -299,6 +309,9 @@ function Admin({ onLock }: { onLock: () => void }) {
 
       {tab === "prices" && <PricesTab />}
       {tab === "articles" && <ArticlesTab />}
+
+      {tab === "wholesale" && <WholesaleTab />}
+
       {tab === "settings" && <SettingsTab />}
       {tab === "backup" && <BackupTab />}
 
@@ -643,6 +656,157 @@ function ArticlesTab() {
             </div>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------- wholesale -------------------------------- */
+
+function WholesaleTab() {
+  const { settings, updateSettings } = useStore();
+  const tiers = settings.wholesaleTiers ?? [];
+  const benefits = settings.wholesaleBenefits ?? [];
+
+  function updateTier(index: number, patch: Partial<WholesaleTier>) {
+    updateSettings({ wholesaleTiers: tiers.map((t, i) => (i === index ? { ...t, ...patch } : t)) });
+  }
+  function addTier() {
+    updateSettings({ wholesaleTiers: [...tiers, { name: "پلن جدید", min: 50, discount: 0, note: "" }] });
+  }
+  function removeTier(index: number) {
+    updateSettings({ wholesaleTiers: tiers.filter((_, i) => i !== index) });
+  }
+  function moveTier(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= tiers.length) return;
+    const next = [...tiers];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateSettings({ wholesaleTiers: next });
+  }
+
+  function updateBenefit(index: number, text: string) {
+    updateSettings({ wholesaleBenefits: benefits.map((b, i) => (i === index ? { text } : b)) });
+  }
+  function addBenefit() {
+    updateSettings({ wholesaleBenefits: [...benefits, { text: "" }] });
+  }
+  function removeBenefit(index: number) {
+    updateSettings({ wholesaleBenefits: benefits.filter((_, i) => i !== index) });
+  }
+  function moveBenefit(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= benefits.length) return;
+    const next = [...benefits];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateSettings({ wholesaleBenefits: next });
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div className="card-paper rounded-sm p-4 sm:p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">پلن‌های عمده</div>
+            <div className="font-display text-lg text-olive-deep mt-1">تیراژ، تخفیف و توضیح</div>
+          </div>
+          <button
+            onClick={addTier}
+            className="inline-flex items-center gap-1 rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive"
+          >
+            <Plus className="h-3.5 w-3.5" /> افزودن
+          </button>
+        </div>
+        <div className="gold-rule my-4" />
+        <div className="space-y-4">
+          {tiers.map((t, i) => (
+            <div key={i} className="grid gap-3 border-b border-border/40 pb-4 last:border-0">
+              <div className="grid gap-3 md:grid-cols-2">
+                <TextField label="نام پلن" value={t.name} onChange={(v) => updateTier(i, { name: v })} />
+                <NumField label="حداقل (کیلوگرم)" value={t.min} onChange={(v) => updateTier(i, { min: v })} />
+                <NumField label="درصد تخفیف" value={t.discount} onChange={(v) => updateTier(i, { discount: v })} />
+                <TextField label="توضیح کوتاه" value={t.note} onChange={(v) => updateTier(i, { note: v })} />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => moveTier(i, -1)}
+                  disabled={i === 0}
+                  className="p-1 rounded border border-border disabled:opacity-40 hover:bg-cream"
+                  aria-label="بالا"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => moveTier(i, 1)}
+                  disabled={i === tiers.length - 1}
+                  className="p-1 rounded border border-border disabled:opacity-40 hover:bg-cream"
+                  aria-label="پایین"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => removeTier(i)}
+                  className="p-1 rounded border border-border text-bear hover:bg-cream mr-auto"
+                  aria-label="حذف"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {tiers.length === 0 && <p className="text-sm text-muted-foreground">هنوز پلنی ثبت نشده.</p>}
+        </div>
+      </div>
+
+      <div className="card-paper rounded-sm p-4 sm:p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">تعهدات</div>
+            <div className="font-display text-lg text-olive-deep mt-1">مزایای خرید عمده</div>
+          </div>
+          <button
+            onClick={addBenefit}
+            className="inline-flex items-center gap-1 rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive"
+          >
+            <Plus className="h-3.5 w-3.5" /> افزودن
+          </button>
+        </div>
+        <div className="gold-rule my-4" />
+        <div className="space-y-3">
+          {benefits.map((b, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <div className="flex-1">
+                <TextField label={`مورد ${i + 1}`} value={b.text} onChange={(v) => updateBenefit(i, v)} />
+              </div>
+              <div className="flex flex-col gap-2 pt-6">
+                <button
+                  onClick={() => moveBenefit(i, -1)}
+                  disabled={i === 0}
+                  className="p-1 rounded border border-border disabled:opacity-40 hover:bg-cream"
+                  aria-label="بالا"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => moveBenefit(i, 1)}
+                  disabled={i === benefits.length - 1}
+                  className="p-1 rounded border border-border disabled:opacity-40 hover:bg-cream"
+                  aria-label="پایین"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <button
+                onClick={() => removeBenefit(i)}
+                className="mt-6 p-1 rounded border border-border text-bear hover:bg-cream"
+                aria-label="حذف"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+          {benefits.length === 0 && <p className="text-sm text-muted-foreground">هنوز موردی ثبت نشده.</p>}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useStore } from "@/lib/store";
+import { useStore, type WholesaleTier, type WholesaleBenefit } from "@/lib/store";
 import { formatPrice } from "@/lib/format";
 import { Check } from "lucide-react";
 import { telHref, waHref } from "@/lib/contact";
@@ -16,24 +16,26 @@ export const Route = createFileRoute("/wholesale")({
   component: Wholesale,
 });
 
-const TIERS = [
+const DEFAULT_TIERS: WholesaleTier[] = [
   { name: "قنادی و بوتیک", min: 20, discount: 0, note: "قیمت تابلو، ارسال از انبار قزوین" },
   { name: "صنایع غذایی", min: 100, discount: 4, note: "تخفیف پلکانی، بسته‌بندی درخواستی" },
   { name: "صادرات و پروژه", min: 500, discount: 8, note: "قرارداد سالانه، ثبت سفارش صادراتی" },
 ];
 
-const BENEFITS = [
-  "مبدأ باغ‌های اصیل قزوین و بویین‌زهرا",
-  "کنترل کیفیت سه‌مرحله‌ای رنگ، رطوبت و اندازه",
-  "بسته‌بندی خلأ (Vacuum) و کارتن صادراتی",
-  "امکان درج برند شخصی (Private Label)",
-  "گواهی بهداشت و آنالیز آزمایشگاهی همراه محموله",
-  "قرارداد قیمت تضمینی سه ماهه برای مشتریان دائم",
+const DEFAULT_BENEFITS: WholesaleBenefit[] = [
+  { text: "مبدأ باغ‌های اصیل قزوین و بویین‌زهرا" },
+  { text: "کنترل کیفیت سه‌مرحله‌ای رنگ، رطوبت و اندازه" },
+  { text: "بسته‌بندی خلأ (Vacuum) و کارتن صادراتی" },
+  { text: "امکان درج برند شخصی (Private Label)" },
+  { text: "گواهی بهداشت و آنالیز آزمایشگاهی همراه محموله" },
+  { text: "قرارداد قیمت تضمینی سه ماهه برای مشتریان دائم" },
 ];
 
 function Wholesale() {
   const { products, settings } = useStore();
   const pist = products.filter((p) => p.category === "پسته" && p.active);
+  const tiers = settings.wholesaleTiers ?? DEFAULT_TIERS;
+  const benefits = settings.wholesaleBenefits ?? DEFAULT_BENEFITS;
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
@@ -45,7 +47,7 @@ function Wholesale() {
       </p>
 
       <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-10">
-        {TIERS.map((t, i) => (
+        {tiers.map((t, i) => (
           <div key={t.name} className={`card-paper rounded-sm p-6 ${i === 1 ? "border-brass/60" : ""}`}>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t.name}</div>
             <div className="font-display text-3xl text-olive-deep mt-2 num-fa">
@@ -104,10 +106,10 @@ function Wholesale() {
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">تعهدات درج سبز</div>
           <div className="gold-rule my-4" />
           <ul className="space-y-3 text-cocoa">
-            {BENEFITS.map((b) => (
-              <li key={b} className="flex items-start gap-3 text-sm">
+            {benefits.map((b) => (
+              <li key={b.text} className="flex items-start gap-3 text-sm">
                 <Check className="h-4 w-4 text-bull mt-0.5 shrink-0" />
-                <span>{b}</span>
+                <span>{b.text}</span>
               </li>
             ))}
           </ul>
