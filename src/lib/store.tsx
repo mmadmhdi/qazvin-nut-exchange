@@ -372,12 +372,64 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ),
         }));
       },
+      removePricePoint(id, date) {
+        setState((s) => ({
+          ...s,
+          products: s.products.map((x) =>
+            x.id === id ? { ...x, history: x.history.filter((h) => h.date !== date) } : x,
+          ),
+        }));
+      },
+      bulkPricePoints(id, points) {
+        setState((s) => ({
+          ...s,
+          products: s.products.map((x) => {
+            if (x.id !== id) return x;
+            const dates = new Set(points.map((p) => p.date));
+            const history = [...x.history.filter((h) => !dates.has(h.date)), ...points].sort(
+              (a, b) => a.date.localeCompare(b.date),
+            );
+            const last = history[history.length - 1];
+            return { ...x, history, price: last?.price ?? x.price, updatedAt: last?.date ?? x.updatedAt };
+          }),
+        }));
+      },
       updateSettings(s) {
         setState((prev) => ({ ...prev, settings: { ...prev.settings, ...s } }));
       },
-      resetAll() {
-        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS });
+      saveArticle(a) {
+        setState((s) => {
+          const exists = s.articles.some((x) => x.slug === a.slug);
+          return {
+            ...s,
+            articles: exists ? s.articles.map((x) => (x.slug === a.slug ? a : x)) : [a, ...s.articles],
+          };
+        });
       },
+      deleteArticle(slug) {
+        setState((s) => ({ ...s, articles: s.articles.filter((x) => x.slug !== slug) }));
+      },
+      exportData() {
+        return JSON.stringify(state, null, 2);
+      },
+      importData(json) {
+        try {
+          const parsed = JSON.parse(json) as Partial<State>;
+          if (!parsed?.products || !parsed?.settings) return false;
+          setState({
+            products: parsed.products,
+            settings: { ...SEED_SETTINGS, ...parsed.settings },
+            articles: parsed.articles ?? [],
+          });
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      resetAll() {
+        setState({ products: SEED_PRODUCTS, settings: SEED_SETTINGS, articles: [] });
+      },
+
     }),
     [state, ready],
   );
