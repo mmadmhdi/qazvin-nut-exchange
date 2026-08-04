@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/lib/articles";
+import { useStore } from "@/lib/store";
+
 import { formatJalali, toFaDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/journal")({
