@@ -928,8 +928,8 @@ function BackupTab() {
           className="mt-3 w-full rounded-sm border border-input bg-background px-3 py-2 text-xs font-mono"
         />
         <button
-          onClick={() => {
-            if (importData(text)) {
+          onClick={async () => {
+            if (await importData(text)) {
               toast.success("داده‌ها بازیابی شد");
               setText("");
             } else toast.error("فایل نامعتبر است");
