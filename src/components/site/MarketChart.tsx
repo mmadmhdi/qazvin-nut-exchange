@@ -307,18 +307,21 @@ export function MarketChart({ product, compact = false }: { product: Product; co
               }}
             />
             {overlays.bb && (
-              <>
-                <Area type="monotone" dataKey="bbU" stroke="var(--olive)" strokeOpacity={0.5} fill="color-mix(in oklab, var(--olive) 12%, transparent)" isAnimationActive={false} />
-                <Line type="monotone" dataKey="bbL" stroke="var(--olive)" strokeOpacity={0.5} strokeWidth={1} dot={false} isAnimationActive={false} />
-                <Line type="monotone" dataKey="bbM" stroke="var(--olive)" strokeOpacity={0.7} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
-              </>
+              <Area type="monotone" dataKey="bbU" stroke="var(--olive)" strokeOpacity={0.5} fill="color-mix(in oklab, var(--olive) 12%, transparent)" isAnimationActive={false} />
             )}
-            {style === "candle" || style === "ha" ? (
-              <>
-                <Bar dataKey="base" stackId="candle" fill="transparent" isAnimationActive={false} />
-                <Bar dataKey="range" stackId="candle" shape={<Candle />} isAnimationActive={false} />
-              </>
-            ) : style === "area" ? (
+            {overlays.bb && (
+              <Line type="monotone" dataKey="bbL" stroke="var(--olive)" strokeOpacity={0.5} strokeWidth={1} dot={false} isAnimationActive={false} />
+            )}
+            {overlays.bb && (
+              <Line type="monotone" dataKey="bbM" stroke="var(--olive)" strokeOpacity={0.7} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
+            )}
+            {(style === "candle" || style === "ha") && (
+              <Bar dataKey="base" stackId="candle" fill="transparent" isAnimationActive={false} />
+            )}
+            {(style === "candle" || style === "ha") && (
+              <Bar dataKey="range" stackId="candle" shape={<Candle />} isAnimationActive={false} />
+            )}
+            {style === "area" && (
               <Area
                 type="monotone"
                 dataKey="close"
@@ -327,7 +330,8 @@ export function MarketChart({ product, compact = false }: { product: Product; co
                 fill="color-mix(in oklab, var(--brass) 22%, transparent)"
                 isAnimationActive={false}
               />
-            ) : (
+            )}
+            {style === "line" && (
               <Line
                 type="monotone"
                 dataKey="close"
