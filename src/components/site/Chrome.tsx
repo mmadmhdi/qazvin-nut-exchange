@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import logoAsset from "@/assets/dorjesabz-logo.jpg.asset.json";
 
 const NAV: { to: string; label: string; exact?: boolean }[] = [
   { to: "/", label: "خانه", exact: true },
@@ -27,9 +28,10 @@ export function Header() {
     <header className="hairline-b bg-background/85 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3 sm:py-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-full border border-brass/60 bg-olive-deep text-brass font-display text-base sm:text-lg">
-            درج
+          <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-brass/60 bg-paper">
+            <img src={logoAsset.url} alt="نشان درج سبز قزوین" className="h-full w-full object-cover" />
           </div>
+
           <div className="min-w-0 leading-tight">
             <div className="font-display text-base sm:text-lg text-olive-deep truncate">
               {settings.brandName}
@@ -97,6 +99,11 @@ export function Footer() {
     <footer className="hairline-t mt-16 sm:mt-24 bg-cream/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
+          <img
+            src={logoAsset.url}
+            alt="لوگوی درج سبز قزوین"
+            className="mb-4 h-16 w-16 rounded-full border border-brass/50 object-cover"
+          />
           <div className="font-display text-xl text-olive-deep">{settings.brandName}</div>
           <div className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mt-1">
             {settings.brandLatin} · Est. ۱۳۴۸
