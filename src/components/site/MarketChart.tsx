@@ -4,6 +4,7 @@ import {
   Bar,
   Cell,
   ComposedChart,
+  Customized,
   Line,
   ReferenceLine,
   ResponsiveContainer,
