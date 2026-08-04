@@ -1,4 +1,6 @@
+import type { Article } from "./articles-types";
 import {
+
   createContext,
   useContext,
   useEffect,
