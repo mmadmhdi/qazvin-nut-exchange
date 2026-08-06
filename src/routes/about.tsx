@@ -77,9 +77,7 @@ function About() {
       <section className="bg-olive-deep text-paper">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-24 text-center">
           <div className="text-[10px] tracking-[0.35em] uppercase text-brass">About Us</div>
-          <h1 className="font-display text-3xl sm:text-5xl mt-4 leading-tight">
-            درباره {settings.brandName} — چهار نسل تجارت خشکبار
-          </h1>
+          <h1 className="font-display text-3xl sm:text-5xl mt-4 leading-tight">{settings.brandName}</h1>
           <div className="mx-auto mt-5 h-px w-24 bg-brass/70" />
           <p className="mt-6 text-sm sm:text-base leading-8 text-paper/85 max-w-3xl mx-auto">
             {settings.brandTagline}

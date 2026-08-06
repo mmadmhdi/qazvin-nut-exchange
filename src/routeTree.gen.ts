@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
 import { Route as TasteRouteImport } from './routes/taste'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
@@ -35,11 +34,6 @@ const WholesaleRoute = WholesaleRouteImport.update({
 const TasteRoute = TasteRouteImport.update({
   id: '/taste',
   path: '/taste',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OriginRoute = OriginRouteImport.update({
@@ -124,7 +118,6 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -143,7 +136,6 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -163,7 +155,6 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
   '/journal/$slug': typeof JournalSlugRoute
@@ -184,7 +175,6 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
-    | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
@@ -203,7 +193,6 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
-    | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
@@ -222,7 +211,6 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
-    | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
     | '/journal/$slug'
@@ -242,7 +230,6 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
   OriginRoute: typeof OriginRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TasteRoute: typeof TasteRoute
   WholesaleRoute: typeof WholesaleRoute
   JournalSlugRoute: typeof JournalSlugRoute
@@ -265,13 +252,6 @@ declare module '@tanstack/react-router' {
       path: '/taste'
       fullPath: '/taste'
       preLoaderRoute: typeof TasteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/origin': {
@@ -386,7 +366,6 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
   OriginRoute: OriginRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TasteRoute: TasteRoute,
   WholesaleRoute: WholesaleRoute,
   JournalSlugRoute: JournalSlugRoute,

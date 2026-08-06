@@ -7,22 +7,10 @@ import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, formatPercent } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, BadgeCheck } from "lucide-react";
 
-const SITE_URL = "https://peste.es";
-
 export const Route = createFileRoute("/products/$slug")({
-  loader: async ({ params }) => {
-    const { getSiteData } = await import("@/lib/site-data.functions");
-    const data = await getSiteData();
-    const product = data.products.find((p) => p.slug === params.slug || p.id === params.slug);
-    return { product: product ?? null, currency: data.settings.currency };
-  },
-  head: ({ params, loaderData }) => {
-    const p = loaderData?.product ?? null;
-    const url = `${SITE_URL}/products/${params.slug}`;
-    const title = p ? `${p.name} — قیمت روز | درج سبز قزوین` : "محصول — درج سبز قزوین";
-    const desc = p
-      ? `${p.name} (${p.grade}، ${p.origin}): قیمت روز، نمودار تاریخی و شناسنامه اصالت در تابلوی درج سبز قزوین.`
-      : "قیمت روز، نمودار تکنیکال و شناسنامه دیجیتال محصولات خشکبار درج سبز قزوین.";
+  head: ({ params }) => {
+    const title = `${params.slug} — قیمت، نمودار و شناسنامه | درج سبز قزوین`;
+    const desc = "قیمت روز، نمودار تکنیکال و شناسنامه دیجیتال محصول خشکبار در تابلوی درج سبز قزوین.";
     return {
       meta: [
         { title },
@@ -30,35 +18,8 @@ export const Route = createFileRoute("/products/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "product" },
-        { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
-        ...(p ? [] : [{ name: "robots", content: "noindex" }]),
       ],
-      links: [{ rel: "canonical", href: url }],
-      scripts: p
-        ? [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Product",
-                name: p.name,
-                description: p.description,
-                category: p.category,
-                sku: p.slug,
-                url,
-                brand: { "@type": "Brand", name: "درج سبز قزوین" },
-                offers: {
-                  "@type": "Offer",
-                  price: p.price,
-                  priceCurrency: "IRR",
-                  availability: "https://schema.org/InStock",
-                  url,
-                },
-              }),
-            },
-          ]
-        : undefined,
     };
   },
   component: ProductDetail,
