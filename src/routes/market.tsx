@@ -167,7 +167,7 @@ function Market() {
               <MarketSnowflake product={selected} />
               <div className="card-paper rounded-sm p-5">
                 <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">درباره محصول</div>
-                <h3 className="font-display text-xl text-olive-deep mt-2">{selected.name}</h3>
+                <h2 className="font-display text-xl text-olive-deep mt-2">{selected.name}</h2>
                 <p className="mt-3 text-cocoa leading-8 text-sm">{selected.description}</p>
                 <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
                   <Meta k="منشأ" v={selected.origin} />
