@@ -78,6 +78,42 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://peste.es/#website",
+              url: "https://peste.es/",
+              name: "درج سبز قزوین",
+              alternateName: "Darj Sabz Qazvin",
+              inLanguage: "fa-IR",
+            },
+            {
+              "@type": "LocalBusiness",
+              "@id": "https://peste.es/#business",
+              name: "درج سبز قزوین (درج تجارت لیا)",
+              url: "https://peste.es/",
+              image: "https://peste.es/images/dorjesabz-logo.jpg",
+              logo: "https://peste.es/images/dorjesabz-logo.jpg",
+              telephone: "+982833455010",
+              email: "mmd85mmd@gmail.com",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "IR",
+                addressRegion: "قزوین",
+                addressLocality: "شهر صنعتی لیا",
+              },
+              description:
+                "تولید و عرضه خلال مغز پسته و خشکبار با قیمت شفاف روز و شناسنامه اصالت باغ.",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
