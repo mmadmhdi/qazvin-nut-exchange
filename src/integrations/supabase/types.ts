@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_attempts: {
+        Row: {
+          attempted_at: string
+          fingerprint: string
+          id: number
+          success: boolean
+        }
+        Insert: {
+          attempted_at?: string
+          fingerprint: string
+          id?: number
+          success?: boolean
+        }
+        Update: {
+          attempted_at?: string
+          fingerprint?: string
+          id?: number
+          success?: boolean
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          entity: string
+          id: number
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity: string
+          id?: number
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          entity?: string
+          id?: number
+          metadata?: Json
+        }
+        Relationships: []
+      }
       admin_login_attempts: {
         Row: {
           created_at: string
@@ -88,7 +136,13 @@ export type Database = {
           message: string
           name: string
           phone: string | null
+          product: string | null
+          quantity: string | null
           read: boolean
+          request_fingerprint: string | null
+          status: string
+          subject: string | null
+          user_agent: string | null
         }
         Insert: {
           created_at?: string
@@ -97,7 +151,13 @@ export type Database = {
           message: string
           name: string
           phone?: string | null
+          product?: string | null
+          quantity?: string | null
           read?: boolean
+          request_fingerprint?: string | null
+          status?: string
+          subject?: string | null
+          user_agent?: string | null
         }
         Update: {
           created_at?: string
@@ -106,7 +166,43 @@ export type Database = {
           message?: string
           name?: string
           phone?: string | null
+          product?: string | null
+          quantity?: string | null
           read?: boolean
+          request_fingerprint?: string | null
+          status?: string
+          subject?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      content_assertions: {
+        Row: {
+          id: string
+          kind: string
+          notes: string | null
+          reviewed_at: string | null
+          source_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          kind: string
+          notes?: string | null
+          reviewed_at?: string | null
+          source_url?: string | null
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          kind?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -208,6 +304,27 @@ export type Database = {
         }
         Relationships: []
       }
+      public_rate_limit_events: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          id: number
+          scope: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          id?: number
+          scope: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          id?: number
+          scope?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           about_text: string
@@ -292,6 +409,30 @@ export type Database = {
           wholesale_benefits?: Json
           wholesale_tiers?: Json
           working_hours?: string
+        }
+        Relationships: []
+      }
+      site_state: {
+        Row: {
+          data: Json
+          id: string
+          revision: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          data: Json
+          id: string
+          revision?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          data?: Json
+          id?: string
+          revision?: number
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
