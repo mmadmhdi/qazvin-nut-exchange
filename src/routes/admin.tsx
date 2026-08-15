@@ -328,19 +328,19 @@ function Admin({ onLock }: { onLock: () => void }) {
           product={editing}
           onCancel={() => setEditing(null)}
           onSave={(p) => {
-            saveProduct({ ...p, slug: p.slug || slugify(p.name) || p.id });
             setEditing(null);
-            toast.success("ذخیره شد");
+            void act(() => saveProduct({ ...p, slug: p.slug || slugify(p.name) || p.id }), "ذخیره شد");
           }}
         />
       )}
 
       <p className="mt-10 text-[11px] text-muted-foreground leading-6">
-        داده‌های این پنل روی همین مرورگر ذخیره می‌شود. پیش از تحویل نسخه نهایی، از بخش «پشتیبان‌گیری»
-        یک فایل خروجی تهیه کنید. رمز عبور پیش‌فرض قابل تغییر است؛ کافی است مقدار محرمانه
+        داده‌های این پنل در پایگاه داده مرکزی ذخیره می‌شود و بلافاصله برای همه بازدیدکنندگان سایت
+        نمایش داده می‌شود. رمز عبور از مقدار محرمانه
         <span dir="ltr" className="mx-1 font-mono">ADMIN_PASSWORD</span>
-        را به‌روزرسانی کنید. — نام برند فعلی: {settings.brandName}
+        خوانده می‌شود. — نام برند فعلی: {settings.brandName}
       </p>
+
     </div>
   );
 }
