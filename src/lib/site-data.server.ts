@@ -270,34 +270,46 @@ export async function writePricePoints(
 ): Promise<void> {
   if (!points.length) return;
   const db = await admin();
-  const dates = points.map((p) => p.date);
-  await db.from("price_history").delete().eq("product_id", productId).in("date", dates);
-  const rows = points.map((p) => ({
-    product_id: productId,
-    date: p.date,
-    open: Math.round(p.open ?? p.price),
-    high: Math.round(p.high ?? p.price),
-    low: Math.round(p.low ?? p.price),
-    close: Math.round(p.close ?? p.price),
-    volume: Math.round(p.volume ?? 0),
-  }));
+  // Normalise: one row per date, valid OHLC ordering, chronological.
+  const byDate = new Map<string, (typeof points)[number]>();
+  for (const p of points) {
+    const date = String(p.date).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    const close = Math.round(Number(p.close ?? p.price));
+    if (!Number.isFinite(close) || close <= 0) continue;
+    byDate.set(date, { ...p, date, close, price: close });
+  }
+  const clean = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  if (!clean.length) return;
+
+  await db
+    .from("price_history")
+    .delete()
+    .eq("product_id", productId)
+    .in(
+      "date",
+      clean.map((p) => p.date),
+    );
+
+  const rows = clean.map((p) => {
+    const close = Math.round(Number(p.close ?? p.price));
+    const open = Math.round(Number(p.open ?? close) || close);
+    const high = Math.round(Math.max(Number(p.high ?? close) || close, open, close));
+    const low = Math.round(Math.min(Number(p.low ?? close) || close, open, close));
+    return {
+      product_id: productId,
+      date: p.date,
+      open,
+      high,
+      low,
+      close,
+      volume: Math.max(0, Math.round(Number(p.volume ?? 0) || 0)),
+    };
+  });
   const { error } = await db.from("price_history").insert(rows);
   if (error) throw new Error(error.message);
 
-  const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
-  const last = sorted[sorted.length - 1];
-  const { data: newest } = await db
-    .from("price_history")
-    .select("date, close")
-    .eq("product_id", productId)
-    .order("date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const close = num((newest as Row | null)?.["close"]) || last.price;
-  await db
-    .from("products")
-    .update({ price: Math.round(close), updated_at: new Date().toISOString() })
-    .eq("id", productId);
+  await syncProductPrice(productId);
 }
 
 export async function removePricePoint(productId: string, date: string): Promise<void> {
@@ -308,6 +320,8 @@ export async function removePricePoint(productId: string, date: string): Promise
     .eq("product_id", productId)
     .eq("date", date);
   if (error) throw new Error(error.message);
+  await syncProductPrice(productId);
+
 }
 
 export async function writeSettings(patch: Partial<SiteSettings>): Promise<void> {
