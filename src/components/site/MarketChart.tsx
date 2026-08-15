@@ -284,7 +284,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             {product.name}
           </div>
         </div>
-        <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto scrollbar-none">
           <SegGroup>
             {(["candle", "ha", "line", "area"] as Style[]).map((s) => (
               <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s)}>
@@ -330,7 +330,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             <div className="text-tv-muted">داده‌ای برای این بازه ثبت نشده است</div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 mt-2 overflow-x-auto no-scrollbar pb-0.5">
+        <div className="flex items-center gap-1.5 mt-2 overflow-x-auto scrollbar-none pb-0.5">
           <ToggleChip
             on={overlays.ma20}
             onClick={() => setOverlays({ ...overlays, ma20: !overlays.ma20 })}
@@ -399,8 +399,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
               <ComposedChart
                 data={data}
                 margin={MARGIN}
-                onMouseMove={track}
-                onTouchMove={track}
+                onMouseMove={track} onClick={track}
                 onMouseLeave={() => setHoverDate(null)}
               >
                 <XAxis {...(openPanels.length ? hiddenAxis : dateTick)} />
@@ -561,7 +560,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           {panels.volume && (
             <SubPanelBox label="حجم معاملات">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onTouchMove={track}>
+                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "volume" ? dateTick : hiddenAxis)} />
                   <YAxis {...mutedYAxis} tickFormatter={(v: number) => compactNum(v)} />
                   <Tooltip
@@ -590,7 +589,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           {panels.rsi && (
             <SubPanelBox label="RSI ۱۴">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onTouchMove={track}>
+                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "rsi" ? dateTick : hiddenAxis)} />
                   <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[30, 50, 70]} tickFormatter={(v: number) => toFaDigits(v)} />
                   <ReferenceLine y={70} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />
@@ -619,7 +618,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           {panels.macd && (
             <SubPanelBox label="MACD ۱۲ ۲۶ ۹">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onTouchMove={track}>
+                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "macd" ? dateTick : hiddenAxis)} />
                   <YAxis {...mutedYAxis} tickFormatter={(v: number) => compactNum(v)} />
                   <ReferenceLine y={0} stroke="var(--tv-border)" />
@@ -673,7 +672,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
           {panels.stoch && (
             <SubPanelBox label="Stochastic %K %D">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onTouchMove={track}>
+                <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "stoch" ? dateTick : hiddenAxis)} />
                   <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[20, 50, 80]} tickFormatter={(v: number) => toFaDigits(v)} />
                   <ReferenceLine y={80} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />

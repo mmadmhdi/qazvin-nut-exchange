@@ -165,10 +165,20 @@ function Admin({ onLock }: { onLock: () => void }) {
 
   const sorted = useMemo(() => [...products].sort((a, b) => b.priority - a.priority), [products]);
 
+  async function act(fn: () => unknown | Promise<unknown>, ok: string) {
+    try {
+      await fn();
+      toast.success(ok);
+    } catch (e) {
+      toast.error(`عملیات ناموفق بود: ${(e as Error).message}`);
+    }
+  }
+
   async function logout() {
     await lockAdmin();
     onLock();
   }
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
@@ -240,18 +250,20 @@ function Admin({ onLock }: { onLock: () => void }) {
             </div>
             {sorted.map((p) => (
               <div key={p.id} className="hairline-b last:border-0">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[2fr_1fr_1fr_120px_140px] gap-2 px-4 py-3 items-center text-sm">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[2fr_1fr_1fr_120px_140px] gap-2 px-4 py-3 items-center text-sm">
                   <div className="min-w-0 text-cocoa">
                     <div className="font-semibold truncate">{p.name}</div>
                     <div className="text-xs text-muted-foreground truncate">
                       {p.origin} · {p.grade}
                     </div>
+                    <div className="md:hidden num-fa text-xs text-olive-deep mt-1">{formatPrice(p.price)}</div>
                   </div>
                   <div className="hidden md:block text-muted-foreground">{p.category}</div>
-                  <div className="num-fa text-olive-deep text-left md:text-right">{formatPrice(p.price)}</div>
-                  <div className="hidden md:flex gap-1">
+                  <div className="hidden md:block num-fa text-olive-deep md:text-right">{formatPrice(p.price)}</div>
+                  <div className="flex gap-1">
+
                     <button
-                      onClick={() => saveProduct({ ...p, active: !p.active })}
+                      onClick={() => act(() => saveProduct({ ...p, active: !p.active }), p.active ? "غیرفعال شد" : "فعال شد")}
                       title="فعال/غیرفعال"
                       className="p-1 rounded hover:bg-cream"
                     >
@@ -262,7 +274,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                       )}
                     </button>
                     <button
-                      onClick={() => saveProduct({ ...p, featured: !p.featured })}
+                      onClick={() => act(() => saveProduct({ ...p, featured: !p.featured }), "ویژه بروزرسانی شد")}
                       title="ویژه"
                       className="p-1 rounded hover:bg-cream"
                     >
@@ -286,10 +298,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm("حذف شود؟")) {
-                          deleteProduct(p.id);
-                          toast.success("حذف شد");
-                        }
+                        if (confirm("حذف شود؟")) act(() => deleteProduct(p.id), "حذف شد");
                       }}
                       className="text-bear hover:opacity-70"
                       aria-label="حذف"
@@ -297,6 +306,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
+
                 </div>
                 {expanded === p.id && <PriceHistoryEditor product={p} />}
               </div>
@@ -318,19 +328,19 @@ function Admin({ onLock }: { onLock: () => void }) {
           product={editing}
           onCancel={() => setEditing(null)}
           onSave={(p) => {
-            saveProduct({ ...p, slug: p.slug || slugify(p.name) || p.id });
             setEditing(null);
-            toast.success("ذخیره شد");
+            void act(() => saveProduct({ ...p, slug: p.slug || slugify(p.name) || p.id }), "ذخیره شد");
           }}
         />
       )}
 
       <p className="mt-10 text-[11px] text-muted-foreground leading-6">
-        داده‌های این پنل روی همین مرورگر ذخیره می‌شود. پیش از تحویل نسخه نهایی، از بخش «پشتیبان‌گیری»
-        یک فایل خروجی تهیه کنید. رمز عبور پیش‌فرض قابل تغییر است؛ کافی است مقدار محرمانه
+        داده‌های این پنل در پایگاه داده مرکزی ذخیره می‌شود و بلافاصله برای همه بازدیدکنندگان سایت
+        نمایش داده می‌شود. رمز عبور از مقدار محرمانه
         <span dir="ltr" className="mx-1 font-mono">ADMIN_PASSWORD</span>
-        را به‌روزرسانی کنید. — نام برند فعلی: {settings.brandName}
+        خوانده می‌شود. — نام برند فعلی: {settings.brandName}
       </p>
+
     </div>
   );
 }
@@ -409,56 +419,98 @@ function Dashboard() {
 
 /* --------------------------------- prices -------------------------------- */
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Builds a consistent OHLC point: the open follows the previous session's
+ * close (never today's stored price), so candles and the chart stay in sync.
+ */
+function buildPoint(product: Product, date: string, price: number): PricePoint {
+  const prior = [...(product.history ?? [])]
+    .filter((h) => h.date < date)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .pop();
+  const existing = (product.history ?? []).find((h) => h.date === date);
+  const open = prior?.close ?? prior?.price ?? price;
+  return {
+    date,
+    price,
+    close: price,
+    open,
+    high: Math.max(open, price, existing?.high ?? 0),
+    low: Math.min(open, price, existing?.low ?? price),
+    volume: existing?.volume ?? 0,
+  };
+}
+
 function PricesTab() {
-  const { products, addPricePoint, bulkPricePoints } = useStore();
+  const { products, bulkPricePoints } = useStore();
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [values, setValues] = useState<Record<string, number>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
   const [csvId, setCsvId] = useState(products[0]?.id ?? "");
   const [csv, setCsv] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function saveAll() {
-    let n = 0;
-    products.forEach((p) => {
-      const v = values[p.id];
-      if (v && v > 0) {
-        addPricePoint(p.id, { date, price: v, open: p.price, high: Math.max(p.price, v), low: Math.min(p.price, v), close: v });
-        n++;
-      }
-    });
-    if (n === 0) toast.error("قیمتی وارد نشده است");
-    else {
-      toast.success(`${toFaDigits(n)} قیمت ثبت شد`);
+  async function saveAll() {
+    if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
+    const jobs = products
+      .map((p) => {
+        const v = Number(values[p.id]);
+        return Number.isFinite(v) && v > 0 ? { p, point: buildPoint(p, date, Math.round(v)) } : null;
+      })
+      .filter(Boolean) as { p: Product; point: PricePoint }[];
+    if (!jobs.length) return toast.error("قیمتی وارد نشده است");
+    setBusy(true);
+    try {
+      for (const j of jobs) await bulkPricePoints(j.p.id, [j.point]);
+      toast.success(`${toFaDigits(jobs.length)} قیمت برای ${formatJalali(date)} ثبت شد`);
       setValues({});
+    } catch (e) {
+      toast.error(`ثبت قیمت‌ها ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
     }
   }
 
-  function importCsv() {
+  async function importCsv() {
+    if (!csvId) return toast.error("محصول را انتخاب کنید");
     const rows = csv
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean)
+      .filter((line) => !/^(date|تاریخ)/i.test(line))
       .map((line) => line.split(/[,\t;]/).map((c) => c.trim()));
     const points: PricePoint[] = [];
     for (const r of rows) {
       const [d, price, open, high, low, volume] = r;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(d ?? "")) continue;
+      if (!ISO_DATE.test(d ?? "")) continue;
       const close = Number(price);
       if (!Number.isFinite(close) || close <= 0) continue;
+      const o = Number(open) || close;
       points.push({
         date: d,
         price: close,
         close,
-        open: Number(open) || close,
-        high: Number(high) || close,
-        low: Number(low) || close,
-        volume: Number(volume) || 0,
+        open: o,
+        high: Math.max(Number(high) || close, o, close),
+        low: Math.min(Number(low) || close, o, close),
+        volume: Math.max(0, Number(volume) || 0),
       });
     }
-    if (points.length === 0) return toast.error("داده‌ی معتبری یافت نشد (قالب: ۲۰۲۶-۰۱-۰۱,۱۰۰۰۰۰)");
-    bulkPricePoints(csvId, points);
-    setCsv("");
-    toast.success(`${toFaDigits(points.length)} رکورد وارد شد`);
+    if (points.length === 0)
+      return toast.error("داده‌ی معتبری یافت نشد (قالب: ۲۰۲۶-۰۱-۰۱,۱۰۰۰۰۰)");
+    setBusy(true);
+    try {
+      await bulkPricePoints(csvId, points);
+      setCsv("");
+      toast.success(`${toFaDigits(points.length)} رکورد وارد شد`);
+    } catch (e) {
+      toast.error(`ورود داده ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
   }
+
 
   return (
     <div className="space-y-8">
@@ -474,26 +526,48 @@ function PricesTab() {
           />
         </div>
         <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <label key={p.id} className="text-xs">
-              <div className="text-muted-foreground mb-1 truncate">{p.name}</div>
-              <input
-                dir="ltr"
-                type="number"
-                placeholder={String(p.price)}
-                value={values[p.id] ?? ""}
-                onChange={(e) => setValues((v) => ({ ...v, [p.id]: Number(e.target.value) }))}
-                className="w-full rounded-sm border border-input bg-background px-2 py-2 text-sm"
-              />
-            </label>
-          ))}
+          {products.map((p) => {
+            const v = Number(values[p.id]);
+            const diff = Number.isFinite(v) && v > 0 && p.price ? ((v - p.price) / p.price) * 100 : null;
+            return (
+              <label key={p.id} className="text-xs">
+                <div className="text-muted-foreground mb-1 flex items-center justify-between gap-2">
+                  <span className="truncate">{p.name}</span>
+                  <span className="num-fa shrink-0 text-[10px]">{formatPrice(p.price)}</span>
+                </div>
+                <input
+                  dir="ltr"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder={String(p.price)}
+                  value={values[p.id] ?? ""}
+                  onChange={(e) => setValues((s) => ({ ...s, [p.id]: e.target.value }))}
+                  className="w-full rounded-sm border border-input bg-background px-2 py-2 text-sm"
+                />
+                {diff !== null && (
+                  <div className={`mt-1 num-fa text-[10px] ${diff >= 0 ? "text-bull" : "text-bear"}`}>
+                    {formatPercent(diff)} نسبت به قیمت فعلی
+                  </div>
+                )}
+              </label>
+            );
+          })}
         </div>
-        <div className="px-4 py-3 hairline-t flex justify-end">
-          <button onClick={saveAll} className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">
-            ثبت قیمت‌ها
+        <div className="px-4 py-3 hairline-t flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11px] text-muted-foreground num-fa">
+            تاریخ ثبت: {formatJalali(date)}
+          </span>
+          <button
+            onClick={saveAll}
+            disabled={busy}
+            className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive disabled:opacity-50"
+          >
+            {busy ? "در حال ثبت…" : "ثبت قیمت‌ها"}
           </button>
         </div>
       </div>
+
 
       <div className="card-paper rounded-sm">
         <div className="px-4 py-3 hairline-b text-[10px] tracking-[0.3em] uppercase text-brass-dark">
@@ -519,14 +593,19 @@ function PricesTab() {
             placeholder={"2026-07-01,58500000,58000000,59000000,57800000,240\n2026-07-02,58900000"}
             className="w-full rounded-sm border border-input bg-background px-3 py-2 text-xs font-mono"
           />
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-2 justify-between items-center">
             <span className="text-[11px] text-muted-foreground">
               هر خط: تاریخ میلادی، قیمت پایانی، (اختیاری) باز، بیشترین، کمترین، حجم
             </span>
-            <button onClick={importCsv} className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">
-              وارد کردن
+            <button
+              onClick={importCsv}
+              disabled={busy}
+              className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive disabled:opacity-50"
+            >
+              {busy ? "در حال ورود…" : "وارد کردن"}
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -963,12 +1042,48 @@ const emptyProduct = (): Product => ({
 });
 
 function PriceHistoryEditor({ product }: { product: Product }) {
-  const { addPricePoint, removePricePoint } = useStore();
+  const { bulkPricePoints, removePricePoint } = useStore();
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [price, setPrice] = useState<number>(product.price);
+  const [price, setPrice] = useState<string>(String(product.price || ""));
+  const [busy, setBusy] = useState(false);
+
+  const sorted = useMemo(
+    () => [...(product.history ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
+    [product.history],
+  );
+
+  async function submit() {
+    const v = Math.round(Number(price));
+    if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
+    if (!Number.isFinite(v) || v <= 0) return toast.error("قیمت باید بزرگ‌تر از صفر باشد");
+    setBusy(true);
+    try {
+      await bulkPricePoints(product.id, [buildPoint(product, date, v)]);
+      toast.success(`قیمت ${formatJalali(date)} ثبت شد`);
+    } catch (e) {
+      toast.error(`ثبت قیمت ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(d: string) {
+    setBusy(true);
+    try {
+      await removePricePoint(product.id, d);
+      toast.success("رکورد حذف شد");
+    } catch (e) {
+      toast.error(`حذف ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="bg-cream/40 px-4 py-4 border-t border-border">
-      <div className="text-xs text-muted-foreground mb-3">ثبت قیمت جدید</div>
+      <div className="text-xs text-muted-foreground mb-3">
+        ثبت یا اصلاح قیمت (تاریخ تکراری بازنویسی می‌شود)
+      </div>
       <div className="flex flex-wrap gap-2 items-end">
         <label className="text-xs">
           <div className="text-muted-foreground mb-1">تاریخ (میلادی)</div>
@@ -976,41 +1091,50 @@ function PriceHistoryEditor({ product }: { product: Product }) {
             dir="ltr"
             type="date"
             value={date}
+            max={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setDate(e.target.value)}
             className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm"
           />
+          <div className="mt-1 num-fa text-[10px] text-muted-foreground">{formatJalali(date)}</div>
         </label>
         <label className="text-xs">
           <div className="text-muted-foreground mb-1">قیمت</div>
           <input
             dir="ltr"
             type="number"
+            min={0}
+            inputMode="numeric"
             value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
+            onChange={(e) => setPrice(e.target.value)}
             className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm w-40"
           />
         </label>
         <button
-          onClick={() => {
-            addPricePoint(product.id, { date, price, close: price, open: product.price, high: Math.max(product.price, price), low: Math.min(product.price, price) });
-            toast.success("قیمت ثبت شد");
-          }}
-          className="rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive"
+          onClick={submit}
+          disabled={busy}
+          className="rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive disabled:opacity-50"
         >
-          افزودن
+          {busy ? "…" : "ثبت"}
         </button>
       </div>
-      <div className="mt-4 max-h-48 overflow-auto text-xs">
-        {[...product.history]
-          .slice(-15)
+      <div className="mt-4 max-h-56 overflow-auto text-xs">
+        {sorted.length === 0 && (
+          <div className="text-muted-foreground py-2">تاریخچه‌ای ثبت نشده است.</div>
+        )}
+        {sorted
+          .slice(-30)
           .reverse()
           .map((h) => (
-            <div key={h.date} className="flex items-center justify-between gap-3 py-1 border-b border-border/40 last:border-0">
+            <div
+              key={h.date}
+              className="grid grid-cols-[1fr_auto_auto] items-center gap-3 py-1 border-b border-border/40 last:border-0"
+            >
               <span className="num-fa">{formatJalali(h.date)}</span>
-              <span className="num-fa text-olive-deep">{formatPrice(h.price)}</span>
+              <span className="num-fa text-olive-deep">{formatPrice(h.close ?? h.price)}</span>
               <button
-                onClick={() => removePricePoint(product.id, h.date)}
-                className="text-bear hover:opacity-70"
+                onClick={() => remove(h.date)}
+                disabled={busy}
+                className="text-bear hover:opacity-70 disabled:opacity-40"
                 aria-label="حذف رکورد"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -1021,6 +1145,7 @@ function PriceHistoryEditor({ product }: { product: Product }) {
     </div>
   );
 }
+
 
 function ProductEditor({
   product,
