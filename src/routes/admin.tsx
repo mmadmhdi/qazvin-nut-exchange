@@ -516,26 +516,48 @@ function PricesTab() {
           />
         </div>
         <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <label key={p.id} className="text-xs">
-              <div className="text-muted-foreground mb-1 truncate">{p.name}</div>
-              <input
-                dir="ltr"
-                type="number"
-                placeholder={String(p.price)}
-                value={values[p.id] ?? ""}
-                onChange={(e) => setValues((v) => ({ ...v, [p.id]: Number(e.target.value) }))}
-                className="w-full rounded-sm border border-input bg-background px-2 py-2 text-sm"
-              />
-            </label>
-          ))}
+          {products.map((p) => {
+            const v = Number(values[p.id]);
+            const diff = Number.isFinite(v) && v > 0 && p.price ? ((v - p.price) / p.price) * 100 : null;
+            return (
+              <label key={p.id} className="text-xs">
+                <div className="text-muted-foreground mb-1 flex items-center justify-between gap-2">
+                  <span className="truncate">{p.name}</span>
+                  <span className="num-fa shrink-0 text-[10px]">{formatPrice(p.price)}</span>
+                </div>
+                <input
+                  dir="ltr"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder={String(p.price)}
+                  value={values[p.id] ?? ""}
+                  onChange={(e) => setValues((s) => ({ ...s, [p.id]: e.target.value }))}
+                  className="w-full rounded-sm border border-input bg-background px-2 py-2 text-sm"
+                />
+                {diff !== null && (
+                  <div className={`mt-1 num-fa text-[10px] ${diff >= 0 ? "text-bull" : "text-bear"}`}>
+                    {formatPercent(diff)} نسبت به قیمت فعلی
+                  </div>
+                )}
+              </label>
+            );
+          })}
         </div>
-        <div className="px-4 py-3 hairline-t flex justify-end">
-          <button onClick={saveAll} className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">
-            ثبت قیمت‌ها
+        <div className="px-4 py-3 hairline-t flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11px] text-muted-foreground num-fa">
+            تاریخ ثبت: {formatJalali(date)}
+          </span>
+          <button
+            onClick={saveAll}
+            disabled={busy}
+            className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive disabled:opacity-50"
+          >
+            {busy ? "در حال ثبت…" : "ثبت قیمت‌ها"}
           </button>
         </div>
       </div>
+
 
       <div className="card-paper rounded-sm">
         <div className="px-4 py-3 hairline-b text-[10px] tracking-[0.3em] uppercase text-brass-dark">
