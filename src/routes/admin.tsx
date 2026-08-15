@@ -249,9 +249,9 @@ function Admin({ onLock }: { onLock: () => void }) {
                   </div>
                   <div className="hidden md:block text-muted-foreground">{p.category}</div>
                   <div className="num-fa text-olive-deep text-left md:text-right">{formatPrice(p.price)}</div>
-                  <div className="hidden md:flex gap-1">
+                  <div className="flex gap-1">
                     <button
-                      onClick={() => saveProduct({ ...p, active: !p.active })}
+                      onClick={() => act(() => saveProduct({ ...p, active: !p.active }), p.active ? "غیرفعال شد" : "فعال شد")}
                       title="فعال/غیرفعال"
                       className="p-1 rounded hover:bg-cream"
                     >
@@ -262,7 +262,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                       )}
                     </button>
                     <button
-                      onClick={() => saveProduct({ ...p, featured: !p.featured })}
+                      onClick={() => act(() => saveProduct({ ...p, featured: !p.featured }), "ویژه بروزرسانی شد")}
                       title="ویژه"
                       className="p-1 rounded hover:bg-cream"
                     >
@@ -286,10 +286,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm("حذف شود؟")) {
-                          deleteProduct(p.id);
-                          toast.success("حذف شد");
-                        }
+                        if (confirm("حذف شود؟")) act(() => deleteProduct(p.id), "حذف شد");
                       }}
                       className="text-bear hover:opacity-70"
                       aria-label="حذف"
@@ -297,6 +294,7 @@ function Admin({ onLock }: { onLock: () => void }) {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
+
                 </div>
                 {expanded === p.id && <PriceHistoryEditor product={p} />}
               </div>
