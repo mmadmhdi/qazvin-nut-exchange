@@ -284,7 +284,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             {product.name}
           </div>
         </div>
-        <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto scrollbar-none">
           <SegGroup>
             {(["candle", "ha", "line", "area"] as Style[]).map((s) => (
               <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s)}>
@@ -330,7 +330,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
             <div className="text-tv-muted">داده‌ای برای این بازه ثبت نشده است</div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 mt-2 overflow-x-auto no-scrollbar pb-0.5">
+        <div className="flex items-center gap-1.5 mt-2 overflow-x-auto scrollbar-none pb-0.5">
           <ToggleChip
             on={overlays.ma20}
             onClick={() => setOverlays({ ...overlays, ma20: !overlays.ma20 })}
