@@ -1032,12 +1032,48 @@ const emptyProduct = (): Product => ({
 });
 
 function PriceHistoryEditor({ product }: { product: Product }) {
-  const { addPricePoint, removePricePoint } = useStore();
+  const { bulkPricePoints, removePricePoint } = useStore();
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [price, setPrice] = useState<number>(product.price);
+  const [price, setPrice] = useState<string>(String(product.price || ""));
+  const [busy, setBusy] = useState(false);
+
+  const sorted = useMemo(
+    () => [...(product.history ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
+    [product.history],
+  );
+
+  async function submit() {
+    const v = Math.round(Number(price));
+    if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
+    if (!Number.isFinite(v) || v <= 0) return toast.error("قیمت باید بزرگ‌تر از صفر باشد");
+    setBusy(true);
+    try {
+      await bulkPricePoints(product.id, [buildPoint(product, date, v)]);
+      toast.success(`قیمت ${formatJalali(date)} ثبت شد`);
+    } catch (e) {
+      toast.error(`ثبت قیمت ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function remove(d: string) {
+    setBusy(true);
+    try {
+      await removePricePoint(product.id, d);
+      toast.success("رکورد حذف شد");
+    } catch (e) {
+      toast.error(`حذف ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="bg-cream/40 px-4 py-4 border-t border-border">
-      <div className="text-xs text-muted-foreground mb-3">ثبت قیمت جدید</div>
+      <div className="text-xs text-muted-foreground mb-3">
+        ثبت یا اصلاح قیمت (تاریخ تکراری بازنویسی می‌شود)
+      </div>
       <div className="flex flex-wrap gap-2 items-end">
         <label className="text-xs">
           <div className="text-muted-foreground mb-1">تاریخ (میلادی)</div>
@@ -1045,41 +1081,50 @@ function PriceHistoryEditor({ product }: { product: Product }) {
             dir="ltr"
             type="date"
             value={date}
+            max={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setDate(e.target.value)}
             className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm"
           />
+          <div className="mt-1 num-fa text-[10px] text-muted-foreground">{formatJalali(date)}</div>
         </label>
         <label className="text-xs">
           <div className="text-muted-foreground mb-1">قیمت</div>
           <input
             dir="ltr"
             type="number"
+            min={0}
+            inputMode="numeric"
             value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
+            onChange={(e) => setPrice(e.target.value)}
             className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm w-40"
           />
         </label>
         <button
-          onClick={() => {
-            addPricePoint(product.id, { date, price, close: price, open: product.price, high: Math.max(product.price, price), low: Math.min(product.price, price) });
-            toast.success("قیمت ثبت شد");
-          }}
-          className="rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive"
+          onClick={submit}
+          disabled={busy}
+          className="rounded-sm bg-olive-deep px-3 py-1.5 text-xs text-paper hover:bg-olive disabled:opacity-50"
         >
-          افزودن
+          {busy ? "…" : "ثبت"}
         </button>
       </div>
-      <div className="mt-4 max-h-48 overflow-auto text-xs">
-        {[...product.history]
-          .slice(-15)
+      <div className="mt-4 max-h-56 overflow-auto text-xs">
+        {sorted.length === 0 && (
+          <div className="text-muted-foreground py-2">تاریخچه‌ای ثبت نشده است.</div>
+        )}
+        {sorted
+          .slice(-30)
           .reverse()
           .map((h) => (
-            <div key={h.date} className="flex items-center justify-between gap-3 py-1 border-b border-border/40 last:border-0">
+            <div
+              key={h.date}
+              className="grid grid-cols-[1fr_auto_auto] items-center gap-3 py-1 border-b border-border/40 last:border-0"
+            >
               <span className="num-fa">{formatJalali(h.date)}</span>
-              <span className="num-fa text-olive-deep">{formatPrice(h.price)}</span>
+              <span className="num-fa text-olive-deep">{formatPrice(h.close ?? h.price)}</span>
               <button
-                onClick={() => removePricePoint(product.id, h.date)}
-                className="text-bear hover:opacity-70"
+                onClick={() => remove(h.date)}
+                disabled={busy}
+                className="text-bear hover:opacity-70 disabled:opacity-40"
                 aria-label="حذف رکورد"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -1090,6 +1135,7 @@ function PriceHistoryEditor({ product }: { product: Product }) {
     </div>
   );
 }
+
 
 function ProductEditor({
   product,
