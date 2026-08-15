@@ -240,16 +240,18 @@ function Admin({ onLock }: { onLock: () => void }) {
             </div>
             {sorted.map((p) => (
               <div key={p.id} className="hairline-b last:border-0">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[2fr_1fr_1fr_120px_140px] gap-2 px-4 py-3 items-center text-sm">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[2fr_1fr_1fr_120px_140px] gap-2 px-4 py-3 items-center text-sm">
                   <div className="min-w-0 text-cocoa">
                     <div className="font-semibold truncate">{p.name}</div>
                     <div className="text-xs text-muted-foreground truncate">
                       {p.origin} · {p.grade}
                     </div>
+                    <div className="md:hidden num-fa text-xs text-olive-deep mt-1">{formatPrice(p.price)}</div>
                   </div>
                   <div className="hidden md:block text-muted-foreground">{p.category}</div>
-                  <div className="num-fa text-olive-deep text-left md:text-right">{formatPrice(p.price)}</div>
+                  <div className="hidden md:block num-fa text-olive-deep md:text-right">{formatPrice(p.price)}</div>
                   <div className="flex gap-1">
+
                     <button
                       onClick={() => act(() => saveProduct({ ...p, active: !p.active }), p.active ? "غیرفعال شد" : "فعال شد")}
                       title="فعال/غیرفعال"
