@@ -409,56 +409,98 @@ function Dashboard() {
 
 /* --------------------------------- prices -------------------------------- */
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Builds a consistent OHLC point: the open follows the previous session's
+ * close (never today's stored price), so candles and the chart stay in sync.
+ */
+function buildPoint(product: Product, date: string, price: number): PricePoint {
+  const prior = [...(product.history ?? [])]
+    .filter((h) => h.date < date)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .pop();
+  const existing = (product.history ?? []).find((h) => h.date === date);
+  const open = prior?.close ?? prior?.price ?? price;
+  return {
+    date,
+    price,
+    close: price,
+    open,
+    high: Math.max(open, price, existing?.high ?? 0),
+    low: Math.min(open, price, existing?.low ?? price),
+    volume: existing?.volume ?? 0,
+  };
+}
+
 function PricesTab() {
-  const { products, addPricePoint, bulkPricePoints } = useStore();
+  const { products, bulkPricePoints } = useStore();
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [values, setValues] = useState<Record<string, number>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
   const [csvId, setCsvId] = useState(products[0]?.id ?? "");
   const [csv, setCsv] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function saveAll() {
-    let n = 0;
-    products.forEach((p) => {
-      const v = values[p.id];
-      if (v && v > 0) {
-        addPricePoint(p.id, { date, price: v, open: p.price, high: Math.max(p.price, v), low: Math.min(p.price, v), close: v });
-        n++;
-      }
-    });
-    if (n === 0) toast.error("قیمتی وارد نشده است");
-    else {
-      toast.success(`${toFaDigits(n)} قیمت ثبت شد`);
+  async function saveAll() {
+    if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
+    const jobs = products
+      .map((p) => {
+        const v = Number(values[p.id]);
+        return Number.isFinite(v) && v > 0 ? { p, point: buildPoint(p, date, Math.round(v)) } : null;
+      })
+      .filter(Boolean) as { p: Product; point: PricePoint }[];
+    if (!jobs.length) return toast.error("قیمتی وارد نشده است");
+    setBusy(true);
+    try {
+      for (const j of jobs) await bulkPricePoints(j.p.id, [j.point]);
+      toast.success(`${toFaDigits(jobs.length)} قیمت برای ${formatJalali(date)} ثبت شد`);
       setValues({});
+    } catch (e) {
+      toast.error(`ثبت قیمت‌ها ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
     }
   }
 
-  function importCsv() {
+  async function importCsv() {
+    if (!csvId) return toast.error("محصول را انتخاب کنید");
     const rows = csv
       .split(/\n+/)
       .map((line) => line.trim())
       .filter(Boolean)
+      .filter((line) => !/^(date|تاریخ)/i.test(line))
       .map((line) => line.split(/[,\t;]/).map((c) => c.trim()));
     const points: PricePoint[] = [];
     for (const r of rows) {
       const [d, price, open, high, low, volume] = r;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(d ?? "")) continue;
+      if (!ISO_DATE.test(d ?? "")) continue;
       const close = Number(price);
       if (!Number.isFinite(close) || close <= 0) continue;
+      const o = Number(open) || close;
       points.push({
         date: d,
         price: close,
         close,
-        open: Number(open) || close,
-        high: Number(high) || close,
-        low: Number(low) || close,
-        volume: Number(volume) || 0,
+        open: o,
+        high: Math.max(Number(high) || close, o, close),
+        low: Math.min(Number(low) || close, o, close),
+        volume: Math.max(0, Number(volume) || 0),
       });
     }
-    if (points.length === 0) return toast.error("داده‌ی معتبری یافت نشد (قالب: ۲۰۲۶-۰۱-۰۱,۱۰۰۰۰۰)");
-    bulkPricePoints(csvId, points);
-    setCsv("");
-    toast.success(`${toFaDigits(points.length)} رکورد وارد شد`);
+    if (points.length === 0)
+      return toast.error("داده‌ی معتبری یافت نشد (قالب: ۲۰۲۶-۰۱-۰۱,۱۰۰۰۰۰)");
+    setBusy(true);
+    try {
+      await bulkPricePoints(csvId, points);
+      setCsv("");
+      toast.success(`${toFaDigits(points.length)} رکورد وارد شد`);
+    } catch (e) {
+      toast.error(`ورود داده ناموفق بود: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
   }
+
 
   return (
     <div className="space-y-8">
