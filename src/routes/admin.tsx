@@ -583,14 +583,19 @@ function PricesTab() {
             placeholder={"2026-07-01,58500000,58000000,59000000,57800000,240\n2026-07-02,58900000"}
             className="w-full rounded-sm border border-input bg-background px-3 py-2 text-xs font-mono"
           />
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-2 justify-between items-center">
             <span className="text-[11px] text-muted-foreground">
               هر خط: تاریخ میلادی، قیمت پایانی، (اختیاری) باز، بیشترین، کمترین، حجم
             </span>
-            <button onClick={importCsv} className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">
-              وارد کردن
+            <button
+              onClick={importCsv}
+              disabled={busy}
+              className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive disabled:opacity-50"
+            >
+              {busy ? "در حال ورود…" : "وارد کردن"}
             </button>
           </div>
+
         </div>
       </div>
     </div>
