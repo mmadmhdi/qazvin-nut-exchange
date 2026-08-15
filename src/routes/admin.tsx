@@ -165,10 +165,20 @@ function Admin({ onLock }: { onLock: () => void }) {
 
   const sorted = useMemo(() => [...products].sort((a, b) => b.priority - a.priority), [products]);
 
+  async function act(fn: () => unknown | Promise<unknown>, ok: string) {
+    try {
+      await fn();
+      toast.success(ok);
+    } catch (e) {
+      toast.error(`عملیات ناموفق بود: ${(e as Error).message}`);
+    }
+  }
+
   async function logout() {
     await lockAdmin();
     onLock();
   }
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
