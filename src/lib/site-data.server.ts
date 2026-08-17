@@ -146,7 +146,7 @@ export async function readSiteData(): Promise<SiteData> {
       priority: num(p["priority"]),
       active: Boolean(p["active"]),
       featured: Boolean(p["featured"]),
-      updatedAt: str(p["updated_at"]).slice(0, 10) || last?.date || "",
+      updatedAt: last?.date || str(p["updated_at"]).slice(0, 10) || "",
       history: hist,
       passport: (p["passport"] as Product["passport"]) ?? undefined,
     };
