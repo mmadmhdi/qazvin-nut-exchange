@@ -48,23 +48,53 @@ function Compare() {
 
   const data = useMemo(() => {
     if (!picked.length) return [];
+    // Align strictly by calendar date (products trade on different days and
+    // have different history lengths), forward-filling the last known price.
+    const dayMs = 86_400_000;
+    const lastTs = Math.max(
+      ...picked.map((p) => {
+        const d = p.history[p.history.length - 1]?.date;
+        return d ? new Date(`${d}T00:00:00Z`).getTime() : 0;
+      }),
+    );
+    if (!Number.isFinite(lastTs) || lastTs <= 0) return [];
+    const startTs = lastTs - (range - 1) * dayMs;
+
     const series = picked.map((p) => {
-      const hist = p.history.slice(-range);
-      const base = hist[0]?.price ?? p.price;
-      return { p, hist, base };
+      const map = new Map<string, number>();
+      let baseline = 0;
+      for (const h of p.history) {
+        const ts = new Date(`${h.date}T00:00:00Z`).getTime();
+        if (!Number.isFinite(ts) || !h.price) continue;
+        if (ts < startTs) baseline = h.price;
+        else map.set(h.date, h.price);
+      }
+      const firstInRange = [...map.values()][0];
+      return { p, map, base: baseline || firstInRange || p.price, carry: baseline };
     });
-    const len = Math.min(...series.map((s) => s.hist.length));
-    const rows: any[] = [];
-    for (let i = 0; i < len; i++) {
-      const row: any = { label: formatJalaliShort(new Date(series[0].hist[i].date)) };
-      series.forEach((s) => {
-        const pct = ((s.hist[i].price - s.base) / s.base) * 100;
-        row[s.p.id] = Number(pct.toFixed(2));
-      });
+
+    const dates = new Set<string>();
+    for (const s of series) for (const d of s.map.keys()) dates.add(d);
+    const sorted = [...dates].sort();
+    if (!sorted.length) return [];
+
+    const carry = new Map(series.map((s) => [s.p.id, s.carry]));
+    const rows: Record<string, number | string>[] = [];
+    for (const date of sorted) {
+      const row: Record<string, number | string> = {
+        label: formatJalaliShort(date),
+      };
+      for (const s of series) {
+        const v = s.map.get(date) ?? carry.get(s.p.id) ?? 0;
+        carry.set(s.p.id, v);
+        if (!v || !s.base) continue;
+        row[s.p.id] = Number((((v - s.base) / s.base) * 100).toFixed(2));
+      }
       rows.push(row);
     }
     return rows;
   }, [picked, range]);
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
