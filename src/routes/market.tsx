@@ -7,6 +7,8 @@ import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
 import { formatJalali, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, ArrowUpDown, Search } from "lucide-react";
+import { Faq, type FaqItem } from "@/components/site/Faq";
+
 
 export const Route = createFileRoute("/market")({
   head: () => ({
