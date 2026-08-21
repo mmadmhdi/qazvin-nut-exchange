@@ -3,6 +3,8 @@ import { useStore, type WholesaleTier, type WholesaleBenefit } from "@/lib/store
 import { formatPrice } from "@/lib/format";
 import { Check } from "lucide-react";
 import { telHref, waHref } from "@/lib/contact";
+import { Faq, type FaqItem } from "@/components/site/Faq";
+
 
 export const Route = createFileRoute("/wholesale")({
   head: () => ({
