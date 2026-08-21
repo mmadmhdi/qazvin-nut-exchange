@@ -1,13 +1,21 @@
+import { ARTICLES_HEALTH } from "./articles-health";
+import { ARTICLES_HERITAGE } from "./articles-heritage";
 import { ARTICLES_MARKET } from "./articles-market";
 import { ARTICLES_ORCHARD } from "./articles-orchard";
+import { ARTICLES_TASTE } from "./articles-taste";
 import type { Article, ArticleCategoryId } from "./articles-types";
 
 export type { Article, ArticleCategoryId } from "./articles-types";
 export { CATEGORIES, categoryLabel } from "./articles-types";
 
-export const ARTICLES: Article[] = [...ARTICLES_MARKET, ...ARTICLES_ORCHARD].sort((a, b) =>
-  b.date.localeCompare(a.date),
-);
+export const ARTICLES: Article[] = [
+  ...ARTICLES_MARKET,
+  ...ARTICLES_ORCHARD,
+  ...ARTICLES_TASTE,
+  ...ARTICLES_HEALTH,
+  ...ARTICLES_HERITAGE,
+].sort((a, b) => b.date.localeCompare(a.date));
+
 
 export function articleBySlug(slug: string): Article | undefined {
   return ARTICLES.find((a) => a.slug === slug);

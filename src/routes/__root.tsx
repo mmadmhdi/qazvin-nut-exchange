@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  Link,
   Outlet,
+
   createRootRouteWithContext,
   useRouter,
   HeadContent,
@@ -17,21 +19,38 @@ import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
 
 function NotFoundComponent() {
+  const links: { to: string; label: string }[] = [
+    { to: "/", label: "خانه" },
+    { to: "/market", label: "تابلوی بازار" },
+    { to: "/products", label: "محصولات" },
+    { to: "/journal", label: "دفتر سبز" },
+    { to: "/wholesale", label: "خرید عمده" },
+    { to: "/contact", label: "تماس" },
+  ];
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl text-olive-deep">۴۰۴</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">صفحه یافت نشد</h2>
-        <p className="mt-2 text-sm text-muted-foreground">آدرس مورد نظر در دسترس نیست.</p>
-        <div className="mt-6">
-          <a href="/" className="inline-flex items-center rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive">
-            بازگشت به خانه
-          </a>
+        <p className="mt-2 text-sm text-muted-foreground">
+          آدرس مورد نظر در دسترس نیست. یکی از مسیرهای زیر را انتخاب کنید.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className="rounded-sm border border-brass/40 px-4 py-2 text-sm text-olive-deep hover:bg-cream tracking-widest"
+            >
+              {l.label}
+            </Link>
+          ))}
         </div>
       </div>
     </div>
   );
 }
+
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();

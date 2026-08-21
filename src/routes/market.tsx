@@ -7,6 +7,8 @@ import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
 import { formatJalali, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, ArrowUpDown, Search } from "lucide-react";
+import { Faq, type FaqItem } from "@/components/site/Faq";
+
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -184,9 +186,35 @@ function Market() {
           <Heatmap products={active} />
         </div>
       </div>
+
+      <Faq items={PRICE_FAQ} title="پرسش‌های متداول قیمت پسته" />
     </div>
   );
 }
+
+const PRICE_FAQ: FaqItem[] = [
+  {
+    q: "قیمت روز خلال پسته امروز چند است؟",
+    a: "نرخ روز هر قلم در همین تابلو با تاریخ آخرین معامله نمایش داده می‌شود؛ اعداد بر مبنای ریال به‌ازای هر کیلوگرم و برگرفته از دفاتر فروش رسمی شرکت درج تجارت لیا هستند.",
+  },
+  {
+    q: "قیمت‌ها هر چند وقت به‌روزرسانی می‌شوند؟",
+    a: "پس از هر معامله‌ی ثبت‌شده، نرخ و نمودار همان قلم به‌روز می‌شود؛ تاریخ آخرین به‌روزرسانی همیشه کنار عدد درج شده است.",
+  },
+  {
+    q: "چرا قیمت خلال پسته با مغز پسته تفاوت دارد؟",
+    a: "برای تولید هر کیلوگرم خلال درجه‌یک، حدود ۱٫۱۵ تا ۱٫۳۵ کیلوگرم مغز سالم مصرف می‌شود و هزینه‌ی برش، خشک‌کن و سرند نیز اضافه می‌گردد؛ به همین دلیل نرخ خلال بالاتر است.",
+  },
+  {
+    q: "نمودار قیمت بر پایه چه داده‌ای رسم شده است؟",
+    a: "بر پایه‌ی معاملات واقعی ثبت‌شده در دفاتر فروش شرکت (سال‌های ۱۴۰۴ و ۱۴۰۵)؛ برای هر روز، بازگشایی، سقف، کف، بسته‌شدن و حجم معامله محاسبه می‌شود.",
+  },
+  {
+    q: "چه عواملی قیمت پسته را تغییر می‌دهند؟",
+    a: "برآورد محصول و سرمازدگی بهاره، ضریب تبدیل مغز به خلال، هزینه‌ی فرآوری و انبارداری، تقاضای فصلی داخلی و نرخ ارز و تقاضای صادراتی.",
+  },
+];
+
 
 function IndexCard({ k, v, unit, accent }: { k: string; v: string; unit?: string; accent?: "bull" | "bear" }) {
   return (
