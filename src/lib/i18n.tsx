@@ -1,5 +1,3 @@
-import { useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
 
 export type Locale = "fa" | "en" | "ar";
 
@@ -117,26 +115,9 @@ export function parseLocale(searchStr: string | undefined): Locale {
   return (m?.[1] as Locale) ?? DEFAULT_LOCALE;
 }
 
-export function useLocale(): Locale {
-  return useRouterState({
-    select: (s) => parseLocale(s.location.searchStr),
-  });
-}
-
-export function useT() {
-  const locale = useLocale();
+export function useT(localeOverride?: Locale) {
+  const locale = localeOverride ?? DEFAULT_LOCALE;
   const dict = DICTS[locale] ?? fa;
   const t = (key: string) => dict[key] ?? fa[key] ?? key;
   return { t, locale, dir: locale === "en" ? ("ltr" as const) : ("rtl" as const) };
-}
-
-/** Keeps <html lang/dir> in sync with the active locale (client-side). */
-export function LocaleSync() {
-  const { locale, dir } = useT();
-  useEffect(() => {
-    const el = document.documentElement;
-    el.setAttribute("lang", locale);
-    el.setAttribute("dir", dir);
-  }, [locale, dir]);
-  return null;
 }
