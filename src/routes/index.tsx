@@ -5,6 +5,7 @@ import { ProductCard } from "@/components/site/ProductCard";
 import { MarketChart } from "@/components/site/MarketChart";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
 import { ShellGate } from "@/components/site/ShellGate";
+import { useTranslation } from "@/lib/i18n-provider";
 
 import { formatPercent, formatPrice, toFaDigits } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, ShieldCheck, Leaf, Boxes, BarChart3 } from "lucide-react";
@@ -25,6 +26,9 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { products, settings } = useStore();
+  const { t, locale } = useTranslation();
+  const heroTitle = locale === "fa" ? settings.heroTitle : t("hero.title");
+  const heroSubtitle = locale === "fa" ? settings.heroSubtitle : t("hero.subtitle");
   const active = products.filter((p) => p.active).sort((a, b) => b.priority - a.priority);
   const featured = active.filter((p) => p.featured);
   const others = active.filter((p) => !p.featured);
@@ -65,12 +69,12 @@ function Home() {
               {settings.brandLatin} · Est. ۱۳۴۸
             </div>
             <h1 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[1.05] text-olive-deep">
-              {settings.heroTitle}
+              {heroTitle}
             </h1>
             <div className="mt-5 sm:mt-6 max-w-2xl">
               <div className="gold-rule mb-4 sm:mb-6" />
               <p className="text-sm sm:text-base md:text-lg text-cocoa leading-8 sm:leading-9">
-                {settings.heroSubtitle}
+                {heroSubtitle}
               </p>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -78,19 +82,19 @@ function Home() {
                 to="/market"
                 className="inline-flex items-center gap-2 rounded-sm bg-olive-deep px-5 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-paper hover:bg-olive transition-colors"
               >
-                تابلوی زنده بازار
+                {t("cta.liveMarket")}
               </Link>
               <Link
                 to="/analysis"
                 className="inline-flex items-center gap-2 rounded-sm border border-olive-deep/40 px-5 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-olive-deep hover:bg-cream transition-colors"
               >
-                تحلیل بازار
+                {t("cta.analysis")}
               </Link>
             </div>
             <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-4 max-w-md">
-              <Stat label="محصول پایش‌شده" value={toFaDigits(active.length)} />
-              <Stat label="نسل تجربه" value="۴" />
-              <Stat label="سال فعالیت" value="۷۷+" />
+              <Stat label={t("home.stat.products")} value={toFaDigits(active.length)} />
+              <Stat label={t("home.stat.generations")} value="۴" />
+              <Stat label={t("home.stat.years")} value="۷۷+" />
             </div>
           </div>
           <div className="min-w-0">
@@ -104,11 +108,11 @@ function Home() {
         <div className="hairline-t hairline-b py-6">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
             <div className="min-w-0">
-              <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">تابلوی قیمت امروز</div>
-              <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">بازار خشکبار</h2>
+              <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t("home.todayBoard")}</div>
+              <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">{t("home.nutMarket")}</h2>
             </div>
             <Link to="/market" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
-              همه‌ی قیمت‌ها ←
+              {t("cta.allPrices")}
             </Link>
           </div>
           <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
