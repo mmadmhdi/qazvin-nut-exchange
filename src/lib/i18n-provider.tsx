@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { DEFAULT_LOCALE, parseLocale, type Locale } from "@/lib/i18n";
+import { DEFAULT_LOCALE, parseLocale, useT, type Locale } from "@/lib/i18n";
 
 const STORAGE_KEY = "dorjesabz.locale";
 
@@ -53,4 +53,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
 export function useLocaleContext() {
   return useContext(Ctx);
+}
+
+export function useTranslation() {
+  const { locale, setLocale } = useLocaleContext();
+  const { t, dir } = useT(locale);
+  return { t, dir, locale, setLocale };
 }
