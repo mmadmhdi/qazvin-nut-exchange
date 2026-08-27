@@ -17,6 +17,7 @@ import { Header, Footer } from "@/components/site/Chrome";
 import { Toaster } from "sonner";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
+import { LocaleProvider } from "@/lib/i18n-provider";
 
 function NotFoundComponent() {
   const links: { to: string; label: string }[] = [
@@ -157,6 +158,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>
+        <LocaleProvider>
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1"><Outlet /></main>
@@ -165,6 +167,7 @@ function RootComponent() {
         <WhatsAppFab />
         <GreenCurator />
         <Toaster richColors position="top-center" dir="rtl" />
+        </LocaleProvider>
       </StoreProvider>
     </QueryClientProvider>
   );

@@ -39,6 +39,8 @@ const fa: Dict = {
   "home.stat.products": "محصول پایش‌شده",
   "home.stat.generations": "نسل تجربه",
   "home.stat.years": "سال فعالیت",
+  "hero.title": "",
+  "hero.subtitle": "",
   "lang.label": "زبان",
   "lang.note": "مقالات دفتر سبز فعلاً فقط به فارسی منتشر می‌شوند.",
 };
@@ -71,6 +73,8 @@ const en: Dict = {
   "home.stat.products": "Tracked products",
   "home.stat.generations": "Generations",
   "home.stat.years": "Years active",
+  "hero.title": "The transparent price of Qazvin pistachio slivers",
+  "hero.subtitle": "Darj Sabz Qazvin publishes the daily price of pistachio slivers and nuts from its own official sales ledgers — with full history, professional charts and orchard provenance.",
   "lang.label": "Language",
   "lang.note": "Green Journal articles are currently published in Persian only.",
 };
@@ -103,6 +107,8 @@ const ar: Dict = {
   "home.stat.products": "منتجات مرصودة",
   "home.stat.generations": "أجيال من الخبرة",
   "home.stat.years": "سنوات النشاط",
+  "hero.title": "السعر الشفاف لشرائح الفستق القزويني",
+  "hero.subtitle": "درج سبز قزوين ينشر سعر اليوم لشرائح الفستق والمكسرات من دفاتر البيع الرسمية — مع السجل الكامل والرسوم البيانية المهنية وشهادة أصل البستان.",
   "lang.label": "اللغة",
   "lang.note": "مقالات الدفتر الأخضر متوفرة حالياً بالفارسية فقط.",
 };
