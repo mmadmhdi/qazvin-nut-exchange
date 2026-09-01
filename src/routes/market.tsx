@@ -6,9 +6,12 @@ import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
 import { formatJalali, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
-import { ArrowDownRight, ArrowUpRight, ArrowUpDown, Search } from "lucide-react";
-import { Faq, type FaqItem } from "@/components/site/Faq";
-
+import { ArrowUpDown, Search } from "lucide-react";
+import { Faq } from "@/components/site/Faq";
+import { priceFaq } from "@/lib/faq-i18n";
+import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct, localizeCategory } from "@/lib/product-i18n";
+import { seoLinks } from "@/lib/seo";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -18,6 +21,7 @@ export const Route = createFileRoute("/market")({
       { property: "og:title", content: "بازار پسته امروز" },
       { property: "og:description", content: "قیمت لحظه‌ای، اندیکاتورهای تکنیکال و نقشه بازار خشکبار." },
     ],
+    links: seoLinks("/market"),
   }),
   component: Market,
 });
@@ -26,6 +30,7 @@ type SortKey = "priority" | "price" | "change" | "name";
 
 function Market() {
   const { products } = useStore();
+  const { t, locale } = useTranslation();
   const active = products.filter((p) => p.active);
   const [selectedId, setSelectedId] = useState<string>(active[0]?.id ?? "");
   const [query, setQuery] = useState("");
@@ -34,23 +39,35 @@ function Market() {
   const [dir, setDir] = useState<"desc" | "asc">("desc");
 
   const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
     let list = active
       .filter((p) => cat === "all" || p.category === cat)
-      .filter((p) => !query || p.name.includes(query) || p.origin.includes(query));
+      .filter((p) => {
+        if (!q) return true;
+        const l = localizeProduct(p, locale);
+        return (
+          p.name.toLowerCase().includes(q) ||
+          p.origin.toLowerCase().includes(q) ||
+          l.name.toLowerCase().includes(q) ||
+          l.origin.toLowerCase().includes(q)
+        );
+      });
     list.sort((a, b) => {
       const ca = computeChange(a.history).pct;
       const cb = computeChange(b.history).pct;
       let d = 0;
       if (sort === "price") d = a.price - b.price;
       else if (sort === "change") d = ca - cb;
-      else if (sort === "name") d = a.name.localeCompare(b.name, "fa");
+      else if (sort === "name")
+        d = localizeProduct(a, locale).name.localeCompare(localizeProduct(b, locale).name, locale);
       else d = a.priority - b.priority;
       return dir === "asc" ? d : -d;
     });
     return list;
-  }, [active, query, cat, sort, dir]);
+  }, [active, query, cat, sort, dir, locale]);
 
   const selected = rows.find((p) => p.id === selectedId) ?? rows[0] ?? active[0];
+  const sel = selected ? localizeProduct(selected, locale) : null;
 
   const toggle = (k: SortKey) => {
     if (sort === k) setDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -70,10 +87,10 @@ function Market() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 mb-6">
         <div className="min-w-0">
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">تابلوی معاملات</div>
-          <h1 className="font-display text-3xl sm:text-4xl text-olive-deep mt-1">بازار پسته امروز</h1>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t("market.eyebrow")}</div>
+          <h1 className="font-display text-3xl sm:text-4xl text-olive-deep mt-1">{t("market.title")}</h1>
         </div>
-        <div className="text-[10px] sm:text-xs text-muted-foreground text-left shrink-0">
+        <div className="text-[10px] sm:text-xs text-muted-foreground text-end shrink-0">
           {formatJalali(new Date())}
         </div>
       </div>
@@ -81,48 +98,48 @@ function Market() {
 
       {/* Index strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <IndexCard k="شاخص میانگین" v={formatPrice(Math.round(idx.avg))} unit="ریال" />
-        <IndexCard k="روند شاخص" v={formatPercent(idx.ch)} accent={idx.ch >= 0 ? "bull" : "bear"} />
-        <IndexCard k="صعودی" v={toFaDigits(idx.up)} accent="bull" />
-        <IndexCard k="نزولی" v={toFaDigits(idx.dn)} accent="bear" />
+        <IndexCard k={t("market.idx.avg")} v={formatPrice(Math.round(idx.avg))} unit={t("market.unit.rial")} />
+        <IndexCard k={t("market.idx.trend")} v={formatPercent(idx.ch)} accent={idx.ch >= 0 ? "bull" : "bear"} />
+        <IndexCard k={t("market.idx.up")} v={toFaDigits(idx.up)} accent="bull" />
+        <IndexCard k={t("market.idx.down")} v={toFaDigits(idx.dn)} accent="bear" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.9fr]">
         {/* Watchlist */}
         <div className="tv-panel rounded-sm overflow-hidden flex flex-col">
           <div className="px-3 py-2 border-b border-tv-border bg-tv-headband">
-            <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Watchlist · واچ‌لیست</div>
+            <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Watchlist · {t("market.watchlist")}</div>
             <div className="mt-2 flex items-center gap-2">
               <div className="relative flex-1 min-w-0">
-                <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-tv-muted" />
+                <Search className="absolute start-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-tv-muted" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="جستجو…"
-                  className="w-full bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text placeholder:text-tv-muted pr-7 pl-2 py-1.5 outline-none focus:border-brass/60"
+                  placeholder={t("market.search")}
+                  className="w-full bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text placeholder:text-tv-muted ps-7 pe-2 py-1.5 outline-none focus:border-brass/60"
                 />
               </div>
               <select
                 value={cat}
-                onChange={(e) => setCat(e.target.value as any)}
+                onChange={(e) => setCat(e.target.value as typeof cat)}
                 className="bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text px-2 py-1.5 outline-none focus:border-brass/60"
               >
-                <option value="all">همه</option>
-                <option value="پسته">پسته</option>
-                <option value="بادام درختی">بادام درختی</option>
-                <option value="بادام زمینی">بادام زمینی</option>
+                <option value="all">{t("market.all")}</option>
+                <option value="پسته">{localizeCategory("پسته", locale)}</option>
+                <option value="بادام درختی">{localizeCategory("بادام درختی", locale)}</option>
+                <option value="بادام زمینی">{localizeCategory("بادام زمینی", locale)}</option>
               </select>
             </div>
           </div>
           <div className="grid grid-cols-[2fr_1fr_auto] px-3 py-1.5 text-[10px] tracking-widest uppercase text-tv-muted bg-tv-headband/50 border-b border-tv-border">
-            <button className="flex items-center gap-1 text-right" onClick={() => toggle("name")}>
-              نام <ArrowUpDown className="h-3 w-3" />
+            <button className="flex items-center gap-1 text-start" onClick={() => toggle("name")}>
+              {t("market.col.name")} <ArrowUpDown className="h-3 w-3" />
             </button>
             <button className="flex items-center gap-1 justify-start" onClick={() => toggle("price")}>
-              قیمت <ArrowUpDown className="h-3 w-3" />
+              {t("market.col.price")} <ArrowUpDown className="h-3 w-3" />
             </button>
-            <button className="flex items-center gap-1 pl-1" onClick={() => toggle("change")}>
-              تغییر <ArrowUpDown className="h-3 w-3" />
+            <button className="flex items-center gap-1 ps-1" onClick={() => toggle("change")}>
+              {t("market.col.change")} <ArrowUpDown className="h-3 w-3" />
             </button>
           </div>
           <div className="overflow-y-auto max-h-[560px]">
@@ -130,18 +147,19 @@ function Market() {
               const ch = computeChange(p.history).pct;
               const up = ch >= 0;
               const on = selected?.id === p.id;
+              const l = localizeProduct(p, locale);
               return (
                 <button
                   key={p.id}
                   onClick={() => setSelectedId(p.id)}
-                  className={`w-full grid grid-cols-[2fr_1fr_auto] items-center gap-2 px-3 py-2 text-right border-b border-tv-border/60 transition-colors ${
+                  className={`w-full grid grid-cols-[2fr_1fr_auto] items-center gap-2 px-3 py-2 text-start border-b border-tv-border/60 transition-colors ${
                     on ? "bg-brass/10" : "hover:bg-tv-headband/60"
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-[13px] text-tv-text truncate">{p.name}</div>
+                    <div className="text-[13px] text-tv-text truncate">{l.name}</div>
                     <div className="text-[10px] text-tv-muted mt-0.5 tracking-widest uppercase truncate">
-                      {p.origin} · {p.grade}
+                      {l.origin} · {l.grade}
                     </div>
                   </div>
                   <div className="min-w-0">
@@ -164,21 +182,21 @@ function Market() {
         {/* Right column */}
         <div className="space-y-6 min-w-0">
           {selected && <MarketChart product={selected} />}
-          {selected && (
+          {selected && sel && (
             <div className="grid gap-6 md:grid-cols-2">
               <MarketSnowflake product={selected} />
               <div className="card-paper rounded-sm p-5">
-                <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">درباره محصول</div>
-                <h2 className="font-display text-xl text-olive-deep mt-2">{selected.name}</h2>
-                <p className="mt-3 text-cocoa leading-8 text-sm">{selected.description}</p>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t("market.aboutProduct")}</div>
+                <h2 className="font-display text-xl text-olive-deep mt-2">{sel.name}</h2>
+                <p className="mt-3 text-cocoa leading-8 text-sm">{sel.description}</p>
                 <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-                  <Meta k="منشأ" v={selected.origin} />
-                  <Meta k="درجه" v={selected.grade} />
-                  <Meta k="دسته" v={selected.category} />
-                  <Meta k="واحد" v={selected.unit} />
+                  <Meta k={t("meta.origin")} v={sel.origin} />
+                  <Meta k={t("meta.grade")} v={sel.grade} />
+                  <Meta k={t("meta.category")} v={sel.category} />
+                  <Meta k={t("meta.unit")} v={sel.unit} />
                 </div>
                 <Link to="/products/$slug" params={{ slug: selected.slug }} className="mt-5 inline-flex text-xs tracking-widest uppercase text-brass-dark hover:text-olive-deep">
-                  جزئیات کامل ←
+                  {t("market.details")}
                 </Link>
               </div>
             </div>
@@ -187,34 +205,10 @@ function Market() {
         </div>
       </div>
 
-      <Faq items={PRICE_FAQ} title="پرسش‌های متداول قیمت پسته" />
+      <Faq items={priceFaq(locale)} title={t("market.faqTitle")} />
     </div>
   );
 }
-
-const PRICE_FAQ: FaqItem[] = [
-  {
-    q: "قیمت روز خلال پسته امروز چند است؟",
-    a: "نرخ روز هر قلم در همین تابلو با تاریخ آخرین معامله نمایش داده می‌شود؛ اعداد بر مبنای ریال به‌ازای هر کیلوگرم و برگرفته از دفاتر فروش رسمی شرکت درج تجارت لیا هستند.",
-  },
-  {
-    q: "قیمت‌ها هر چند وقت به‌روزرسانی می‌شوند؟",
-    a: "پس از هر معامله‌ی ثبت‌شده، نرخ و نمودار همان قلم به‌روز می‌شود؛ تاریخ آخرین به‌روزرسانی همیشه کنار عدد درج شده است.",
-  },
-  {
-    q: "چرا قیمت خلال پسته با مغز پسته تفاوت دارد؟",
-    a: "برای تولید هر کیلوگرم خلال درجه‌یک، حدود ۱٫۱۵ تا ۱٫۳۵ کیلوگرم مغز سالم مصرف می‌شود و هزینه‌ی برش، خشک‌کن و سرند نیز اضافه می‌گردد؛ به همین دلیل نرخ خلال بالاتر است.",
-  },
-  {
-    q: "نمودار قیمت بر پایه چه داده‌ای رسم شده است؟",
-    a: "بر پایه‌ی معاملات واقعی ثبت‌شده در دفاتر فروش شرکت (سال‌های ۱۴۰۴ و ۱۴۰۵)؛ برای هر روز، بازگشایی، سقف، کف، بسته‌شدن و حجم معامله محاسبه می‌شود.",
-  },
-  {
-    q: "چه عواملی قیمت پسته را تغییر می‌دهند؟",
-    a: "برآورد محصول و سرمازدگی بهاره، ضریب تبدیل مغز به خلال، هزینه‌ی فرآوری و انبارداری، تقاضای فصلی داخلی و نرخ ارز و تقاضای صادراتی.",
-  },
-];
-
 
 function IndexCard({ k, v, unit, accent }: { k: string; v: string; unit?: string; accent?: "bull" | "bear" }) {
   return (
