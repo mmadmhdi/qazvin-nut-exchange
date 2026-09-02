@@ -157,6 +157,31 @@ const fa: Dict = {
   "products.backCatalog": "← بازگشت به کاتالوگ",
   "products.related": "محصولات مشابه",
   "products.sameCategory": "از همین دسته",
+
+  // Wholesale
+  "wholesale.eyebrow": "فروش عمده و صادراتی",
+  "wholesale.title": "شریک تجاری تجار خشکبار",
+  "wholesale.intro":
+    "درج سبز قزوین، خلال پسته با درجه‌ی صادراتی را برای قنادان، صنایع غذایی و صادرکنندگان تأمین می‌کند. شرایط تخفیف پلکانی، پرداخت مدت‌دار و قرارداد سالانه‌ی قیمت‌تضمینی بر اساس حجم سفارش قابل مذاکره است.",
+  "wholesale.kg": "کیلوگرم",
+  "wholesale.discountUpTo": "تا {n}٪ تخفیف",
+  "wholesale.noBaseDiscount": "بدون تخفیف پایه",
+  "wholesale.invoice": "پیش‌فاکتور",
+  "wholesale.priceList": "لیست قیمت عمده",
+  "wholesale.pricesIn": "قیمت‌ها به {currency}",
+  "wholesale.col.product": "محصول",
+  "wholesale.col.origin": "منشأ",
+  "wholesale.col.grade": "درجه",
+  "wholesale.col.price": "قیمت / کیلو",
+  "wholesale.commitments": "تعهدات درج سبز",
+  "wholesale.requestEyebrow": "ثبت درخواست",
+  "wholesale.requestTitle": "آماده گفتگو با تیم فروش",
+  "wholesale.requestText": "برای دریافت پیش‌فاکتور صادراتی، نمونه محصول یا قرارداد سالانه، با ما تماس بگیرید.",
+  "wholesale.callSales": "تماس با فروش",
+  "wholesale.waSales": "واتساپ فروش",
+  "wholesale.form": "فرم درخواست",
+  "wholesale.faqTitle": "پرسش‌های متداول خرید عمده",
+  "wholesale.waMessage": "سلام، برای خرید عمده از وب‌سایت {brand} تماس می‌گیرم.",
 };
 
 const en: Dict = {
@@ -301,6 +326,30 @@ const en: Dict = {
   "products.backCatalog": "← Back to catalogue",
   "products.related": "Related products",
   "products.sameCategory": "From the same category",
+
+  "wholesale.eyebrow": "Wholesale & export",
+  "wholesale.title": "A trading partner for the nut trade",
+  "wholesale.intro":
+    "Darj Sabz Qazvin supplies export-grade pistachio slivers to confectioners, food manufacturers and exporters. Tiered discounts, deferred payment and annual fixed-price contracts are negotiable based on order volume.",
+  "wholesale.kg": "kg",
+  "wholesale.discountUpTo": "Up to {n}% discount",
+  "wholesale.noBaseDiscount": "No base discount",
+  "wholesale.invoice": "Quotation",
+  "wholesale.priceList": "Wholesale price list",
+  "wholesale.pricesIn": "Prices in {currency}",
+  "wholesale.col.product": "Product",
+  "wholesale.col.origin": "Origin",
+  "wholesale.col.grade": "Grade",
+  "wholesale.col.price": "Price / kg",
+  "wholesale.commitments": "Our commitments",
+  "wholesale.requestEyebrow": "Submit a request",
+  "wholesale.requestTitle": "Ready to talk to our sales team",
+  "wholesale.requestText": "Contact us for an export quotation, a product sample or an annual contract.",
+  "wholesale.callSales": "Call sales",
+  "wholesale.waSales": "WhatsApp sales",
+  "wholesale.form": "Request form",
+  "wholesale.faqTitle": "Wholesale buying FAQ",
+  "wholesale.waMessage": "Hello, I'm contacting you about a wholesale purchase via the {brand} website.",
 };
 
 const ar: Dict = {
@@ -445,6 +494,30 @@ const ar: Dict = {
   "products.backCatalog": "← العودة إلى الكتالوج",
   "products.related": "منتجات مشابهة",
   "products.sameCategory": "من الفئة نفسها",
+
+  "wholesale.eyebrow": "البيع بالجملة والتصدير",
+  "wholesale.title": "شريك تجاري لتجار المكسرات",
+  "wholesale.intro":
+    "تورّد درج سبز قزوين شرائح الفستق بدرجة تصديرية لأصحاب الحلويات والصناعات الغذائية والمصدّرين. شروط الخصم التدريجي والدفع المؤجل وعقد السعر المضمون السنوي قابلة للتفاوض حسب حجم الطلب.",
+  "wholesale.kg": "كيلوغرام",
+  "wholesale.discountUpTo": "خصم يصل إلى {n}٪",
+  "wholesale.noBaseDiscount": "بدون خصم أساسي",
+  "wholesale.invoice": "عرض سعر",
+  "wholesale.priceList": "قائمة أسعار الجملة",
+  "wholesale.pricesIn": "الأسعار بـ {currency}",
+  "wholesale.col.product": "المنتج",
+  "wholesale.col.origin": "المنشأ",
+  "wholesale.col.grade": "الدرجة",
+  "wholesale.col.price": "السعر / كغم",
+  "wholesale.commitments": "التزاماتنا",
+  "wholesale.requestEyebrow": "تقديم طلب",
+  "wholesale.requestTitle": "جاهزون للتحدث مع فريق البيع",
+  "wholesale.requestText": "تواصلوا معنا للحصول على عرض سعر تصديري أو نموذج من المنتج أو عقد سنوي.",
+  "wholesale.callSales": "اتصل بالبيع",
+  "wholesale.waSales": "واتساب البيع",
+  "wholesale.form": "استمارة الطلب",
+  "wholesale.faqTitle": "أسئلة شائعة عن الشراء بالجملة",
+  "wholesale.waMessage": "مرحباً، أتواصل معكم بشأن شراء بالجملة عبر موقع {brand}.",
 };
 
 const DICTS: Record<Locale, Dict> = { fa, en, ar };
