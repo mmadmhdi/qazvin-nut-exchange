@@ -6,6 +6,9 @@ import { PriceHistoryTable } from "@/components/site/PriceHistoryTable";
 import { getPassport, passportRows } from "@/lib/passport";
 import { formatPrice, formatJalali, formatPercent } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, BadgeCheck } from "lucide-react";
+import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct } from "@/lib/product-i18n";
+import { seoLinks } from "@/lib/seo";
 
 const SITE_URL = "https://peste.es";
 
@@ -34,7 +37,7 @@ export const Route = createFileRoute("/products/$slug")({
         { name: "twitter:card", content: "summary_large_image" },
         ...(p ? [] : [{ name: "robots", content: "noindex" }]),
       ],
-      links: [{ rel: "canonical", href: url }],
+      links: seoLinks(`/products/${params.slug}`),
       scripts: p
         ? [
             {
@@ -67,16 +70,18 @@ export const Route = createFileRoute("/products/$slug")({
 function ProductDetail() {
   const { slug } = Route.useParams();
   const { products, settings } = useStore();
+  const { t, locale } = useTranslation();
   const product = products.find((p) => p.slug === slug || p.id === slug);
   if (!product) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <h1 className="font-display text-3xl text-olive-deep">محصول یافت نشد</h1>
-        <p className="mt-3 text-muted-foreground">این محصول در فهرست ما موجود نیست.</p>
-        <Link to="/products" className="mt-6 inline-block text-brass-dark hover:text-olive-deep">بازگشت به محصولات ←</Link>
+        <h1 className="font-display text-3xl text-olive-deep">{t("pd.notFound")}</h1>
+        <p className="mt-3 text-muted-foreground">{t("pd.notFoundBody")}</p>
+        <Link to="/products" className="mt-6 inline-block text-brass-dark hover:text-olive-deep">{t("pd.backProducts")}</Link>
       </div>
     );
   }
+  const l = localizeProduct(product, locale);
   const { pct } = computeChange(product.history);
   const up = pct >= 0;
 
@@ -92,33 +97,33 @@ function ProductDetail() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
       <Link to="/products" className="text-xs tracking-widest text-muted-foreground hover:text-olive-deep">
-        ← بازگشت به کاتالوگ
+        {t("products.backCatalog")}
       </Link>
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">
-            {product.category} · {product.grade}
+            {l.category} · {l.grade}
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl text-olive-deep mt-2 leading-tight">{product.name}</h1>
+          <h1 className="font-display text-4xl sm:text-5xl text-olive-deep mt-2 leading-tight">{l.name}</h1>
           <div className="gold-rule my-6" />
           <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
             <div className="font-display num-fa text-4xl sm:text-5xl text-olive-deep">
               {formatPrice(product.price)}
             </div>
-            <div className="text-sm text-muted-foreground">{product.unit}</div>
+            <div className="text-sm text-muted-foreground">{l.unit}</div>
             <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-sm border ${up ? "text-bull border-bull/40" : "text-bear border-bear/40"}`}>
               {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
               <span className="num-fa">{formatPercent(pct)}</span>
             </div>
           </div>
-          <p className="mt-6 text-cocoa leading-8">{product.description}</p>
+          <p className="mt-6 text-cocoa leading-8">{l.description}</p>
 
           {/* Key stats grid */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Stat k="بالاترین دوره" v={formatPrice(hi52)} />
-            <Stat k="پایین‌ترین دوره" v={formatPrice(lo52)} />
-            <Stat k="بازدهی دوره" v={formatPercent(yr)} accent={yr >= 0 ? "bull" : "bear"} />
-            <Stat k="موقعیت در دامنه" v={`${Math.round(inRange)}٪`} bar={inRange} />
+            <Stat k={t("pd.high")} v={formatPrice(hi52)} />
+            <Stat k={t("pd.low")} v={formatPrice(lo52)} />
+            <Stat k={t("pd.return")} v={formatPercent(yr)} accent={yr >= 0 ? "bull" : "bear"} />
+            <Stat k={t("pd.inRange")} v={`${Math.round(inRange)}%`} bar={inRange} />
           </div>
 
           {/* Chart */}
@@ -128,9 +133,9 @@ function ProductDetail() {
 
           {/* Fundamentals */}
           <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <Meta k="منشأ" v={product.origin} />
-            <Meta k="درجه کیفی" v={product.grade} />
-            <Meta k="آخرین به‌روزرسانی" v={formatJalali(new Date(product.updatedAt))} />
+            <Meta k={t("meta.origin")} v={l.origin} />
+            <Meta k={t("meta.gradeFull")} v={l.grade} />
+            <Meta k={t("meta.updated")} v={formatJalali(new Date(product.updatedAt))} />
           </div>
 
           {/* Pistachio Passport */}
@@ -138,7 +143,7 @@ function ProductDetail() {
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
               <div className="min-w-0">
                 <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Pistachio Passport</div>
-                <h2 className="mt-1 font-display text-2xl text-olive-deep">شناسنامه محصول</h2>
+                <h2 className="mt-1 font-display text-2xl text-olive-deep">{t("pd.passport")}</h2>
               </div>
               <BadgeCheck className="h-5 w-5 shrink-0 text-brass-dark" />
             </div>
@@ -155,7 +160,7 @@ function ProductDetail() {
               ))}
             </dl>
             <Link to="/origin" className="mt-4 inline-block text-xs tracking-widest text-brass-dark hover:text-olive-deep">
-              مسیر از باغ تا بسته ←
+              {t("pd.originPath")}
             </Link>
           </div>
 
@@ -163,10 +168,10 @@ function ProductDetail() {
 
           <div className="mt-10 flex flex-wrap gap-3">
             <a href={`tel:${settings.contactPhone}`} className="inline-flex items-center rounded-sm bg-olive-deep px-6 py-3 text-sm tracking-widest text-paper hover:bg-olive">
-              تماس برای استعلام
+              {t("pd.callQuote")}
             </a>
             <Link to="/wholesale" className="inline-flex items-center rounded-sm border border-olive-deep/40 px-6 py-3 text-sm tracking-widest text-olive-deep hover:bg-cream">
-              شرایط عمده
+              {t("pd.wholesaleTerms")}
             </Link>
           </div>
         </div>
@@ -179,10 +184,11 @@ function ProductDetail() {
       {/* Related */}
       {related.length > 0 && (
         <section className="mt-16">
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">محصولات مشابه</div>
-          <h2 className="font-display text-2xl text-olive-deep mt-1 mb-6">از همین دسته</h2>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t("products.related")}</div>
+          <h2 className="font-display text-2xl text-olive-deep mt-1 mb-6">{t("products.sameCategory")}</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {related.map((r) => {
+              const rl = localizeProduct(r, locale);
               const c = computeChange(r.history).pct;
               const u = c >= 0;
               return (
@@ -192,12 +198,12 @@ function ProductDetail() {
                   params={{ slug: r.slug }}
                   className="card-paper rounded-sm p-4 hover:-translate-y-0.5 transition-transform block"
                 >
-                  <div className="text-[10px] tracking-widest uppercase text-brass-dark">{r.origin}</div>
-                  <div className="font-display text-lg text-olive-deep mt-1 truncate">{r.name}</div>
+                  <div className="text-[10px] tracking-widest uppercase text-brass-dark">{rl.origin}</div>
+                  <div className="font-display text-lg text-olive-deep mt-1 truncate">{rl.name}</div>
                   <div className="flex items-baseline justify-between mt-3">
                     <div className="num-fa text-olive-deep font-display">{formatPrice(r.price)}</div>
                     <div className={`num-fa text-xs ${u ? "text-bull" : "text-bear"}`}>
-                      {u ? "+" : "−"}{Math.abs(c).toFixed(1)}٪
+                      {u ? "+" : "−"}{Math.abs(c).toFixed(1)}%
                     </div>
                   </div>
                 </Link>
