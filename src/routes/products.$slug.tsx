@@ -123,7 +123,7 @@ function ProductDetail() {
             <Stat k={t("pd.high")} v={formatPrice(hi52)} />
             <Stat k={t("pd.low")} v={formatPrice(lo52)} />
             <Stat k={t("pd.return")} v={formatPercent(yr)} accent={yr >= 0 ? "bull" : "bear"} />
-            <Stat k={t("pd.inRange")} v={`${Math.round(inRange)}%`} bar={inRange} />
+            <Stat k={t("pd.inRange")} v={`${Math.round(inRange)}${locale === "en" ? "%" : "٪"}`} bar={inRange} />
           </div>
 
           {/* Chart */}
@@ -203,7 +203,7 @@ function ProductDetail() {
                   <div className="flex items-baseline justify-between mt-3">
                     <div className="num-fa text-olive-deep font-display">{formatPrice(r.price)}</div>
                     <div className={`num-fa text-xs ${u ? "text-bull" : "text-bear"}`}>
-                      {u ? "+" : "−"}{Math.abs(c).toFixed(1)}%
+                      {u ? "+" : "−"}{Math.abs(c).toFixed(1)}{locale === "en" ? "%" : "٪"}
                     </div>
                   </div>
                 </Link>

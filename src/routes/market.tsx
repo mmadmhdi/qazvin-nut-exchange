@@ -171,7 +171,7 @@ function Market() {
                   <div className={`num-fa text-[11px] px-1.5 py-0.5 rounded-sm border ${
                     up ? "text-bull border-bull/40 bg-bull/5" : "text-bear border-bear/40 bg-bear/5"
                   }`}>
-                    {up ? "+" : "−"}{toFaDigits(Math.abs(ch).toFixed(2))}٪
+                    {up ? "+" : "−"}{locale === "en" ? Math.abs(ch).toFixed(2) : toFaDigits(Math.abs(ch).toFixed(2))}{locale === "en" ? "%" : "٪"}
                   </div>
                 </button>
               );
