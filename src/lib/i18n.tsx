@@ -182,6 +182,18 @@ const fa: Dict = {
   "wholesale.form": "فرم درخواست",
   "wholesale.faqTitle": "پرسش‌های متداول خرید عمده",
   "wholesale.waMessage": "سلام، برای خرید عمده از وب‌سایت {brand} تماس می‌گیرم.",
+  // Product detail
+  "pd.high": "بالاترین دوره",
+  "pd.low": "پایین‌ترین دوره",
+  "pd.return": "بازدهی دوره",
+  "pd.inRange": "موقعیت در دامنه",
+  "pd.passport": "شناسنامه محصول",
+  "pd.originPath": "مسیر از باغ تا بسته ←",
+  "pd.callQuote": "تماس برای استعلام",
+  "pd.wholesaleTerms": "شرایط عمده",
+  "pd.notFound": "محصول یافت نشد",
+  "pd.notFoundBody": "این محصول در فهرست ما موجود نیست.",
+  "pd.backProducts": "بازگشت به محصولات ←",
 };
 
 const en: Dict = {
@@ -350,6 +362,17 @@ const en: Dict = {
   "wholesale.form": "Request form",
   "wholesale.faqTitle": "Wholesale buying FAQ",
   "wholesale.waMessage": "Hello, I'm contacting you about a wholesale purchase via the {brand} website.",
+  "pd.high": "Period high",
+  "pd.low": "Period low",
+  "pd.return": "Period return",
+  "pd.inRange": "Position in range",
+  "pd.passport": "Product passport",
+  "pd.originPath": "From orchard to pack →",
+  "pd.callQuote": "Call for a quote",
+  "pd.wholesaleTerms": "Wholesale terms",
+  "pd.notFound": "Product not found",
+  "pd.notFoundBody": "This product is not in our catalogue.",
+  "pd.backProducts": "Back to products →",
 };
 
 const ar: Dict = {
@@ -518,6 +541,17 @@ const ar: Dict = {
   "wholesale.form": "استمارة الطلب",
   "wholesale.faqTitle": "أسئلة شائعة عن الشراء بالجملة",
   "wholesale.waMessage": "مرحباً، أتواصل معكم بشأن شراء بالجملة عبر موقع {brand}.",
+  "pd.high": "أعلى الفترة",
+  "pd.low": "أدنى الفترة",
+  "pd.return": "عائد الفترة",
+  "pd.inRange": "الموقع في النطاق",
+  "pd.passport": "شهادة المنتج",
+  "pd.originPath": "من البستان إلى العبوة ←",
+  "pd.callQuote": "اتصل لطلب عرض سعر",
+  "pd.wholesaleTerms": "شروط الجملة",
+  "pd.notFound": "المنتج غير موجود",
+  "pd.notFoundBody": "هذا المنتج غير متوفر في كتالوجنا.",
+  "pd.backProducts": "العودة إلى المنتجات ←",
 };
 
 const DICTS: Record<Locale, Dict> = { fa, en, ar };
