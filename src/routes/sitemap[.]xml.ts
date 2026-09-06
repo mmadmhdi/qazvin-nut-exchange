@@ -52,21 +52,29 @@ export const Route = createFileRoute("/sitemap.xml")({
         const seen = new Set<string>();
         const urls = entries
           .filter((e) => (seen.has(e.path) ? false : (seen.add(e.path), true)))
-          .map((e) =>
-            [
+          .map((e) => {
+            const loc = `${BASE_URL}${e.path}`;
+            const alt = (hreflang: string, href: string) =>
+              `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${href}"/>`;
+            const sep = loc.includes("?") ? "&amp;" : "?";
+            return [
               `  <url>`,
-              `    <loc>${BASE_URL}${e.path}</loc>`,
+              `    <loc>${loc}</loc>`,
+              alt("fa-IR", loc),
+              alt("en", `${loc}${sep}lang=en`),
+              alt("ar", `${loc}${sep}lang=ar`),
+              alt("x-default", loc),
               e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
               e.priority ? `    <priority>${e.priority}</priority>` : null,
               `  </url>`,
             ]
               .filter(Boolean)
-              .join("\n"),
-          );
+              .join("\n");
+          });
 
         const xml = [
           `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`,
           ...urls,
           `</urlset>`,
         ].join("\n");
