@@ -142,8 +142,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const locale = useRouterState({ select: (st) => parseLocale(st.location.searchStr) });
   return (
-    <html lang="fa" dir="rtl">
+    <html lang={locale} dir={locale === "en" ? "ltr" : "rtl"} suppressHydrationWarning>
       <head><HeadContent /></head>
       <body>
         {children}
