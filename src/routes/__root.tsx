@@ -5,6 +5,7 @@ import {
 
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -18,6 +19,7 @@ import { Toaster } from "sonner";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
 import { LocaleProvider } from "@/lib/i18n-provider";
+import { parseLocale } from "@/lib/i18n";
 
 function NotFoundComponent() {
   const links: { to: string; label: string }[] = [
@@ -142,8 +144,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const locale = useRouterState({ select: (st) => parseLocale(st.location.searchStr) });
   return (
-    <html lang="fa" dir="rtl">
+    <html lang={locale} dir={locale === "en" ? "ltr" : "rtl"} suppressHydrationWarning>
       <head><HeadContent /></head>
       <body>
         {children}

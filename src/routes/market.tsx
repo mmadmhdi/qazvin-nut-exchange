@@ -108,7 +108,7 @@ function Market() {
         {/* Watchlist */}
         <div className="tv-panel rounded-sm overflow-hidden flex flex-col">
           <div className="px-3 py-2 border-b border-tv-border bg-tv-headband">
-            <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Watchlist · {t("market.watchlist")}</div>
+            <div className="text-[10px] tracking-[0.3em] uppercase text-brass">{t("market.watchlist")}</div>
             <div className="mt-2 flex items-center gap-2">
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute start-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-tv-muted" />
