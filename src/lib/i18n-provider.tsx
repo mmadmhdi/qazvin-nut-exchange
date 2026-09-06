@@ -15,6 +15,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   // SSR-safe: the ?lang= param is visible on the server too, so the initial
   // render already matches the requested locale (crawlers see translated HTML).
   const [locale, setLocaleState] = useState<Locale>(hasParam ? urlLocale : DEFAULT_LOCALE);
+  if (typeof window === "undefined") console.log("SSR-LOCALE", hasParam, urlLocale, locale);
 
   useEffect(() => {
     if (hasParam) {
