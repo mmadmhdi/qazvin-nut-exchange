@@ -12,9 +12,10 @@ const Ctx = createContext<{ locale: Locale; setLocale: (l: Locale) => void }>({
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const urlLocale = useRouterState({ select: (s) => parseLocale(s.location.searchStr) });
   const hasParam = useRouterState({ select: (s) => /[?&]lang=(fa|en|ar)\b/.test(s.location.searchStr ?? "") });
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+  // SSR-safe: the ?lang= param is visible on the server too, so the initial
+  // render already matches the requested locale (crawlers see translated HTML).
+  const [locale, setLocaleState] = useState<Locale>(hasParam ? urlLocale : DEFAULT_LOCALE);
 
-  // Hydration-safe: resolve the stored/url locale after mount.
   useEffect(() => {
     if (hasParam) {
       setLocaleState(urlLocale);
