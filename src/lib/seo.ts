@@ -16,9 +16,9 @@ export function seoLinks(path: string) {
   const u = localizedUrls(path);
   return [
     { rel: "canonical", href: u.fa },
-    { rel: "alternate", hreflang: "fa-IR", href: u.fa },
-    { rel: "alternate", hreflang: "en", href: u.en },
-    { rel: "alternate", hreflang: "ar", href: u.ar },
-    { rel: "alternate", hreflang: "x-default", href: u.fa },
+    { rel: "alternate", hrefLang: "fa-IR", href: u.fa },
+    { rel: "alternate", hrefLang: "en", href: u.en },
+    { rel: "alternate", hrefLang: "ar", href: u.ar },
+    { rel: "alternate", hrefLang: "x-default", href: u.fa },
   ];
 }
