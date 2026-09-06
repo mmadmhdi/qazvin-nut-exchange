@@ -49,7 +49,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     el.setAttribute("dir", locale === "en" ? "ltr" : "rtl");
   }, [locale]);
 
-  return <Ctx.Provider value={{ locale, setLocale }}><span data-dbg={`${hasParam}|${urlLocale}|${locale}`} hidden />{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ locale, setLocale }}>{children}</Ctx.Provider>;
 }
 
 export function useLocaleContext() {
