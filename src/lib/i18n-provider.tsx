@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { DEFAULT_LOCALE, parseLocale, useT, type Locale } from "@/lib/i18n";
+import { setDigitLocale } from "@/lib/format";
 
 const STORAGE_KEY = "dorjesabz.locale";
 
@@ -15,6 +16,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   // SSR-safe: the ?lang= param is visible on the server too, so the initial
   // render already matches the requested locale (crawlers see translated HTML).
   const [locale, setLocaleState] = useState<Locale>(hasParam ? urlLocale : DEFAULT_LOCALE);
+
+  // Keep number/date numerals in sync with the language on both renders.
+  setDigitLocale(locale);
 
   useEffect(() => {
     if (hasParam) {

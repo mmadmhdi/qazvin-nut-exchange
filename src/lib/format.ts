@@ -8,16 +8,28 @@ export function toFaDigits(input: string | number): string {
   return String(input).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
 }
 
+// Numerals follow the active site language: Latin for English, Persian
+// numerals for Persian/Arabic. Set from the locale provider.
+let DIGIT_LOCALE: "fa" | "en" | "ar" = "fa";
+
+export function setDigitLocale(l: "fa" | "en" | "ar") {
+  DIGIT_LOCALE = l;
+}
+
+function digits(input: string | number): string {
+  return DIGIT_LOCALE === "en" ? String(input) : toFaDigits(input);
+}
+
 export function formatPrice(value: number): string {
   if (!Number.isFinite(value)) return "—";
   const s = Math.round(value).toLocaleString("en-US");
-  return toFaDigits(s.replace(/,/g, "٬"));
+  return DIGIT_LOCALE === "en" ? s : toFaDigits(s.replace(/,/g, "٬"));
 }
 
 export function formatPercent(value: number): string {
   if (!Number.isFinite(value)) return "—";
   const sign = value > 0 ? "+" : value < 0 ? "−" : "";
-  return sign + toFaDigits(Math.abs(value).toFixed(2)) + "٪";
+  return sign + digits(Math.abs(value).toFixed(2)) + (DIGIT_LOCALE === "en" ? "%" : "٪");
 }
 
 export const JALALI_MONTHS = [
@@ -49,6 +61,20 @@ const JALALI_MONTHS_SHORT = [
   "بهم",
   "اسف",
 ];
+
+const JALALI_MONTHS_EN = [
+  "Farvardin","Ordibehesht","Khordad","Tir","Mordad","Shahrivar",
+  "Mehr","Aban","Azar","Dey","Bahman","Esfand",
+];
+
+const JALALI_MONTHS_SHORT_EN = [
+  "Far","Ord","Kho","Tir","Mor","Sha","Meh","Aba","Aza","Dey","Bah","Esf",
+];
+
+function monthName(i: number, short = false): string {
+  if (DIGIT_LOCALE === "en") return short ? JALALI_MONTHS_SHORT_EN[i] : JALALI_MONTHS_EN[i];
+  return short ? JALALI_MONTHS_SHORT[i] : JALALI_MONTHS[i];
+}
 
 type Jalali = { jy: number; jm: number; jd: number };
 
@@ -101,7 +127,7 @@ function toParts(input: Date | string | number): Jalali | null {
 export function formatJalali(input: Date | string | number): string {
   const p = toParts(input);
   if (!p) return "—";
-  return `${toFaDigits(p.jd)} ${JALALI_MONTHS[p.jm - 1]} ${toFaDigits(p.jy)}`;
+  return `${digits(p.jd)} ${monthName(p.jm - 1)} ${digits(p.jy)}`;
 }
 
 /** «۱۲ مرد ۰۵» — compact but keeps the year visible (chart axes). */
@@ -109,17 +135,17 @@ export function formatJalaliShort(input: Date | string | number): string {
   const p = toParts(input);
   if (!p) return "—";
   const yy = String(p.jy).slice(-2);
-  return `${toFaDigits(p.jd)} ${JALALI_MONTHS_SHORT[p.jm - 1]} ${toFaDigits(yy)}`;
+  return `${digits(p.jd)} ${monthName(p.jm - 1, true)} ${digits(yy)}`;
 }
 
 /** «مرداد ۱۴۰۵» */
 export function formatJalaliMonth(input: Date | string | number): string {
   const p = toParts(input);
   if (!p) return "—";
-  return `${JALALI_MONTHS[p.jm - 1]} ${toFaDigits(p.jy)}`;
+  return `${monthName(p.jm - 1)} ${digits(p.jy)}`;
 }
 
 export function jalaliYear(input: Date | string | number = new Date()): string {
   const p = toParts(input);
-  return p ? toFaDigits(p.jy) : "";
+  return p ? digits(p.jy) : "";
 }
