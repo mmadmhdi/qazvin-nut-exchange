@@ -3,6 +3,7 @@ import { articleBySlug, categoryLabel, relatedArticles } from "@/lib/articles";
 import { useStore } from "@/lib/store";
 
 import { formatJalali, toFaDigits } from "@/lib/format";
+import { seoLinks, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/journal/$slug")({
   head: ({ params }) => {
