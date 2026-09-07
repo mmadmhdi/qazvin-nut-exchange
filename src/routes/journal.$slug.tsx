@@ -7,6 +7,7 @@ import { formatJalali, toFaDigits } from "@/lib/format";
 export const Route = createFileRoute("/journal/$slug")({
   head: ({ params }) => {
     const a = articleBySlug(params.slug);
+    const url = `${SITE_URL}/journal/${params.slug}`;
     const title = a ? `${a.title} — دفتر سبز` : "مقاله — دفتر سبز";
     const desc = a?.dek ?? "مقالات درج سبز قزوین درباره بازار و تولید خشکبار.";
     return {
@@ -16,8 +17,38 @@ export const Route = createFileRoute("/journal/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
+        ...(a ? [] : [{ name: "robots", content: "noindex" }]),
       ],
+      links: seoLinks(`/journal/${params.slug}`),
+      scripts: a
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: a.title,
+                description: a.dek,
+                datePublished: a.date,
+                dateModified: a.date,
+                inLanguage: "fa-IR",
+                mainEntityOfPage: { "@type": "WebPage", "@id": url },
+                articleSection: categoryLabel(a.category),
+                author: { "@type": "Organization", name: "درج سبز قزوین" },
+                publisher: {
+                  "@type": "Organization",
+                  name: "درج سبز قزوین",
+                  logo: {
+                    "@type": "ImageObject",
+                    url: `${SITE_URL}/images/dorjesabz-logo.jpg`,
+                  },
+                },
+              }),
+            },
+          ]
+        : undefined,
     };
   },
   component: ArticlePage,
