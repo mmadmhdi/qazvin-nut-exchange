@@ -134,13 +134,14 @@ function Contact() {
           <h2 className="font-display text-2xl text-olive-deep">{t("contact.formTitle")}</h2>
           <div className="gold-rule" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t("contact.fullName")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-            <Field label={t("contact.phoneNumber")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} dir="ltr" />
+            <Field id="contact-name" label={t("contact.fullName")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
+            <Field id="contact-phone" label={t("contact.phoneNumber")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} dir="ltr" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-xs tracking-widest uppercase text-muted-foreground">{t("contact.subject")}</label>
+              <label htmlFor="contact-subject" className="text-xs tracking-widest uppercase text-muted-foreground">{t("contact.subject")}</label>
               <select
+                id="contact-subject"
                 value={subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 className="mt-2 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm outline-none focus:border-olive-deep"
@@ -150,11 +151,12 @@ function Contact() {
                 ))}
               </select>
             </div>
-            <Field label={t("contact.quantity")} value={form.quantity} onChange={(v) => setForm({ ...form, quantity: v })} />
+            <Field id="contact-quantity" label={t("contact.quantity")} value={form.quantity} onChange={(v) => setForm({ ...form, quantity: v })} />
           </div>
           <div>
-            <label className="text-xs tracking-widest uppercase text-muted-foreground">{t("contact.message")}</label>
+            <label htmlFor="contact-message" className="text-xs tracking-widest uppercase text-muted-foreground">{t("contact.message")}</label>
             <textarea
+              id="contact-message"
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               rows={5}
@@ -184,11 +186,13 @@ function Info({ k, v, dir }: { k: string; v: string; dir?: string }) {
 }
 
 function Field({
+  id,
   label,
   value,
   onChange,
   dir,
 }: {
+  id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -196,8 +200,9 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-xs tracking-widest uppercase text-muted-foreground">{label}</label>
+      <label htmlFor={id} className="text-xs tracking-widest uppercase text-muted-foreground">{label}</label>
       <input
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         dir={dir}

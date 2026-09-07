@@ -53,6 +53,7 @@ function Journal() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="جست‌وجو در مقالات…"
+          aria-label="جست‌وجو در مقالات"
           className="w-full rounded-sm border border-input bg-background px-3 py-2 text-sm"
         />
         <div className="text-xs text-muted-foreground num-fa">
