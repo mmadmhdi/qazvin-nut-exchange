@@ -54,15 +54,13 @@ export const Route = createFileRoute("/sitemap.xml")({
           .filter((e) => (seen.has(e.path) ? false : (seen.add(e.path), true)))
           .map((e) => {
             const loc = `${BASE_URL}${e.path}`;
+            // en/ar variants are noindexed — only fa/x-default alternates are advertised
             const alt = (hreflang: string, href: string) =>
               `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${href}"/>`;
-            const sep = loc.includes("?") ? "&amp;" : "?";
             return [
               `  <url>`,
               `    <loc>${loc}</loc>`,
               alt("fa-IR", loc),
-              alt("en", `${loc}${sep}lang=en`),
-              alt("ar", `${loc}${sep}lang=ar`),
               alt("x-default", loc),
               e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
               e.priority ? `    <priority>${e.priority}</priority>` : null,

@@ -11,14 +11,16 @@ export function localizedUrls(path: string) {
   };
 }
 
-/** canonical + hreflang alternates for a route path. */
+/**
+ * canonical + hreflang alternates for a route path.
+ * English/Arabic variants are noindexed (see RootShell), so they must NOT
+ * be advertised as hreflang alternates — only fa (default) is listed.
+ */
 export function seoLinks(path: string) {
   const u = localizedUrls(path);
   return [
     { rel: "canonical", href: u.fa },
     { rel: "alternate", hrefLang: "fa-IR", href: u.fa },
-    { rel: "alternate", hrefLang: "en", href: u.en },
-    { rel: "alternate", hrefLang: "ar", href: u.ar },
     { rel: "alternate", hrefLang: "x-default", href: u.fa },
   ];
 }
