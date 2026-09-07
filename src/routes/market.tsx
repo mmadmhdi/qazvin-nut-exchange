@@ -123,7 +123,7 @@ function Market() {
               <select
                 value={cat}
                 onChange={(e) => setCat(e.target.value as typeof cat)}
-                aria-label={t("market.col.name")}
+                aria-label={t("meta.category")}
                 className="bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text px-2 py-1.5 outline-none focus:border-brass/60"
               >
                 <option value="all">{t("market.all")}</option>
