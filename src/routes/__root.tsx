@@ -84,6 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "google-site-verification", content: "Wo5DpZwngLhLKvwp-1c3qk6gT3_xLOpufe0uxNGBd1s" },
+      { name: "google-site-verification", content: "L1KQDNlL23VU3WNb3B8u-WcILbYJ1GDZJLFvAuRTX80" },
       { title: "درج سبز قزوین — بازار خلال پسته" },
       { name: "description", content: "قیمت روز و نمودار تاریخی خلال پسته قزوین و بویین، به همراه سایر محصولات خشکبار." },
       { property: "og:title", content: "درج سبز قزوین — بازار خلال پسته" },
