@@ -109,19 +109,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "WebSite",
-              "@id": "https://peste.es/#website",
-              url: "https://peste.es/",
+              "@id": "https://qazvin-nut-exchange.lovable.app/#website",
+              url: "https://qazvin-nut-exchange.lovable.app/",
               name: "درج سبز قزوین",
               alternateName: "Darj Sabz Qazvin",
               inLanguage: "fa-IR",
             },
             {
               "@type": "LocalBusiness",
-              "@id": "https://peste.es/#business",
+              "@id": "https://qazvin-nut-exchange.lovable.app/#business",
               name: "درج سبز قزوین (درج تجارت لیا)",
-              url: "https://peste.es/",
-              image: "https://peste.es/images/dorjesabz-logo.jpg",
-              logo: "https://peste.es/images/dorjesabz-logo.jpg",
+              url: "https://qazvin-nut-exchange.lovable.app/",
+              image: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
+              logo: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
               telephone: "+982833455010",
               email: "mmd85mmd@gmail.com",
               address: {

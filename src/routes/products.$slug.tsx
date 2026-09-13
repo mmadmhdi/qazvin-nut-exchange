@@ -10,7 +10,7 @@ import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct } from "@/lib/product-i18n";
 import { seoLinks } from "@/lib/seo";
 
-const SITE_URL = "https://peste.es";
+const SITE_URL = "https://qazvin-nut-exchange.lovable.app";
 
 export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {

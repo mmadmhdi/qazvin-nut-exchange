@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://peste.es/sitemap.xml
+Sitemap: https://qazvin-nut-exchange.lovable.app/sitemap.xml
