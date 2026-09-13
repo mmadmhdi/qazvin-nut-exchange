@@ -1,4 +1,4 @@
-export const SITE_URL = "https://peste.es";
+export const SITE_URL = "https://qazvin-nut-exchange.lovable.app";
 
 /** Locale variants are query-param based: /path, /path?lang=en, /path?lang=ar */
 export function localizedUrls(path: string) {
