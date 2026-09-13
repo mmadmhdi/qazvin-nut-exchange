@@ -832,6 +832,7 @@ function SegBtn({
       type="button"
       onClick={onClick}
       title={title}
+      aria-label={title}
       aria-pressed={on}
       className={`px-2 py-1 transition-colors ${on ? "bg-brass/20 text-brass" : "text-tv-muted hover:text-tv-text"}`}
     >

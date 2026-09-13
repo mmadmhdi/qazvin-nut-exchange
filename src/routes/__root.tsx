@@ -84,6 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "google-site-verification", content: "Wo5DpZwngLhLKvwp-1c3qk6gT3_xLOpufe0uxNGBd1s" },
+      { name: "google-site-verification", content: "L1KQDNlL23VU3WNb3B8u-WcILbYJ1GDZJLFvAuRTX80" },
       { title: "درج سبز قزوین — بازار خلال پسته" },
       { name: "description", content: "قیمت روز و نمودار تاریخی خلال پسته قزوین و بویین، به همراه سایر محصولات خشکبار." },
       { property: "og:title", content: "درج سبز قزوین — بازار خلال پسته" },
@@ -109,19 +110,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "WebSite",
-              "@id": "https://peste.es/#website",
-              url: "https://peste.es/",
+              "@id": "https://qazvin-nut-exchange.lovable.app/#website",
+              url: "https://qazvin-nut-exchange.lovable.app/",
               name: "درج سبز قزوین",
               alternateName: "Darj Sabz Qazvin",
               inLanguage: "fa-IR",
             },
             {
               "@type": "LocalBusiness",
-              "@id": "https://peste.es/#business",
+              "@id": "https://qazvin-nut-exchange.lovable.app/#business",
               name: "درج سبز قزوین (درج تجارت لیا)",
-              url: "https://peste.es/",
-              image: "https://peste.es/images/dorjesabz-logo.jpg",
-              logo: "https://peste.es/images/dorjesabz-logo.jpg",
+              url: "https://qazvin-nut-exchange.lovable.app/",
+              image: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
+              logo: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
               telephone: "+982833455010",
               email: "mmd85mmd@gmail.com",
               address: {
