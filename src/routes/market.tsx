@@ -183,7 +183,19 @@ function Market() {
 
         {/* Right column */}
         <div className="space-y-6 min-w-0">
-          {selected && <MarketChart product={selected} />}
+          {selected && (
+            <div className="space-y-3">
+              <PeriodFilter
+                history={selected.history ?? []}
+                jy={jy}
+                jm={jm}
+                onYear={(y) => { setJy(y); setJm(null); }}
+                onMonth={setJm}
+                locale={locale}
+              />
+              <MarketChart product={selected} period={{ jy, jm }} />
+            </div>
+          )}
           {selected && sel && (
             <div className="grid gap-6 md:grid-cols-2">
               <MarketSnowflake product={selected} />
