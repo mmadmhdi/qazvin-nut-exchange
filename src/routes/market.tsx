@@ -5,7 +5,7 @@ import { MarketChart } from "@/components/site/MarketChart";
 import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
-import { formatJalali, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
+import { formatJalali, formatPercent, formatPrice, toFaDigits, jalaliParts, jalaliMonthName } from "@/lib/format";
 import { ArrowUpDown, Search } from "lucide-react";
 import { Faq } from "@/components/site/Faq";
 import { priceFaq } from "@/lib/faq-i18n";
