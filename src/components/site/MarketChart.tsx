@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Product, PricePoint } from "@/lib/store";
-import { formatPrice, formatJalali, formatJalaliShort, toFaDigits } from "@/lib/format";
+import { formatPrice, formatJalali, formatJalaliShort, toFaDigits, jalaliParts } from "@/lib/format";
 import {
   bollinger,
   ema,
