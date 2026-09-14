@@ -5,7 +5,7 @@ import { MarketChart } from "@/components/site/MarketChart";
 import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
-import { formatJalali, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
+import { formatJalali, formatPercent, formatPrice, toFaDigits, jalaliParts, jalaliMonthName } from "@/lib/format";
 import { ArrowUpDown, Search } from "lucide-react";
 import { Faq } from "@/components/site/Faq";
 import { priceFaq } from "@/lib/faq-i18n";
@@ -37,6 +37,8 @@ function Market() {
   const [cat, setCat] = useState<"all" | "پسته" | "بادام درختی" | "بادام زمینی">("all");
   const [sort, setSort] = useState<SortKey>("priority");
   const [dir, setDir] = useState<"desc" | "asc">("desc");
+  const [jy, setJy] = useState<number | null>(null);
+  const [jm, setJm] = useState<number | null>(null);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -183,7 +185,19 @@ function Market() {
 
         {/* Right column */}
         <div className="space-y-6 min-w-0">
-          {selected && <MarketChart product={selected} />}
+          {selected && (
+            <div className="space-y-3">
+              <PeriodFilter
+                history={selected.history ?? []}
+                jy={jy}
+                jm={jm}
+                onYear={(y) => { setJy(y); setJm(null); }}
+                onMonth={setJm}
+                locale={locale}
+              />
+              <MarketChart product={selected} period={{ jy, jm }} />
+            </div>
+          )}
           {selected && sel && (
             <div className="grid gap-6 md:grid-cols-2">
               <MarketSnowflake product={selected} />
@@ -223,6 +237,95 @@ function IndexCard({ k, v, unit, accent }: { k: string; v: string; unit?: string
     </div>
   );
 }
+type Loc = "fa" | "en" | "ar";
+const PERIOD_LABELS: Record<Loc, { title: string; year: string; month: string; all: string; allMonths: string; bars: string }> = {
+  fa: { title: "تاریخچه قیمت", year: "سال", month: "ماه", all: "همه سال‌ها", allMonths: "همه ماه‌ها", bars: "رکورد" },
+  en: { title: "Price history", year: "Year", month: "Month", all: "All years", allMonths: "All months", bars: "records" },
+  ar: { title: "سجل الأسعار", year: "السنة", month: "الشهر", all: "كل السنوات", allMonths: "كل الأشهر", bars: "سجل" },
+};
+
+function PeriodFilter({
+  history,
+  jy,
+  jm,
+  onYear,
+  onMonth,
+  locale,
+}: {
+  history: { date: string }[];
+  jy: number | null;
+  jm: number | null;
+  onYear: (y: number | null) => void;
+  onMonth: (m: number | null) => void;
+  locale: string;
+}) {
+  const L = PERIOD_LABELS[(locale as Loc) in PERIOD_LABELS ? (locale as Loc) : "fa"];
+  const { years, months, count } = useMemo(() => {
+    const ys = new Set<number>();
+    const ms = new Set<number>();
+    let count = 0;
+    for (const p of history) {
+      const j = jalaliParts(p.date);
+      if (!j) continue;
+      ys.add(j.jy);
+      if (jy === null || j.jy === jy) ms.add(j.jm);
+      if ((jy === null || j.jy === jy) && (jm === null || j.jm === jm)) count++;
+    }
+    return {
+      years: [...ys].sort((a, b) => b - a),
+      months: [...ms].sort((a, b) => a - b),
+      count,
+    };
+  }, [history, jy, jm]);
+
+  const fa = locale !== "en";
+  const num = (n: number | string) => (fa ? toFaDigits(n) : String(n));
+
+  return (
+    <div className="tv-panel rounded-sm px-3 py-2.5 flex flex-wrap items-center gap-2">
+      <div className="text-[10px] tracking-[0.3em] uppercase text-brass me-1">{L.title}</div>
+      <label className="sr-only" htmlFor="period-year">{L.year}</label>
+      <select
+        id="period-year"
+        value={jy === null ? "all" : String(jy)}
+        onChange={(e) => onYear(e.target.value === "all" ? null : Number(e.target.value))}
+        className="bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text px-2 py-1.5 outline-none focus:border-brass/60"
+      >
+        <option value="all">{L.all}</option>
+        {years.map((y) => (
+          <option key={y} value={y}>{`${L.year} ${num(y)}`}</option>
+        ))}
+      </select>
+      <label className="sr-only" htmlFor="period-month">{L.month}</label>
+      <select
+        id="period-month"
+        value={jm === null ? "all" : String(jm)}
+        onChange={(e) => onMonth(e.target.value === "all" ? null : Number(e.target.value))}
+        className="bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text px-2 py-1.5 outline-none focus:border-brass/60"
+      >
+        <option value="all">{L.allMonths}</option>
+        {months.map((m) => (
+          <option key={m} value={m}>{jalaliMonthName(m - 1)}</option>
+        ))}
+      </select>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {years.map((y) => (
+          <button
+            key={y}
+            onClick={() => onYear(jy === y ? null : y)}
+            className={`text-[11px] num-fa px-2 py-1 rounded-sm border transition-colors ${
+              jy === y ? "border-brass text-brass bg-brass/10" : "border-tv-border text-tv-muted hover:text-tv-text"
+            }`}
+          >
+            {num(y)}
+          </button>
+        ))}
+      </div>
+      <div className="ms-auto text-[10px] text-tv-muted num-fa">{`${num(count)} ${L.bars}`}</div>
+    </div>
+  );
+}
+
 function Meta({ k, v }: { k: string; v: string }) {
   return (
     <div>

@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Product, PricePoint } from "@/lib/store";
-import { formatPrice, formatJalali, formatJalaliShort, toFaDigits } from "@/lib/format";
+import { formatPrice, formatJalali, formatJalaliShort, toFaDigits, jalaliParts } from "@/lib/format";
 import {
   bollinger,
   ema,
@@ -140,7 +140,19 @@ type Row = {
 };
 
 // ─────────────────────────── Component ───────────────────────────
-export function MarketChart({ product, compact = false }: { product: Product; compact?: boolean }) {
+export type ChartPeriod = { jy: number | null; jm: number | null };
+
+export function MarketChart({
+  product,
+  compact = false,
+  period,
+}: {
+  product: Product;
+  compact?: boolean;
+  /** Optional Jalali year/month window. When set, the quick range buttons are hidden. */
+  period?: ChartPeriod;
+}) {
+  const periodOn = !!period && (period.jy !== null || period.jm !== null);
   const [range, setRange] = useState<Range>("3m");
   const [style, setStyle] = useState<Style>("candle");
   const [overlays, setOverlays] = useState<Overlays>({
@@ -170,7 +182,16 @@ export function MarketChart({ product, compact = false }: { product: Product; co
       byDate.set(d, { ...p, date: d });
     }
     const sortedAll = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-    const raw = sortedAll.slice(-days);
+    const windowed = periodOn
+      ? sortedAll.filter((p) => {
+          const j = jalaliParts(p.date);
+          if (!j) return false;
+          if (period!.jy !== null && j.jy !== period!.jy) return false;
+          if (period!.jm !== null && j.jm !== period!.jm) return false;
+          return true;
+        })
+      : sortedAll;
+    const raw = periodOn ? windowed : windowed.slice(-days);
 
     const asOHLC: OHLC[] = raw.map((p) => {
       const close = Number(p.close ?? p.price) || 0;
@@ -238,7 +259,7 @@ export function MarketChart({ product, compact = false }: { product: Product; co
       stats: { last, first, hi, lo, chg, chgPct },
       meta: { avgVol, atrLast, bars: chartRows.length, fib },
     };
-  }, [product.history, range, style]);
+  }, [product.history, range, style, periodOn, period?.jy, period?.jm]);
 
   const hasData = data.length > 0;
   const pad = (stats.hi - stats.lo) * 0.12 || stats.hi * 0.03 || 1;
@@ -292,13 +313,15 @@ export function MarketChart({ product, compact = false }: { product: Product; co
               </SegBtn>
             ))}
           </SegGroup>
-          <SegGroup>
-            {RANGES.map((r) => (
-              <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
-                <span className="text-[11px] px-0.5">{r.label}</span>
-              </SegBtn>
-            ))}
-          </SegGroup>
+          {!periodOn && (
+            <SegGroup>
+              {RANGES.map((r) => (
+                <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
+                  <span className="text-[11px] px-0.5">{r.label}</span>
+                </SegBtn>
+              ))}
+            </SegGroup>
+          )}
         </div>
       </div>
 

@@ -145,6 +145,16 @@ export function formatJalaliMonth(input: Date | string | number): string {
   return `${monthName(p.jm - 1)} ${digits(p.jy)}`;
 }
 
+/** Jalali parts (year/month/day) for any accepted date input. */
+export function jalaliParts(input: Date | string | number): { jy: number; jm: number; jd: number } | null {
+  return toParts(input);
+}
+
+/** Localized Jalali month name (0-based index). */
+export function jalaliMonthName(index: number, short = false): string {
+  return monthName(index, short);
+}
+
 export function jalaliYear(input: Date | string | number = new Date()): string {
   const p = toParts(input);
   return p ? digits(p.jy) : "";
