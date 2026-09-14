@@ -37,6 +37,8 @@ function Market() {
   const [cat, setCat] = useState<"all" | "پسته" | "بادام درختی" | "بادام زمینی">("all");
   const [sort, setSort] = useState<SortKey>("priority");
   const [dir, setDir] = useState<"desc" | "asc">("desc");
+  const [jy, setJy] = useState<number | null>(null);
+  const [jm, setJm] = useState<number | null>(null);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
