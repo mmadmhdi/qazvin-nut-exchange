@@ -313,13 +313,15 @@ export function MarketChart({
               </SegBtn>
             ))}
           </SegGroup>
-          <SegGroup>
-            {RANGES.map((r) => (
-              <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
-                <span className="text-[11px] px-0.5">{r.label}</span>
-              </SegBtn>
-            ))}
-          </SegGroup>
+          {!periodOn && (
+            <SegGroup>
+              {RANGES.map((r) => (
+                <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
+                  <span className="text-[11px] px-0.5">{r.label}</span>
+                </SegBtn>
+              ))}
+            </SegGroup>
+          )}
         </div>
       </div>
 
