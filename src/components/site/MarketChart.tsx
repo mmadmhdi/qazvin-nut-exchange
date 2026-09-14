@@ -259,7 +259,7 @@ export function MarketChart({
       stats: { last, first, hi, lo, chg, chgPct },
       meta: { avgVol, atrLast, bars: chartRows.length, fib },
     };
-  }, [product.history, range, style]);
+  }, [product.history, range, style, periodOn, period?.jy, period?.jm]);
 
   const hasData = data.length > 0;
   const pad = (stats.hi - stats.lo) * 0.12 || stats.hi * 0.03 || 1;
