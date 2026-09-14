@@ -182,7 +182,16 @@ export function MarketChart({
       byDate.set(d, { ...p, date: d });
     }
     const sortedAll = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-    const raw = sortedAll.slice(-days);
+    const windowed = periodOn
+      ? sortedAll.filter((p) => {
+          const j = jalaliParts(p.date);
+          if (!j) return false;
+          if (period!.jy !== null && j.jy !== period!.jy) return false;
+          if (period!.jm !== null && j.jm !== period!.jm) return false;
+          return true;
+        })
+      : sortedAll;
+    const raw = periodOn ? windowed : windowed.slice(-days);
 
     const asOHLC: OHLC[] = raw.map((p) => {
       const close = Number(p.close ?? p.price) || 0;
