@@ -140,7 +140,19 @@ type Row = {
 };
 
 // ─────────────────────────── Component ───────────────────────────
-export function MarketChart({ product, compact = false }: { product: Product; compact?: boolean }) {
+export type ChartPeriod = { jy: number | null; jm: number | null };
+
+export function MarketChart({
+  product,
+  compact = false,
+  period,
+}: {
+  product: Product;
+  compact?: boolean;
+  /** Optional Jalali year/month window. When set, the quick range buttons are hidden. */
+  period?: ChartPeriod;
+}) {
+  const periodOn = !!period && (period.jy !== null || period.jm !== null);
   const [range, setRange] = useState<Range>("3m");
   const [style, setStyle] = useState<Style>("candle");
   const [overlays, setOverlays] = useState<Overlays>({
