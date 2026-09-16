@@ -124,7 +124,7 @@ function Home() {
       </section>
 
       {/* Value props */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ValueProp icon={<Leaf className="h-4 w-4" />} title="اصالت باغی" desc="از باغ‌های اصیل قزوین و بویین‌زهرا." />
           <ValueProp icon={<ShieldCheck className="h-4 w-4" />} title="کنترل کیفیت" desc="سه‌مرحله رنگ، رطوبت و اندازه." />
@@ -134,14 +134,14 @@ function Home() {
       </section>
 
       {/* Three paths — brand signature, inline (no loading overlay) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <ShellGate />
       </section>
 
 
 
       {/* Movers */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">حرکات بازار</div>
@@ -183,7 +183,7 @@ function Home() {
       </section>
 
       {/* Featured pistachio */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="text-center max-w-2xl mx-auto">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">محصولات ممتاز</div>
           <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">خلال پسته، افتخار خانه</h2>
@@ -200,7 +200,7 @@ function Home() {
       </section>
 
       {/* Others */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 sm:mb-8 gap-3">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">سایر محصولات</div>
@@ -218,7 +218,7 @@ function Home() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="card-paper rounded-sm p-8 sm:p-10 md:p-14 text-center bg-gradient-to-br from-cream/60 to-background">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">فروش عمده و صادراتی</div>
           <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-3">شریک تجاری قابل اعتماد</h2>
