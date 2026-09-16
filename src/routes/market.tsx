@@ -179,6 +179,10 @@ function Market() {
                   }`}>
                     {up ? "+" : "−"}{locale === "en" ? Math.abs(ch).toFixed(2) : toFaDigits(Math.abs(ch).toFixed(2))}{locale === "en" ? "%" : "٪"}
                   </div>
+                  <div className="sm:hidden">
+                    <MiniSparkline history={p.history} up={up} width={64} height={14} />
+                  </div>
+                  </div>
                 </button>
               );
             })}
