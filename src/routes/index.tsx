@@ -63,35 +63,35 @@ function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-cream/70 via-background to-background" />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-16 pb-12 sm:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-8 lg:gap-10 items-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-7 sm:pt-16 pb-8 sm:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-6 lg:gap-10 items-center">
           <div className="min-w-0">
-            <div className="text-[10px] tracking-[0.4em] uppercase text-brass-dark mb-4 sm:mb-6">
+            <div className="text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-brass-dark mb-2.5 sm:mb-6">
               {settings.brandLatin} · Est. ۱۳۴۸
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-7xl leading-[1.05] text-olive-deep">
+            <h1 className="font-display text-[1.95rem] leading-[1.2] sm:text-5xl sm:leading-[1.05] md:text-7xl text-olive-deep">
               {heroTitle}
             </h1>
-            <div className="mt-5 sm:mt-6 max-w-2xl">
-              <div className="gold-rule mb-4 sm:mb-6" />
-              <p className="text-sm sm:text-base md:text-lg text-cocoa leading-8 sm:leading-9">
+            <div className="mt-4 sm:mt-6 max-w-2xl">
+              <div className="gold-rule mb-3 sm:mb-6" />
+              <p className="text-sm sm:text-base md:text-lg text-cocoa leading-7 sm:leading-9">
                 {heroSubtitle}
               </p>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
               <Link
                 to="/market"
-                className="inline-flex items-center gap-2 rounded-sm bg-olive-deep px-5 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-paper hover:bg-olive transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-sm bg-olive-deep px-4 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-paper hover:bg-olive transition-colors"
               >
                 {t("cta.liveMarket")}
               </Link>
               <Link
                 to="/analysis"
-                className="inline-flex items-center gap-2 rounded-sm border border-olive-deep/40 px-5 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-olive-deep hover:bg-cream transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-sm border border-olive-deep/40 px-4 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-olive-deep hover:bg-cream transition-colors"
               >
                 {t("cta.analysis")}
               </Link>
             </div>
-            <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-4 max-w-md">
+            <div className="mt-6 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md">
               <Stat label={t("home.stat.products")} value={toFaDigits(active.length)} />
               <Stat label={t("home.stat.generations")} value="۴" />
               <Stat label={t("home.stat.years")} value="۷۷+" />
@@ -124,7 +124,7 @@ function Home() {
       </section>
 
       {/* Value props */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ValueProp icon={<Leaf className="h-4 w-4" />} title="اصالت باغی" desc="از باغ‌های اصیل قزوین و بویین‌زهرا." />
           <ValueProp icon={<ShieldCheck className="h-4 w-4" />} title="کنترل کیفیت" desc="سه‌مرحله رنگ، رطوبت و اندازه." />
@@ -134,14 +134,14 @@ function Home() {
       </section>
 
       {/* Three paths — brand signature, inline (no loading overlay) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <ShellGate />
       </section>
 
 
 
       {/* Movers */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">حرکات بازار</div>
@@ -183,7 +183,7 @@ function Home() {
       </section>
 
       {/* Featured pistachio */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="text-center max-w-2xl mx-auto">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">محصولات ممتاز</div>
           <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">خلال پسته، افتخار خانه</h2>
@@ -200,7 +200,7 @@ function Home() {
       </section>
 
       {/* Others */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 sm:mb-8 gap-3">
           <div>
             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">سایر محصولات</div>
@@ -218,7 +218,7 @@ function Home() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="card-paper rounded-sm p-8 sm:p-10 md:p-14 text-center bg-gradient-to-br from-cream/60 to-background">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">فروش عمده و صادراتی</div>
           <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-3">شریک تجاری قابل اعتماد</h2>
@@ -241,7 +241,7 @@ function Home() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-display text-2xl sm:text-3xl text-olive-deep num-fa">{value}</div>
+      <div className="font-display text-xl sm:text-3xl text-olive-deep num-fa">{value}</div>
       <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
     </div>
   );

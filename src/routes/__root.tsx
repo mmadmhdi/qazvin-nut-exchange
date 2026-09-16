@@ -18,6 +18,7 @@ import { Header, Footer } from "@/components/site/Chrome";
 import { Toaster } from "sonner";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
+import { MobileNav } from "@/components/site/MobileNav";
 import { LocaleProvider } from "@/lib/i18n-provider";
 import { parseLocale } from "@/lib/i18n";
 
@@ -172,9 +173,11 @@ function RootComponent() {
           <Header />
           <main className="flex-1"><Outlet /></main>
           <Footer />
+          <div className="h-16 lg:hidden" aria-hidden="true" />
         </div>
         <WhatsAppFab />
         <GreenCurator />
+        <MobileNav />
         <Toaster richColors position="top-center" dir="rtl" />
         </LocaleProvider>
       </StoreProvider>

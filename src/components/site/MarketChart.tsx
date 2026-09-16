@@ -327,10 +327,10 @@ export function MarketChart({
 
       {/* OHLC + indicator toggles */}
       <div className="px-3 md:px-4 py-2 border-b border-tv-border bg-tv-bg">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] sm:flex sm:flex-wrap sm:items-center sm:gap-x-4">
           {current ? (
             <>
-              <div className="text-tv-muted num-fa w-full sm:w-auto sm:hidden">
+              <div className="col-span-2 text-tv-muted num-fa w-full sm:w-auto sm:hidden">
                 {formatJalali(current.date)}
               </div>
               <OHLCStat k="O" v={current.open} />
@@ -353,7 +353,16 @@ export function MarketChart({
             <div className="text-tv-muted">داده‌ای برای این بازه ثبت نشده است</div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 mt-2 overflow-x-auto scrollbar-none pb-0.5">
+        <button
+          type="button"
+          onClick={() => setShowTools((v) => !v)}
+          aria-expanded={showTools}
+          className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-tv-border px-3 py-2 text-[11px] tracking-widest uppercase text-tv-muted sm:hidden"
+        >
+          <Layers className="h-3.5 w-3.5" />
+          {showTools ? "بستن اندیکاتورها" : "اندیکاتورها"}
+        </button>
+        <div className={`${showTools ? "flex" : "hidden"} flex-wrap items-center gap-1.5 mt-2 pb-0.5 sm:flex sm:flex-nowrap sm:overflow-x-auto sm:scrollbar-none`}>
           <ToggleChip
             on={overlays.ma20}
             onClick={() => setOverlays({ ...overlays, ma20: !overlays.ma20 })}
@@ -857,7 +866,7 @@ function SegBtn({
       title={title}
       aria-label={title}
       aria-pressed={on}
-      className={`px-2 py-1 transition-colors ${on ? "bg-brass/20 text-brass" : "text-tv-muted hover:text-tv-text"}`}
+      className={`px-2.5 py-2 transition-colors sm:py-1 ${on ? "bg-brass/20 text-brass" : "text-tv-muted hover:text-tv-text"}`}
     >
       {children}
     </button>
@@ -877,7 +886,7 @@ function ToggleChip({
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className={`inline-flex shrink-0 items-center gap-1 rounded-sm border px-2 py-0.5 text-[10px] tracking-widest uppercase transition-colors ${
+      className={`inline-flex shrink-0 items-center gap-1 rounded-sm border px-2.5 py-1.5 text-[10px] tracking-widest uppercase transition-colors sm:py-0.5 ${
         on
           ? "border-brass/60 bg-brass/15 text-brass"
           : "border-tv-border text-tv-muted hover:text-tv-text"
