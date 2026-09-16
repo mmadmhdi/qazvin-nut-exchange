@@ -61,15 +61,16 @@ export function GreenCurator() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-4 left-4 z-50 inline-flex items-center gap-2 rounded-full border border-brass/50 bg-olive-deep px-4 py-2.5 text-xs tracking-widest text-paper shadow-lg hover:bg-olive"
+          aria-label="سرآشناس سبز"
+          className="fixed bottom-[4.75rem] start-3 z-50 inline-flex h-12 w-12 items-center justify-center gap-2 rounded-full border border-brass/50 bg-olive-deep text-xs tracking-widest text-paper shadow-lg hover:bg-olive lg:bottom-4 lg:h-auto lg:w-auto lg:px-4 lg:py-2.5"
         >
           <MessageCircle className="h-4 w-4" />
-          سرآشناس سبز
+          <span className="hidden lg:inline">سرآشناس سبز</span>
         </button>
       )}
 
       {open && (
-        <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:left-4 sm:w-[380px]">
+        <div className="fixed inset-x-3 bottom-[4.5rem] z-50 lg:inset-x-auto lg:bottom-3 lg:start-4 lg:w-[380px]">
           <div className="card-paper flex max-h-[78vh] flex-col overflow-hidden rounded-sm shadow-2xl">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 bg-olive-deep px-4 py-3">
               <div className="min-w-0">
