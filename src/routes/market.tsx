@@ -156,7 +156,7 @@ function Market() {
                 <button
                   key={p.id}
                   onClick={() => setSelectedId(p.id)}
-                  className={`w-full grid grid-cols-[2fr_1fr_auto] items-center gap-2 px-3 py-2 text-start border-b border-tv-border/60 transition-colors ${
+                  className={`w-full grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[2fr_1fr_auto] items-center gap-2 px-3 py-2.5 text-start border-b border-tv-border/60 transition-colors ${
                     on ? "bg-brass/10" : "hover:bg-tv-headband/60"
                   }`}
                 >
@@ -165,13 +165,15 @@ function Market() {
                     <div className="text-[10px] text-tv-muted mt-0.5 tracking-widest uppercase truncate">
                       {l.origin} · {l.grade}
                     </div>
+                    <div className="num-fa mt-1 text-[12px] text-brass sm:hidden">{formatPrice(p.price)}</div>
                   </div>
-                  <div className="min-w-0">
+                  <div className="hidden min-w-0 sm:block">
                     <div className="num-fa text-[12px] text-tv-text truncate">{formatPrice(p.price)}</div>
                     <div className="mt-0.5">
                       <MiniSparkline history={p.history} up={up} width={72} height={16} />
                     </div>
                   </div>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
                   <div className={`num-fa text-[11px] px-1.5 py-0.5 rounded-sm border ${
                     up ? "text-bull border-bull/40 bg-bull/5" : "text-bear border-bear/40 bg-bear/5"
                   }`}>
@@ -228,12 +230,12 @@ function Market() {
 
 function IndexCard({ k, v, unit, accent }: { k: string; v: string; unit?: string; accent?: "bull" | "bear" }) {
   return (
-    <div className="card-paper rounded-sm p-4">
-      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{k}</div>
-      <div className={`font-display num-fa mt-2 text-2xl truncate ${accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-olive-deep"}`}>
+    <div className="card-paper rounded-sm px-3 py-2.5 sm:p-4">
+      <div className="text-[9px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em] uppercase text-brass-dark truncate">{k}</div>
+      <div className={`font-display num-fa mt-1 sm:mt-2 text-lg sm:text-2xl truncate ${accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-olive-deep"}`}>
         {v}
       </div>
-      {unit && <div className="text-[10px] text-muted-foreground tracking-widest uppercase mt-1">{unit}</div>}
+      {unit && <div className="hidden sm:block text-[10px] text-muted-foreground tracking-widest uppercase mt-1">{unit}</div>}
     </div>
   );
 }
