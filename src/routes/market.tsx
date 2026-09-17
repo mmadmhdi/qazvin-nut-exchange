@@ -135,11 +135,11 @@ function Market() {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-[2fr_1fr_auto] px-3 py-1.5 text-[10px] tracking-widest uppercase text-tv-muted bg-tv-headband/50 border-b border-tv-border">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] sm:grid-cols-[2fr_1fr_auto] px-3 py-2 text-[10px] tracking-widest uppercase text-tv-muted bg-tv-headband/50 border-b border-tv-border">
             <button className="flex items-center gap-1 text-start" onClick={() => toggle("name")}>
               {t("market.col.name")} <ArrowUpDown className="h-3 w-3" />
             </button>
-            <button className="flex items-center gap-1 justify-start" onClick={() => toggle("price")}>
+            <button className="flex items-center gap-1 justify-start pe-3 sm:pe-0" onClick={() => toggle("price")}>
               {t("market.col.price")} <ArrowUpDown className="h-3 w-3" />
             </button>
             <button className="flex items-center gap-1 ps-1" onClick={() => toggle("change")}>
