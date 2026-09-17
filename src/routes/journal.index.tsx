@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/lib/articles";
 import { useStore } from "@/lib/store";
+import { BookOpen, Search } from "lucide-react";
 
 import { formatJalali, toFaDigits } from "@/lib/format";
 
@@ -39,29 +40,34 @@ function Journal() {
 
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14">
-      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">The Green Journal</div>
-      <h1 className="font-display text-3xl sm:text-5xl text-olive-deep mt-2">دفتر سبز</h1>
-      <div className="gold-rule my-6" />
-      <p className="max-w-2xl text-sm sm:text-base leading-8 text-cocoa">
+    <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-14">
+      <header className="border-b border-olive-deep/15 pb-6 sm:border-0 sm:pb-0">
+        <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">The Green Journal</div>
+        <h1 className="mt-2 font-display text-[2rem] leading-tight text-olive-deep sm:text-5xl">دفتر سبز</h1>
+        <div className="gold-rule my-5 hidden sm:block" />
+        <p className="max-w-2xl text-[13px] leading-7 text-cocoa sm:text-base sm:leading-8">
         هرچه در چهار نسل تجارت خشکبار آموخته‌ایم، اینجا مکتوب است: از سازوکار قیمت خلال پسته تا
         مدیریت آب باغ، کنترل کیفیت و مسیر صادرات. مجموعاً {toFaDigits(ARTICLES.length)} مقاله.
-      </p>
+        </p>
+      </header>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="جست‌وجو در مقالات…"
-          aria-label="جست‌وجو در مقالات"
-          className="w-full rounded-sm border border-input bg-background px-3 py-2 text-sm"
-        />
+      <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <label className="relative block">
+          <Search className="pointer-events-none absolute end-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="جست‌وجو در مقالات…"
+            aria-label="جست‌وجو در مقالات"
+            className="h-12 w-full rounded-md border border-input bg-card pe-11 ps-4 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring/30 sm:h-auto sm:rounded-sm sm:bg-background sm:px-3 sm:py-2"
+          />
+        </label>
         <div className="text-xs text-muted-foreground num-fa">
           {toFaDigits(list.length)} نتیجه
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+      <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:mt-4 sm:px-0 sm:pb-1">
         <Chip on={cat === "all"} onClick={() => setCat("all")}>
           همه
         </Chip>
@@ -72,22 +78,28 @@ function Journal() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:mt-8 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((a) => (
           <Link
             key={a.slug}
             to="/journal/$slug"
             params={{ slug: a.slug }}
-            className="card-paper rounded-sm p-5 transition-transform hover:-translate-y-0.5"
+            className="card-paper grid min-h-[136px] grid-cols-[4.75rem_minmax(0,1fr)] gap-4 rounded-md p-4 transition-transform active:scale-[0.99] sm:block sm:min-h-0 sm:rounded-sm sm:p-5 sm:hover:-translate-y-0.5"
           >
-            <div className="text-[10px] tracking-[0.25em] uppercase text-brass-dark">
-              {categoryLabel(a.category)}
+            <div className="grid h-[4.75rem] w-[4.75rem] shrink-0 place-items-center self-start rounded-md bg-cream text-olive-deep sm:hidden" aria-hidden="true">
+              <BookOpen className="h-6 w-6" strokeWidth={1.5} />
             </div>
-            <h2 className="mt-2 font-display text-xl leading-8 text-olive-deep">{a.title}</h2>
-            <p className="mt-2 text-xs leading-6 text-cocoa line-clamp-3">{a.dek}</p>
-            <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{formatJalali(a.date)}</span>
-              <span className="num-fa">{toFaDigits(a.minutes)} دقیقه</span>
+            <div className="flex min-w-0 flex-col">
+              <div className="text-[10px] tracking-[0.12em] uppercase text-brass-dark sm:tracking-[0.25em]">
+                {categoryLabel(a.category)}
+              </div>
+              <h2 className="mt-1.5 line-clamp-2 font-display text-[17px] leading-7 text-olive-deep sm:mt-2 sm:text-xl sm:leading-8">{a.title}</h2>
+              <p className="mt-2 hidden text-xs leading-6 text-cocoa line-clamp-3 sm:block">{a.dek}</p>
+              <div className="mt-auto flex items-center gap-2 pt-3 text-[10px] text-muted-foreground sm:mt-4 sm:justify-between sm:pt-0 sm:text-[11px]">
+                <span>{formatJalali(a.date)}</span>
+                <span className="h-1 w-1 rounded-full bg-border sm:hidden" aria-hidden="true" />
+                <span className="num-fa">{toFaDigits(a.minutes)} دقیقه</span>
+              </div>
             </div>
           </Link>
         ))}
@@ -95,7 +107,7 @@ function Journal() {
       {list.length === 0 && (
         <div className="mt-10 text-sm text-muted-foreground">مقاله‌ای با این عنوان یافت نشد.</div>
       )}
-      <div className="h-16" />
+      <div className="h-8 sm:h-16" />
     </div>
   );
 }
@@ -112,7 +124,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs whitespace-nowrap ${
+      className={`min-h-10 shrink-0 rounded-sm border px-4 py-2 text-xs whitespace-nowrap sm:min-h-0 sm:px-3 sm:py-1.5 ${
         on
           ? "border-olive-deep bg-olive-deep text-paper"
           : "border-olive-deep/25 text-cocoa hover:bg-cream"
