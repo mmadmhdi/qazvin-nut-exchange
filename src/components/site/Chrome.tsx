@@ -76,15 +76,15 @@ export function Header() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="xl:hidden hairline-b bg-background">
-          <nav className="mx-auto max-w-7xl px-4 py-3 grid grid-cols-2 gap-1 text-sm">
+        <div className="xl:hidden hairline-b bg-background max-h-[70vh] overflow-y-auto">
+          <nav className="mx-auto max-w-7xl px-4 py-2 grid gap-0.5 text-sm">
             {NAV.map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
                 activeOptions={n.exact ? { exact: true } : undefined}
-                className="rounded-sm px-3 py-2 text-cocoa hover:bg-cream [&.active]:bg-olive-deep [&.active]:text-paper"
+                className="rounded-sm border-b border-border/50 px-3 py-3 text-cocoa hover:bg-cream [&.active]:bg-olive-deep [&.active]:text-paper"
               >
                 {t(n.key)}
               </Link>
