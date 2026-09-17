@@ -74,35 +74,43 @@ function ArticlePage() {
 
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-14">
-      <Link to="/journal" className="text-xs tracking-widest text-cocoa hover:text-olive-deep">
+    <div className="mx-auto max-w-3xl px-5 py-7 sm:px-6 sm:py-14">
+      <Link to="/journal" className="inline-flex min-h-10 items-center text-xs text-cocoa hover:text-olive-deep sm:min-h-0 sm:tracking-widest">
         → دفتر سبز
       </Link>
-      <div className="mt-6 text-[10px] tracking-[0.3em] uppercase text-brass-dark">
-        {categoryLabel(article.category)}
-      </div>
-      <h1 className="mt-2 font-display text-3xl sm:text-4xl leading-tight text-olive-deep">
-        {article.title}
-      </h1>
-      <p className="mt-3 text-sm sm:text-base leading-8 text-cocoa">{article.dek}</p>
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-        <span>{formatJalali(article.date)}</span>
-        <span>·</span>
-        <span className="num-fa">{toFaDigits(article.minutes)} دقیقه مطالعه</span>
-      </div>
-      <div className="gold-rule my-7" />
+      <header className="mt-3 border-b border-olive-deep/15 pb-7 sm:mt-6 sm:border-0 sm:pb-0">
+        <div className="inline-flex rounded-full bg-cream px-3 py-1 text-[10px] text-brass-dark sm:bg-transparent sm:p-0 sm:tracking-[0.3em] sm:uppercase">
+          {categoryLabel(article.category)}
+        </div>
+        <h1 className="mt-3 font-display text-[1.8rem] leading-[1.45] text-olive-deep sm:mt-2 sm:text-4xl sm:leading-tight">
+          {article.title}
+        </h1>
+        <p className="mt-3 text-[13px] leading-7 text-cocoa sm:text-base sm:leading-8">{article.dek}</p>
+        <div className="mt-5 flex items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-olive-deep font-display text-sm text-paper" aria-hidden="true">د</div>
+          <div className="min-w-0">
+            <div className="font-medium text-cocoa">تحریریه دفتر سبز</div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              <span>{formatJalali(article.date)}</span>
+              <span>·</span>
+              <span className="num-fa">{toFaDigits(article.minutes)} دقیقه مطالعه</span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div className="gold-rule my-7 hidden sm:block" />
 
-      <article className="space-y-5 text-sm sm:text-base leading-9 text-cocoa">
+      <article className="mt-7 space-y-6 text-[15px] leading-[2.15] text-cocoa sm:mt-0 sm:space-y-5 sm:text-base sm:leading-9">
         {article.body.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
       </article>
 
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-9 flex flex-wrap gap-2">
         {article.tags.map((t) => (
           <span
             key={t}
-            className="rounded-sm border border-olive-deep/20 px-2.5 py-1 text-[11px] text-cocoa"
+            className="rounded-full bg-cream px-3 py-1.5 text-[11px] text-cocoa sm:rounded-sm sm:border sm:border-olive-deep/20 sm:bg-transparent sm:px-2.5 sm:py-1"
           >
             {t}
           </span>
@@ -118,7 +126,7 @@ function ArticlePage() {
                 key={a.slug}
                 to="/journal/$slug"
                 params={{ slug: a.slug }}
-                className="card-paper rounded-sm p-4 transition-transform hover:-translate-y-0.5"
+                className="card-paper rounded-md p-4 transition-transform active:scale-[0.99] sm:rounded-sm sm:hover:-translate-y-0.5"
               >
                 <div className="text-[10px] tracking-[0.25em] uppercase text-brass-dark">
                   {categoryLabel(a.category)}
