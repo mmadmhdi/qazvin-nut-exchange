@@ -170,6 +170,7 @@ export function MarketChart({
     stoch: false,
   });
   const [hoverDate, setHoverDate] = useState<string | null>(null);
+  const [showTools, setShowTools] = useState(false);
 
   const { data, stats, meta } = useMemo(() => {
     const days = RANGES.find((r) => r.key === range)!.days;
