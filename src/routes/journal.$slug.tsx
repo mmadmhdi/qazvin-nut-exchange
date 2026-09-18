@@ -100,6 +100,7 @@ function ArticlePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-7 sm:px-6 sm:py-14">
+      <ReadingProgress />
       <Link to="/journal" className="inline-flex min-h-10 items-center text-xs text-cocoa hover:text-olive-deep sm:min-h-0 sm:tracking-widest">
         → دفتر سبز
       </Link>
