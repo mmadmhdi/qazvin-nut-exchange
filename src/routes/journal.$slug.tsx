@@ -56,6 +56,30 @@ export const Route = createFileRoute("/journal/$slug")({
   component: ArticlePage,
 });
 
+/** Mobile-only fixed reading progress bar. */
+function ReadingProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const total = doc.scrollHeight - doc.clientHeight;
+      setProgress(total > 0 ? Math.min(100, Math.max(0, (doc.scrollTop / total) * 100)) : 0);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+  return (
+    <div className="fixed inset-x-0 top-0 z-50 h-1 bg-olive-deep/10 sm:hidden" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label="پیشرفت مطالعه">
+      <div className="h-full bg-olive-deep transition-[width] duration-150 ease-out" style={{ width: `${progress}%` }} />
+    </div>
+  );
+}
+
 function ArticlePage() {
   const { slug } = Route.useParams();
   const { articles: custom } = useStore();
