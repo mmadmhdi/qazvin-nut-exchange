@@ -144,10 +144,11 @@ function AdminGate() {
 
 /* --------------------------------- admin --------------------------------- */
 
-type TabId = "dashboard" | "products" | "prices" | "articles" | "wholesale" | "settings" | "backup";
+type TabId = "dashboard" | "crm" | "products" | "prices" | "articles" | "wholesale" | "settings" | "backup";
 
 const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
   { id: "dashboard", label: "داشبورد", icon: LayoutDashboard },
+  { id: "crm", label: "CRM فروش", icon: Users },
   { id: "products", label: "محصولات", icon: Package },
   { id: "prices", label: "قیمت‌ها", icon: LineChart },
   { id: "articles", label: "مقالات", icon: FileText },
