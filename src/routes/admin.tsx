@@ -35,7 +35,9 @@ import {
   Settings2,
   DatabaseBackup,
   Store,
+  Users,
 } from "lucide-react";
+import AdminCrm from "@/components/site/AdminCrm";
 
 const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
   { key: "batch", label: "شماره بچ" },
@@ -144,10 +146,11 @@ function AdminGate() {
 
 /* --------------------------------- admin --------------------------------- */
 
-type TabId = "dashboard" | "products" | "prices" | "articles" | "wholesale" | "settings" | "backup";
+type TabId = "dashboard" | "crm" | "products" | "prices" | "articles" | "wholesale" | "settings" | "backup";
 
 const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
   { id: "dashboard", label: "داشبورد", icon: LayoutDashboard },
+  { id: "crm", label: "CRM فروش", icon: Users },
   { id: "products", label: "محصولات", icon: Package },
   { id: "prices", label: "قیمت‌ها", icon: LineChart },
   { id: "articles", label: "مقالات", icon: FileText },
@@ -225,6 +228,8 @@ function Admin({ onLock }: { onLock: () => void }) {
       </div>
 
       {tab === "dashboard" && <Dashboard />}
+
+      {tab === "crm" && <AdminCrm />}
 
       {tab === "products" && (
         <div>
