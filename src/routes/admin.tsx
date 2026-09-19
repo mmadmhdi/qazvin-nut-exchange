@@ -35,7 +35,9 @@ import {
   Settings2,
   DatabaseBackup,
   Store,
+  Users,
 } from "lucide-react";
+import AdminCrm from "@/components/site/AdminCrm";
 
 const PASSPORT_FIELDS: { key: keyof Passport; label: string }[] = [
   { key: "batch", label: "شماره بچ" },
@@ -226,6 +228,8 @@ function Admin({ onLock }: { onLock: () => void }) {
       </div>
 
       {tab === "dashboard" && <Dashboard />}
+
+      {tab === "crm" && <AdminCrm />}
 
       {tab === "products" && (
         <div>
