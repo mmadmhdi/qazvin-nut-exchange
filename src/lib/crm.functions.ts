@@ -304,3 +304,53 @@ export const crmConvertMessage = createServerFn({ method: "POST" })
     }
     return { ok: true as const, id: row.id as string };
   });
+
+/* ------------------------------ market link ------------------------------ */
+
+export type MarketPrice = {
+  product_id: string;
+  slug: string;
+  name: string;
+  unit: string;
+  /** Latest published price (watchlist price). */
+  price: number;
+  /** Last close from the price history chart. */
+  last_close: number | null;
+  last_date: string | null;
+  /** Close 30 rows earlier, for a simple trend read. */
+  prev_close: number | null;
+};
+
+/** Latest market prices per product so CRM deals can be priced from the chart. */
+export const crmMarketPrices = createServerFn({ method: "GET" }).handler(
+  async (): Promise<MarketPrice[]> => {
+    const database = await db_("read");
+    const { data: products } = await database
+      .from("products")
+      .select("id, slug, name, unit, price")
+      .eq("active", true)
+      .order("priority", { ascending: false });
+
+    const rows: MarketPrice[] = [];
+    for (const p of (products ?? []) as Array<Record<string, any>>) {
+      const { data: hist } = await database
+        .from("price_history")
+        .select("date, close")
+        .eq("product_id", p.id)
+        .order("date", { ascending: false })
+        .limit(31);
+      const h = (hist ?? []) as Array<{ date: string; close: number }>;
+      rows.push({
+        product_id: p.id as string,
+        slug: p.slug as string,
+        name: p.name as string,
+        unit: p.unit as string,
+        price: Number(p.price ?? 0),
+        last_close: h[0] ? Number(h[0].close) : null,
+        last_date: h[0]?.date ?? null,
+        prev_close: h[h.length - 1] && h.length > 1 ? Number(h[h.length - 1]!.close) : null,
+      });
+    }
+    return rows;
+  },
+);
