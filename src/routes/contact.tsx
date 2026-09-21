@@ -45,13 +45,19 @@ function Contact() {
   const wa = (settings.contactWhatsapp ?? "").trim();
   const subject = form.subject || subjects[0];
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = { ...form, subject };
     const err = validateInquiry(payload);
     if (err) {
       toast.error(err);
       return;
+    }
+    // Keep a copy of the request in the CRM inbox, then hand off to WhatsApp.
+    try {
+      await recordInquiry({ data: { ...payload, email: "", product: "" } });
+    } catch {
+      /* delivery to WhatsApp must still happen */
     }
     const via = sendInquiry(payload, settings);
     toast.success(via === "whatsapp" ? "در حال انتقال به واتساپ…" : "در حال بازکردن نامه‌ی درخواست…");
