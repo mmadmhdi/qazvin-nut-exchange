@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { COMPANY } from "@/lib/licenses";
 import { sendInquiry, validateInquiry, telHref, waHref } from "@/lib/contact";
+import { recordInquiry } from "@/lib/inquiry.functions";
 import { Phone, MapPin, Mail, Clock, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
 import { seoLinks } from "@/lib/seo";
