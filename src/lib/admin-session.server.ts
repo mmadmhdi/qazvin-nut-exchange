@@ -2,7 +2,16 @@
 import { useSession, getRequestIP } from "@tanstack/react-start/server";
 import { createHash, timingSafeEqual } from "node:crypto";
 
-export type GateSession = { unlocked?: boolean; at?: number };
+/** admin = full access · sales = read + edit, no deletes. */
+export type GateRole = "admin" | "sales";
+export type GatePerm = "read" | "write" | "delete";
+
+export type GateSession = { unlocked?: boolean; role?: GateRole; at?: number };
+
+const PERMS: Record<GateRole, GatePerm[]> = {
+  admin: ["read", "write", "delete"],
+  sales: ["read", "write"],
+};
 
 export function sessionConfig() {
   return {
