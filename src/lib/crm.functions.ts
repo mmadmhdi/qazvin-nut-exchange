@@ -68,19 +68,24 @@ export type CrmSnapshot = {
   messages: CrmMessage[];
 };
 
-async function admin() {
-  const { requireAdmin } = await import("./admin-session.server");
-  await requireAdmin();
+type Db = { from: (t: string) => any };
+
+/**
+ * Every CRM handler goes through here: the cookie session decides the role
+ * (admin = full access, sales = read + edit but never delete) and the request
+ * is refused server-side when the role lacks the permission.
+ */
+async function db_(perm: "read" | "write" | "delete"): Promise<Db> {
+  const { requireRole } = await import("./admin-session.server");
+  await requireRole(perm);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin as unknown as {
-    from: (t: string) => any;
-  };
+  return supabaseAdmin as unknown as Db;
 }
 
 /* ---------------------------------- read --------------------------------- */
 
 export const crmSnapshot = createServerFn({ method: "GET" }).handler(async (): Promise<CrmSnapshot> => {
-  const db = await admin();
+  const db = await db_("read");
   const [contacts, deals, activities, messages] = await Promise.all([
     db.from("crm_contacts").select("*").order("created_at", { ascending: false }).limit(1000),
     db.from("crm_deals").select("*").order("updated_at", { ascending: false }).limit(1000),
@@ -115,7 +120,7 @@ const ContactSchema = z.object({
 export const crmSaveContact = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => ContactSchema.parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { id, ...rest } = data;
     if (id) {
       const { error } = await db.from("crm_contacts").update(rest).eq("id", id);
@@ -130,7 +135,7 @@ export const crmSaveContact = createServerFn({ method: "POST" })
 export const crmDeleteContact = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("delete");
     const { error } = await db.from("crm_contacts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -157,7 +162,7 @@ const DealSchema = z.object({
 export const crmSaveDeal = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => DealSchema.parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { id, ...rest } = data;
     const payload = { ...rest, expected_close: rest.expected_close || null };
     if (id) {
@@ -175,7 +180,7 @@ export const crmSetDealStage = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), stage: z.enum(STAGES) }).parse(data),
   )
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const probability = data.stage === "won" ? 100 : data.stage === "lost" ? 0 : undefined;
     const patch: Record<string, unknown> = { stage: data.stage };
     if (probability !== undefined) patch.probability = probability;
@@ -187,7 +192,7 @@ export const crmSetDealStage = createServerFn({ method: "POST" })
 export const crmDeleteDeal = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("delete");
     const { error } = await db.from("crm_deals").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -208,7 +213,7 @@ export const crmAddActivity = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { error } = await db.from("crm_activities").insert({ ...data, due_at: data.due_at || null });
     if (error) throw new Error(error.message);
     if (data.contact_id) {
@@ -220,7 +225,7 @@ export const crmAddActivity = createServerFn({ method: "POST" })
 export const crmToggleActivity = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid(), done: z.boolean() }).parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { error } = await db.from("crm_activities").update({ done: data.done }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -229,7 +234,7 @@ export const crmToggleActivity = createServerFn({ method: "POST" })
 export const crmDeleteActivity = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("delete");
     const { error } = await db.from("crm_activities").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true as const };
@@ -248,7 +253,7 @@ export const crmUpdateMessage = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { id, ...patch } = data;
     const { error } = await db.from("contact_messages").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
@@ -259,7 +264,7 @@ export const crmUpdateMessage = createServerFn({ method: "POST" })
 export const crmConvertMessage = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
-    const db = await admin();
+    const db = await db_("write");
     const { data: msg, error: readErr } = await db
       .from("contact_messages")
       .select("*")
@@ -299,3 +304,53 @@ export const crmConvertMessage = createServerFn({ method: "POST" })
     }
     return { ok: true as const, id: row.id as string };
   });
+
+/* ------------------------------ market link ------------------------------ */
+
+export type MarketPrice = {
+  product_id: string;
+  slug: string;
+  name: string;
+  unit: string;
+  /** Latest published price (watchlist price). */
+  price: number;
+  /** Last close from the price history chart. */
+  last_close: number | null;
+  last_date: string | null;
+  /** Close 30 rows earlier, for a simple trend read. */
+  prev_close: number | null;
+};
+
+/** Latest market prices per product so CRM deals can be priced from the chart. */
+export const crmMarketPrices = createServerFn({ method: "GET" }).handler(
+  async (): Promise<MarketPrice[]> => {
+    const database = await db_("read");
+    const { data: products } = await database
+      .from("products")
+      .select("id, slug, name, unit, price")
+      .eq("active", true)
+      .order("priority", { ascending: false });
+
+    const rows: MarketPrice[] = [];
+    for (const p of (products ?? []) as Array<Record<string, any>>) {
+      const { data: hist } = await database
+        .from("price_history")
+        .select("date, close")
+        .eq("product_id", p.id)
+        .order("date", { ascending: false })
+        .limit(31);
+      const h = (hist ?? []) as Array<{ date: string; close: number }>;
+      rows.push({
+        product_id: p.id as string,
+        slug: p.slug as string,
+        name: p.name as string,
+        unit: p.unit as string,
+        price: Number(p.price ?? 0),
+        last_close: h[0] ? Number(h[0].close) : null,
+        last_date: h[0]?.date ?? null,
+        prev_close: h[h.length - 1] && h.length > 1 ? Number(h[h.length - 1]!.close) : null,
+      });
+    }
+    return rows;
+  },
+);

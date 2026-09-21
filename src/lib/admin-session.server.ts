@@ -2,7 +2,16 @@
 import { useSession, getRequestIP } from "@tanstack/react-start/server";
 import { createHash, timingSafeEqual } from "node:crypto";
 
-export type GateSession = { unlocked?: boolean; at?: number };
+/** admin = full access · sales = read + edit, no deletes. */
+export type GateRole = "admin" | "sales";
+export type GatePerm = "read" | "write" | "delete";
+
+export type GateSession = { unlocked?: boolean; role?: GateRole; at?: number };
+
+const PERMS: Record<GateRole, GatePerm[]> = {
+  admin: ["read", "write", "delete"],
+  sales: ["read", "write"],
+};
 
 export function sessionConfig() {
   return {
@@ -25,10 +34,33 @@ export function passwordMatches(input: string, expected: string): boolean {
   return timingSafeEqual(a, b);
 }
 
-/** Throws when the caller has not unlocked the admin panel. */
-export async function requireAdmin(): Promise<void> {
+/** Which role (if any) this password unlocks. */
+export function resolveRole(input: string): GateRole | null {
+  const admin = process.env["ADMIN_PASSWORD"];
+  if (admin && passwordMatches(input, admin)) return "admin";
+  const sales = process.env["SALES_PASSWORD"];
+  if (sales && passwordMatches(input, sales)) return "sales";
+  return null;
+}
+
+/** Current session role, or null when locked. */
+export async function currentRole(): Promise<GateRole | null> {
   const session = await useSession<GateSession>(sessionConfig());
-  if (!session.data.unlocked) throw new Error("unauthorized");
+  if (!session.data.unlocked) return null;
+  return session.data.role ?? "admin";
+}
+
+/** Throws unless the session role holds the given permission. */
+export async function requireRole(perm: GatePerm): Promise<GateRole> {
+  const role = await currentRole();
+  if (!role) throw new Error("unauthorized");
+  if (!PERMS[role].includes(perm)) throw new Error("forbidden");
+  return role;
+}
+
+/** Throws when the caller has not unlocked the admin panel with full rights. */
+export async function requireAdmin(): Promise<void> {
+  await requireRole("delete");
 }
 
 function clientIp(): string {

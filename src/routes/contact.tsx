@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store";
 import { toast } from "sonner";
 import { COMPANY } from "@/lib/licenses";
 import { sendInquiry, validateInquiry, telHref, waHref } from "@/lib/contact";
+import { recordInquiry } from "@/lib/inquiry.functions";
 import { Phone, MapPin, Mail, Clock, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
 import { seoLinks } from "@/lib/seo";
@@ -45,13 +46,19 @@ function Contact() {
   const wa = (settings.contactWhatsapp ?? "").trim();
   const subject = form.subject || subjects[0];
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload = { ...form, subject };
     const err = validateInquiry(payload);
     if (err) {
       toast.error(err);
       return;
+    }
+    // Keep a copy of the request in the CRM inbox, then hand off to WhatsApp.
+    try {
+      await recordInquiry({ data: { ...payload, email: "", product: "" } });
+    } catch {
+      /* delivery to WhatsApp must still happen */
     }
     const via = sendInquiry(payload, settings);
     toast.success(via === "whatsapp" ? "در حال انتقال به واتساپ…" : "در حال بازکردن نامه‌ی درخواست…");
