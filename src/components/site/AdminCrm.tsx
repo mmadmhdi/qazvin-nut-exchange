@@ -12,12 +12,15 @@ import {
   crmDeleteActivity,
   crmUpdateMessage,
   crmConvertMessage,
+  crmMarketPrices,
+  type MarketPrice,
   type CrmSnapshot,
   type CrmContact,
   type CrmDeal,
 } from "@/lib/crm.functions";
 import { formatPrice, toFaDigits } from "@/lib/format";
 import { useStore } from "@/lib/store";
+import { adminStatus } from "@/lib/admin-gate.functions";
 import {
   Plus,
   Trash2,
@@ -34,6 +37,8 @@ import {
   UserPlus,
   Search,
   X,
+  TrendingUp,
+  ShieldCheck,
 } from "lucide-react";
 
 /* --------------------------------- config -------------------------------- */
@@ -119,6 +124,8 @@ const label = "block text-xs text-muted-foreground mb-1";
 export default function AdminCrm() {
   const { products } = useStore();
   const [data, setData] = useState<CrmSnapshot | null>(null);
+  const [market, setMarket] = useState<MarketPrice[]>([]);
+  const [canDelete, setCanDelete] = useState(false);
   const [view, setView] = useState<View>("pipeline");
   const [contactForm, setContactForm] = useState<CrmContact | null>(null);
   const [dealForm, setDealForm] = useState<CrmDeal | null>(null);
@@ -126,7 +133,9 @@ export default function AdminCrm() {
 
   async function load() {
     try {
-      setData(await crmSnapshot());
+      const [snapshot, prices] = await Promise.all([crmSnapshot(), crmMarketPrices()]);
+      setData(snapshot);
+      setMarket(prices);
     } catch {
       toast.error("خواندن داده‌های CRM ناموفق بود");
     }
@@ -134,6 +143,9 @@ export default function AdminCrm() {
 
   useEffect(() => {
     void load();
+    adminStatus()
+      .then((r) => setCanDelete(Boolean(r.canDelete)))
+      .catch(() => setCanDelete(false));
   }, []);
 
   async function act(fn: () => Promise<unknown>, ok: string) {
@@ -144,6 +156,16 @@ export default function AdminCrm() {
     } catch (e) {
       toast.error(`عملیات ناموفق بود: ${(e as Error).message}`);
     }
+  }
+
+  const marketById = useMemo(() => new Map(market.map((m) => [m.product_id, m])), [market]);
+
+  /** Market reference price for a deal: last chart close, else watchlist price. */
+  function marketPriceOf(productId: string | null): number | null {
+    if (!productId) return null;
+    const m = marketById.get(productId);
+    if (!m) return null;
+    return m.last_close ?? m.price ?? null;
   }
 
   const contactById = useMemo(
@@ -195,6 +217,10 @@ export default function AdminCrm() {
             </button>
           ))}
         </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-cream px-2.5 py-1 text-[11px] text-brass-dark">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          {canDelete ? "دسترسی مدیر (خواندن، ویرایش، حذف)" : "دسترسی کارشناس فروش (خواندن و ویرایش)"}
+        </span>
         <div className="ms-auto flex gap-2">
           <button
             onClick={() => setContactForm(emptyContact())}
@@ -210,6 +236,31 @@ export default function AdminCrm() {
           </button>
         </div>
       </div>
+
+      {view === "pipeline" && market.length > 0 && (
+        <div className="card-paper mb-3 rounded-sm p-3">
+          <div className="flex items-center gap-1.5 text-[11px] text-brass-dark">
+            <TrendingUp className="h-3.5 w-3.5" /> قیمت روز بازار (مبنای قیمت‌گذاری معاملات)
+          </div>
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+            {market.map((m) => {
+              const ref = m.last_close ?? m.price;
+              const open = data.deals.filter(
+                (d) => d.product_id === m.product_id && d.stage !== "won" && d.stage !== "lost",
+              ).length;
+              return (
+                <div key={m.product_id} className="min-w-[180px] rounded-sm border border-border bg-background p-2.5">
+                  <div className="truncate text-xs font-semibold text-cocoa">{m.name}</div>
+                  <div className="num-fa mt-1 text-sm text-olive-deep">{formatPrice(ref)}</div>
+                  <div className="num-fa mt-0.5 text-[10px] text-muted-foreground">
+                    {m.last_date ? `آخرین معامله بازار: ${toFaDigits(m.last_date)}` : "بدون تاریخچه"} · {toFaDigits(open)} معامله باز
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {view === "pipeline" && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -244,6 +295,21 @@ export default function AdminCrm() {
                         <div className="num-fa mt-2 text-xs text-cocoa">
                           {toFaDigits(d.quantity_kg)} کیلوگرم · {formatPrice(d.quantity_kg * d.unit_price)}
                         </div>
+                        {(() => {
+                          const ref = marketPriceOf(d.product_id);
+                          if (!ref || !d.unit_price) return null;
+                          const diff = ((d.unit_price - ref) / ref) * 100;
+                          const tone = diff >= 0 ? "text-bull" : "text-bear";
+                          return (
+                            <div className="num-fa mt-1 text-[11px] text-muted-foreground">
+                              قیمت بازار: {formatPrice(ref)} ·{" "}
+                              <span className={tone}>
+                                {diff >= 0 ? "+" : "−"}
+                                {toFaDigits(Math.abs(diff).toFixed(1))}٪
+                              </span>
+                            </div>
+                          );
+                        })()}
                         <div className="mt-2 flex items-center gap-2">
                           <select
                             aria-label="مرحله معامله"
@@ -259,6 +325,7 @@ export default function AdminCrm() {
                               </option>
                             ))}
                           </select>
+                          {canDelete && (
                           <button
                             aria-label="حذف معامله"
                             onClick={() => act(() => crmDeleteDeal({ data: { id: d.id } }), "معامله حذف شد")}
@@ -266,6 +333,7 @@ export default function AdminCrm() {
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -330,18 +398,21 @@ export default function AdminCrm() {
                   <button onClick={() => setContactForm(c)} className="rounded-sm border border-border px-2 py-1 text-[11px] hover:bg-cream">
                     ویرایش
                   </button>
-                  <button
-                    aria-label="حذف مشتری"
-                    onClick={() => act(() => crmDeleteContact({ data: { id: c.id } }), "مشتری حذف شد")}
-                    className="rounded-sm border border-border p-1.5 text-bear hover:bg-cream"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  {canDelete && (
+                    <button
+                      aria-label="حذف مشتری"
+                      onClick={() => act(() => crmDeleteContact({ data: { id: c.id } }), "مشتری حذف شد")}
+                      className="rounded-sm border border-border p-1.5 text-bear hover:bg-cream"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 {/* activity log per contact */}
                 <div className="md:col-span-5">
                   <ActivityBox
+                    canDelete={canDelete}
                     contactId={c.id}
                     items={data.activities.filter((a) => a.contact_id === c.id)}
                     onAdd={(payload) => act(() => crmAddActivity({ data: payload }), "پیگیری ثبت شد")}
@@ -451,13 +522,15 @@ export default function AdminCrm() {
                       </div>
                     )}
                   </div>
-                  <button
-                    aria-label="حذف پیگیری"
-                    onClick={() => act(() => crmDeleteActivity({ data: { id: a.id } }), "حذف شد")}
-                    className="text-bear"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {canDelete && (
+                    <button
+                      aria-label="حذف پیگیری"
+                      onClick={() => act(() => crmDeleteActivity({ data: { id: a.id } }), "حذف شد")}
+                      className="text-bear"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -503,7 +576,11 @@ export default function AdminCrm() {
             value={dealForm}
             onChange={setDealForm}
             contacts={data.contacts}
-            products={products.map((p) => ({ id: p.id, name: p.name, price: p.price }))}
+            products={products.map((p) => ({
+              id: p.id,
+              name: p.name,
+              price: marketPriceOf(p.id) ?? p.price,
+            }))}
             onSave={async () => {
               const d = dealForm;
               await act(
@@ -681,6 +758,7 @@ function DealForm({
             onChange={(e) => {
               const p = products.find((x) => x.id === e.target.value);
               set({ product_id: e.target.value || null, unit_price: value.unit_price || (p?.price ?? 0) });
+              // price defaults to the latest market close for that product
             }}
           >
             <option value="">— انتخاب نشده —</option>
@@ -759,12 +837,14 @@ function DealForm({
 }
 
 function ActivityBox({
+  canDelete,
   contactId,
   items,
   onAdd,
   onToggle,
   onDelete,
 }: {
+  canDelete: boolean;
   contactId: string;
   items: { id: string; kind: string; body: string; due_at: string | null; done: boolean }[];
   onAdd: (payload: { contact_id: string; kind: "note"; body: string; due_at: string | null }) => void;
@@ -796,9 +876,11 @@ function ActivityBox({
                 <div className="text-[10px] text-brass-dark">{ACTIVITY_KINDS[a.kind] ?? a.kind}</div>
                 <p className={`text-xs leading-5 ${a.done ? "text-muted-foreground line-through" : "text-cocoa"}`}>{a.body}</p>
               </div>
-              <button aria-label="حذف" onClick={() => onDelete(a.id)} className="text-bear">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              {canDelete && (
+                <button aria-label="حذف" onClick={() => onDelete(a.id)} className="text-bear">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           ))}
           <div className="grid gap-2 sm:grid-cols-[120px_1fr_140px_auto]">
