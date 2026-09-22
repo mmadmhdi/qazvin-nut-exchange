@@ -67,13 +67,17 @@ export const Route = createFileRoute("/admin")({
 
 function AdminGate() {
   const [state, setState] = useState<"loading" | "locked" | "open">("loading");
+  const [role, setRole] = useState<"admin" | "sales">("admin");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     adminStatus()
-      .then((r) => setState(r.unlocked ? "open" : "locked"))
+      .then((r) => {
+        if (r.role) setRole(r.role);
+        setState(r.unlocked ? "open" : "locked");
+      })
       .catch(() => setState("locked"));
   }, []);
 
@@ -84,6 +88,7 @@ function AdminGate() {
     try {
       const r = await unlockAdmin({ data: { password } });
       if (r.ok) {
+        setRole(r.role);
         setState("open");
         setPassword("");
         toast.success("خوش آمدید");
@@ -141,7 +146,7 @@ function AdminGate() {
     );
   }
 
-  return <Admin onLock={() => setState("locked")} />;
+  return <Admin role={role} onLock={() => setState("locked")} />;
 }
 
 /* --------------------------------- admin --------------------------------- */
@@ -159,10 +164,12 @@ const TABS: { id: TabId; label: string; icon: typeof Package }[] = [
   { id: "backup", label: "پشتیبان‌گیری", icon: DatabaseBackup },
 ];
 
-function Admin({ onLock }: { onLock: () => void }) {
+function Admin({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }) {
+  // Sales specialists only reach the CRM; product, price and site settings stay with the manager.
+  const tabs = role === "admin" ? TABS : TABS.filter((t) => t.id === "dashboard" || t.id === "crm");
   const store = useStore();
   const { products, settings, saveProduct, deleteProduct, refresh } = store;
-  const [tab, setTab] = useState<TabId>("dashboard");
+  const [tab, setTab] = useState<TabId>(role === "admin" ? "dashboard" : "crm");
   const [editing, setEditing] = useState<Product | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -189,6 +196,9 @@ function Admin({ onLock }: { onLock: () => void }) {
         <div>
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">پنل مدیریت</div>
           <h1 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">مرکز کنترل درج سبز</h1>
+          <div className="mt-1 text-[11px] text-muted-foreground">
+            {role === "admin" ? "نقش: مدیر — دسترسی کامل" : "نقش: کارشناس فروش — خواندن و ویرایش CRM"}
+          </div>
         </div>
         <div className="flex gap-2">
           <button
@@ -211,7 +221,7 @@ function Admin({ onLock }: { onLock: () => void }) {
       <div className="gold-rule my-5 sm:my-6" />
 
       <div className="flex gap-1 mb-6 overflow-x-auto border-b border-border">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
