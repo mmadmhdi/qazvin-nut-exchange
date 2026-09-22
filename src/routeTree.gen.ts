@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WholesaleRouteImport } from './routes/wholesale'
 import { Route as TasteRouteImport } from './routes/taste'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PanelRouteImport } from './routes/panel'
 import { Route as OriginRouteImport } from './routes/origin'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MarketRouteImport } from './routes/market'
@@ -40,6 +41,11 @@ const TasteRoute = TasteRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelRoute = PanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OriginRoute = OriginRouteImport.update({
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
+  '/panel': typeof PanelRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
+  '/panel': typeof PanelRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/news': typeof NewsRoute
   '/origin': typeof OriginRoute
+  '/panel': typeof PanelRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/taste': typeof TasteRoute
   '/wholesale': typeof WholesaleRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
+    | '/panel'
     | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
+    | '/panel'
     | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/news'
     | '/origin'
+    | '/panel'
     | '/sitemap.xml'
     | '/taste'
     | '/wholesale'
@@ -242,6 +254,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   NewsRoute: typeof NewsRoute
   OriginRoute: typeof OriginRoute
+  PanelRoute: typeof PanelRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TasteRoute: typeof TasteRoute
   WholesaleRoute: typeof WholesaleRoute
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/origin': {
@@ -386,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   NewsRoute: NewsRoute,
   OriginRoute: OriginRoute,
+  PanelRoute: PanelRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TasteRoute: TasteRoute,
   WholesaleRoute: WholesaleRoute,
