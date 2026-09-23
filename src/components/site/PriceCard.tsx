@@ -10,7 +10,7 @@ export function PriceCard({ product, featured = false }: { product: Product; fea
     <Link
       to="/products/$slug"
       params={{ slug: product.slug }}
-      className={`card-paper block rounded-sm p-5 transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)] ${
+      className={`card-paper block rounded-sm p-4 sm:p-5 hover:-translate-y-0.5 ${
         featured ? "md:col-span-2 border-brass/60" : ""
       }`}
     >
@@ -45,7 +45,7 @@ export function PriceCard({ product, featured = false }: { product: Product; fea
           <span className="num-fa">{formatPercent(pct)}</span>
         </div>
       </div>
-      <div className="mt-5 flex items-baseline gap-2">
+      <div className="mt-5 flex items-baseline gap-2 border-t border-border/70 pt-4">
         <span className={`font-display num-fa text-olive-deep ${featured ? "text-4xl" : "text-2xl"}`}>
           {formatPrice(product.price)}
         </span>

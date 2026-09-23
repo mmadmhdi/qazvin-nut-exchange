@@ -61,18 +61,19 @@ function Home() {
       </div>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-cream/70 via-background to-background" />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-7 sm:pt-16 pb-8 sm:pb-20 grid lg:grid-cols-[1.15fr_1fr] gap-6 lg:gap-10 items-center">
-          <div className="min-w-0">
+      <section className="relative overflow-hidden border-b border-border/70">
+        <div className="absolute inset-0 -z-10 bg-cream/35" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-7 sm:py-12 lg:py-14 grid lg:grid-cols-[0.84fr_1.25fr] gap-6 lg:gap-8 items-stretch">
+          <div className="min-w-0 flex flex-col justify-between py-1 lg:py-3">
+            <div>
             <div className="text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-brass-dark mb-2.5 sm:mb-6">
               {settings.brandLatin} · Est. ۱۳۴۸
             </div>
-            <h1 className="font-display text-[1.95rem] leading-[1.2] sm:text-5xl sm:leading-[1.05] md:text-7xl text-olive-deep">
+            <h1 className="font-display text-[2.15rem] leading-[1.22] sm:text-5xl sm:leading-[1.1] lg:text-[3.9rem] text-olive-ink">
               {heroTitle}
             </h1>
             <div className="mt-4 sm:mt-6 max-w-2xl">
-              <div className="gold-rule mb-3 sm:mb-6" />
+              <div className="h-px w-20 bg-brass mb-3 sm:mb-6" />
               <p className="text-sm sm:text-base md:text-lg text-cocoa leading-7 sm:leading-9">
                 {heroSubtitle}
               </p>
@@ -91,13 +92,14 @@ function Home() {
                 {t("cta.analysis")}
               </Link>
             </div>
+            </div>
             <div className="mt-6 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md">
               <Stat label={t("home.stat.products")} value={toFaDigits(active.length)} />
               <Stat label={t("home.stat.generations")} value="۴" />
               <Stat label={t("home.stat.years")} value="۷۷+" />
             </div>
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 lg:order-first">
             {featured[0] && <MarketChart product={featured[0]} compact />}
           </div>
         </div>
@@ -105,10 +107,10 @@ function Home() {
 
       {/* Ticker preview */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="hairline-t hairline-b py-6">
+        <div className="hairline-b py-8 sm:py-10">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
             <div className="min-w-0">
-              <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{t("home.todayBoard")}</div>
+              <div className="section-kicker">{t("home.todayBoard")}</div>
               <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">{t("home.nutMarket")}</h2>
             </div>
             <Link to="/market" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
@@ -124,7 +126,7 @@ function Home() {
       </section>
 
       {/* Value props */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-12">
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ValueProp icon={<Leaf className="h-4 w-4" />} title="اصالت باغی" desc="از باغ‌های اصیل قزوین و بویین‌زهرا." />
           <ValueProp icon={<ShieldCheck className="h-4 w-4" />} title="کنترل کیفیت" desc="سه‌مرحله رنگ، رطوبت و اندازه." />
@@ -144,7 +146,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
           <div>
-            <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">حرکات بازار</div>
+            <div className="section-kicker">حرکات بازار</div>
             <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">پرشتاب‌ترین‌های امروز</h2>
           </div>
           <Link to="/analysis" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
@@ -185,7 +187,7 @@ function Home() {
       {/* Featured pistachio */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="text-center max-w-2xl mx-auto">
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">محصولات ممتاز</div>
+          <div className="section-kicker">محصولات ممتاز</div>
           <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">خلال پسته، افتخار خانه</h2>
           <div className="gold-rule my-6" />
           <p className="text-sm sm:text-base text-cocoa leading-8">
@@ -203,7 +205,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 sm:mb-8 gap-3">
           <div>
-            <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">سایر محصولات</div>
+            <div className="section-kicker">سایر محصولات</div>
             <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">مکمل‌های سفره خشکبار</h2>
           </div>
           <Link to="/products" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
@@ -219,16 +221,16 @@ function Home() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
-        <div className="card-paper rounded-sm p-8 sm:p-10 md:p-14 text-center bg-gradient-to-br from-cream/60 to-background">
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">فروش عمده و صادراتی</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-3">شریک تجاری قابل اعتماد</h2>
+        <div className="rounded-sm border border-olive-deep/15 bg-olive-ink p-8 sm:p-10 md:p-14 text-center text-paper">
+          <div className="text-[10px] tracking-[0.22em] uppercase text-brass">فروش عمده و صادراتی</div>
+          <h2 className="font-display text-3xl sm:text-4xl text-paper mt-3">شریک تجاری قابل اعتماد</h2>
           <div className="gold-rule my-5" />
-          <p className="text-cocoa max-w-2xl mx-auto leading-8 text-sm sm:text-base">
+          <p className="text-paper/70 max-w-2xl mx-auto leading-8 text-sm sm:text-base">
             برای قنادان، صنایع غذایی و صادرکنندگان؛ شرایط اختصاصی خرید عمده، تضمین کیفیت و قرارداد سالانه.
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <Link to="/wholesale" className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">شرایط فروش عمده</Link>
-            <Link to="/contact" className="rounded-sm border border-olive-deep/40 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest">تماس با ما</Link>
+            <Link to="/wholesale" className="rounded-sm bg-brass px-6 py-3 text-sm text-olive-ink hover:bg-paper tracking-widest transition-colors">شرایط فروش عمده</Link>
+            <Link to="/contact" className="rounded-sm border border-paper/30 px-6 py-3 text-sm text-paper hover:bg-paper/10 tracking-widest transition-colors">تماس با ما</Link>
           </div>
         </div>
       </section>
@@ -252,8 +254,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function ValueProp({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <div className="card-paper rounded-sm p-5">
-      <div className="flex items-center gap-2 text-brass-dark text-[10px] tracking-[0.3em] uppercase">
+    <div className="border-t border-olive-deep/20 py-5">
+      <div className="flex items-center gap-2 text-brass-dark text-[10px] tracking-[0.22em] uppercase">
         {icon}
         {title}
       </div>

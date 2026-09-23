@@ -11,7 +11,7 @@ export function ProductCard({ product, size = "sm" }: { product: Product; size?:
     <Link
       to="/products/$slug"
       params={{ slug: product.slug }}
-      className={`card-paper block rounded-sm ${size === "lg" ? "p-4 sm:p-8" : "p-4 sm:p-5"} group`}
+      className={`card-paper block rounded-sm hover:-translate-y-0.5 ${size === "lg" ? "p-5 sm:p-8" : "p-4 sm:p-5"} group`}
     >
       <div className="text-[10px] tracking-[0.2em] uppercase text-brass-dark">
         {l.category} · {l.grade}
