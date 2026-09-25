@@ -159,3 +159,61 @@ export function jalaliYear(input: Date | string | number = new Date()): string {
   const p = toParts(input);
   return p ? digits(p.jy) : "";
 }
+
+/** Persian/Arabic digits → ASCII. */
+export function toEnDigits(input: string): string {
+  return String(input ?? "")
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+}
+
+/** Parses admin-typed amounts: «۱۲۰٬۰۰۰٬۰۰۰», "120,000,000", "120 000 000". NaN if invalid. */
+export function parseAmount(input: string | number | undefined | null): number {
+  if (typeof input === "number") return input;
+  const s = toEnDigits(String(input ?? "")).replace(/[,،٬\s_']/g, "").replace(/٫/g, ".");
+  if (!s || !/^\d+(\.\d+)?$/.test(s)) return NaN;
+  return Number(s);
+}
+
+/** Jalali → Gregorian. */
+export function jalaliToGregorian(jy: number, jm: number, jd: number): { gy: number; gm: number; gd: number } {
+  let gy = jy <= 979 ? 621 : 1600;
+  jy -= jy <= 979 ? 0 : 979;
+  let days =
+    365 * jy + div(jy, 33) * 8 + div((jy % 33) + 3, 4) + 78 + jd + (jm < 7 ? (jm - 1) * 31 : (jm - 7) * 30 + 186);
+  gy += 400 * div(days, 146097);
+  days %= 146097;
+  if (days > 36524) {
+    gy += 100 * div(--days, 36524);
+    days %= 36524;
+    if (days >= 365) days++;
+  }
+  gy += 4 * div(days, 1461);
+  days %= 1461;
+  if (days > 365) {
+    gy += div(days - 1, 365);
+    days = (days - 1) % 365;
+  }
+  let gd = days + 1;
+  const leap = (gy % 4 === 0 && gy % 100 !== 0) || gy % 400 === 0;
+  const ml = [0, 31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let gm = 1;
+  for (; gm <= 12 && gd > ml[gm]; gm++) gd -= ml[gm];
+  return { gy, gm, gd };
+}
+
+/** Accepts "2026-09-25" or Jalali "1405/07/03" (any digits/separators) → ISO date, or null. */
+export function parseDateInput(input: string): string | null {
+  const m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(toEnDigits(String(input ?? "")).trim());
+  if (!m) return null;
+  let y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  if (y < 1700) ({ gy: y, gm: mo, gd: d } = jalaliToGregorian(y, mo, d));
+  const iso = `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  return Number.isNaN(new Date(iso).getTime()) ? null : iso;
+}
+
+/** Today's date in Tehran (the market's calendar day), ISO. */
+export function todayTehran(): string {
+  return new Date(Date.now() + 3.5 * 3600_000).toISOString().slice(0, 10);
+}
