@@ -222,6 +222,8 @@ async function stampTodayPrice(productId: string, price: number): Promise<void> 
     .maybeSingle();
   const prevRow = prev as Row | null;
   const isToday = str(prevRow?.["date"]).slice(0, 10) === today;
+  // Toggling active/featured or editing text must not invent a new candle.
+  if (prevRow && Math.round(num(prevRow["close"])) === Math.round(price)) return;
   const open = isToday ? num(prevRow?.["open"]) || price : num(prevRow?.["close"]) || price;
   const high = Math.max(open, price, isToday ? num(prevRow?.["high"]) : 0);
   const low = Math.min(open, price, isToday ? num(prevRow?.["low"]) || price : price);
