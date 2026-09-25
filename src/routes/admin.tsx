@@ -460,7 +460,7 @@ function buildPoint(product: Product, date: string, price: number): PricePoint {
 
 function PricesTab() {
   const { products, bulkPricePoints } = useStore();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayTehran());
   const [values, setValues] = useState<Record<string, string>>({});
   const [csvId, setCsvId] = useState(products[0]?.id ?? "");
   const [csv, setCsv] = useState("");
@@ -470,7 +470,7 @@ function PricesTab() {
     if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
     const jobs = products
       .map((p) => {
-        const v = Number(values[p.id]);
+        const v = parseAmount(values[p.id]);
         return Number.isFinite(v) && v > 0 ? { p, point: buildPoint(p, date, Math.round(v)) } : null;
       })
       .filter(Boolean) as { p: Product; point: PricePoint }[];
@@ -497,19 +497,20 @@ function PricesTab() {
       .map((line) => line.split(/[,\t;]/).map((c) => c.trim()));
     const points: PricePoint[] = [];
     for (const r of rows) {
-      const [d, price, open, high, low, volume] = r;
-      if (!ISO_DATE.test(d ?? "")) continue;
-      const close = Number(price);
+      const [rawDate, price, open, high, low, volume] = r;
+      const d = parseDateInput(rawDate ?? "");
+      if (!d) continue;
+      const close = parseAmount(price);
       if (!Number.isFinite(close) || close <= 0) continue;
-      const o = Number(open) || close;
+      const o = parseAmount(open) || close;
       points.push({
         date: d,
         price: close,
         close,
         open: o,
-        high: Math.max(Number(high) || close, o, close),
-        low: Math.min(Number(low) || close, o, close),
-        volume: Math.max(0, Number(volume) || 0),
+        high: Math.max(parseAmount(high) || close, o, close),
+        low: Math.min(parseAmount(low) || close, o, close),
+        volume: Math.max(0, parseAmount(volume) || 0),
       });
     }
     if (points.length === 0)
@@ -542,7 +543,7 @@ function PricesTab() {
         </div>
         <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => {
-            const v = Number(values[p.id]);
+            const v = parseAmount(values[p.id]);
             const diff = Number.isFinite(v) && v > 0 && p.price ? ((v - p.price) / p.price) * 100 : null;
             return (
               <label key={p.id} className="text-xs">
@@ -552,8 +553,7 @@ function PricesTab() {
                 </div>
                 <input
                   dir="ltr"
-                  type="number"
-                  min={0}
+                  type="text"
                   inputMode="numeric"
                   placeholder={String(p.price)}
                   value={values[p.id] ?? ""}
@@ -634,7 +634,7 @@ const emptyArticle = (): Article => ({
   title: "",
   dek: "",
   category: "market",
-  date: new Date().toISOString().slice(0, 10),
+  date: todayTehran(),
   minutes: 4,
   tags: [],
   body: [""],
@@ -991,7 +991,7 @@ function BackupTab() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `darj-sabz-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `darj-sabz-backup-${todayTehran()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("فایل پشتیبان دانلود شد");
@@ -1052,13 +1052,13 @@ const emptyProduct = (): Product => ({
   priority: 10,
   active: true,
   featured: false,
-  updatedAt: new Date().toISOString().slice(0, 10),
+  updatedAt: todayTehran(),
   history: [],
 });
 
 function PriceHistoryEditor({ product }: { product: Product }) {
   const { bulkPricePoints, removePricePoint } = useStore();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayTehran());
   const [price, setPrice] = useState<string>(String(product.price || ""));
   const [busy, setBusy] = useState(false);
 
@@ -1068,7 +1068,7 @@ function PriceHistoryEditor({ product }: { product: Product }) {
   );
 
   async function submit() {
-    const v = Math.round(Number(price));
+    const v = Math.round(parseAmount(price));
     if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
     if (!Number.isFinite(v) || v <= 0) return toast.error("قیمت باید بزرگ‌تر از صفر باشد");
     setBusy(true);
@@ -1106,7 +1106,7 @@ function PriceHistoryEditor({ product }: { product: Product }) {
             dir="ltr"
             type="date"
             value={date}
-            max={new Date().toISOString().slice(0, 10)}
+            max={todayTehran()}
             onChange={(e) => setDate(e.target.value)}
             className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm"
           />
@@ -1116,8 +1116,7 @@ function PriceHistoryEditor({ product }: { product: Product }) {
           <div className="text-muted-foreground mb-1">قیمت</div>
           <input
             dir="ltr"
-            type="number"
-            min={0}
+            type="text"
             inputMode="numeric"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
