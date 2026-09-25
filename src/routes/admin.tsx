@@ -494,7 +494,7 @@ function PricesTab() {
       .map((line) => line.trim())
       .filter(Boolean)
       .filter((line) => !/^(date|تاریخ)/i.test(line))
-      .map((line) => line.split(/[,\t;]/).map((c) => c.trim()));
+      .map((line) => (/[;\t]/.test(line) ? line.split(/[;\t]/) : line.split(",")).map((c) => c.trim()));
     const points: PricePoint[] = [];
     for (const r of rows) {
       const [rawDate, price, open, high, low, volume] = r;
@@ -514,7 +514,7 @@ function PricesTab() {
       });
     }
     if (points.length === 0)
-      return toast.error("داده‌ی معتبری یافت نشد (قالب: ۲۰۲۶-۰۱-۰۱,۱۰۰۰۰۰)");
+      return toast.error("داده‌ی معتبری یافت نشد (قالب: ۱۴۰۵/۰۷/۰۳;۱۲۰۰۰۰۰۰۰ یا 2026-09-25;120000000)");
     setBusy(true);
     try {
       await bulkPricePoints(csvId, points);
@@ -605,7 +605,7 @@ function PricesTab() {
             rows={7}
             value={csv}
             onChange={(e) => setCsv(e.target.value)}
-            placeholder={"2026-07-01,58500000,58000000,59000000,57800000,240\n2026-07-02,58900000"}
+            placeholder={"1405/07/01;58500000;58000000;59000000;57800000;240\n2026-09-24;58900000"}
             className="w-full rounded-sm border border-input bg-background px-3 py-2 text-xs font-mono"
           />
           <div className="flex flex-wrap gap-2 justify-between items-center">
