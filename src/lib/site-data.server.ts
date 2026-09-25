@@ -105,11 +105,29 @@ function settingsToRow(s: Partial<SiteSettings>): Row {
   return out;
 }
 
+/** PostgREST caps responses at 1000 rows — page through the full history. */
+async function readAllHistory(db: ReturnType<typeof publicClient>): Promise<{ data: Row[] }> {
+  const PAGE = 1000;
+  const out: Row[] = [];
+  for (let from = 0; from < 200_000; from += PAGE) {
+    const { data, error } = await db
+      .from("price_history")
+      .select("*")
+      .order("date", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    out.push(...((data ?? []) as Row[]));
+    if (!data || data.length < PAGE) break;
+  }
+  return { data: out };
+}
+
 export async function readSiteData(): Promise<SiteData> {
   const db = publicClient();
   const [products, history, settings, articles] = await Promise.all([
     db.from("products").select("*").order("priority", { ascending: false }),
-    db.from("price_history").select("*").order("date", { ascending: true }),
+    readAllHistory(db),
     db.from("site_settings").select("*").eq("id", 1).maybeSingle(),
     db.from("articles").select("*").order("date", { ascending: false }),
   ]);
@@ -138,7 +156,8 @@ export async function readSiteData(): Promise<SiteData> {
       slug: str(p["slug"]),
       name: str(p["name"]),
       category: str(p["category"]) as Product["category"],
-      price: num(p["price"]) || last?.price || 0,
+      // The chart's newest close is the source of truth for the live price.
+      price: last?.price || num(p["price"]) || 0,
       unit: str(p["unit"]),
       origin: str(p["origin"]),
       grade: str(p["grade"]),
