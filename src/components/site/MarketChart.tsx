@@ -192,7 +192,15 @@ export function MarketChart({
           return true;
         })
       : sortedAll;
-    const raw = periodOn ? windowed : windowed.slice(-days);
+    // Quick ranges are calendar windows ending at the newest record (records
+    // are not daily, so slicing by count showed far longer spans).
+    const lastDate = sortedAll[sortedAll.length - 1]?.date;
+    const cutoff =
+      lastDate && Number.isFinite(days) && days < 100_000
+        ? new Date(new Date(lastDate).getTime() - days * 86_400_000).toISOString().slice(0, 10)
+        : "";
+    const inRange = cutoff ? windowed.filter((p) => p.date >= cutoff) : windowed;
+    const raw = periodOn ? windowed : inRange.length >= 2 ? inRange : windowed.slice(-2);
 
     const asOHLC: OHLC[] = raw.map((p) => {
       const close = Number(p.close ?? p.price) || 0;
