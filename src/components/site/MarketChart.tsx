@@ -189,6 +189,7 @@ export function MarketChart({
           if (!j) return false;
           if (period!.jy !== null && j.jy !== period!.jy) return false;
           if (period!.jm !== null && j.jm !== period!.jm) return false;
+          if (period!.jd != null && j.jd !== period!.jd) return false;
           return true;
         })
       : sortedAll;
@@ -268,7 +269,7 @@ export function MarketChart({
       stats: { last, first, hi, lo, chg, chgPct },
       meta: { avgVol, atrLast, bars: chartRows.length, fib },
     };
-  }, [product.history, range, style, periodOn, period?.jy, period?.jm]);
+  }, [product.history, range, style, periodOn, period?.jy, period?.jm, period?.jd]);
 
   const hasData = data.length > 0;
   const pad = (stats.hi - stats.lo) * 0.12 || stats.hi * 0.03 || 1;
