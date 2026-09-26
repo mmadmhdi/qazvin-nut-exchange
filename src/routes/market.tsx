@@ -39,6 +39,7 @@ function Market() {
   const [dir, setDir] = useState<"desc" | "asc">("desc");
   const [jy, setJy] = useState<number | null>(null);
   const [jm, setJm] = useState<number | null>(null);
+  const [jd, setJd] = useState<number | null>(null);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -197,11 +198,13 @@ function Market() {
                 history={selected.history ?? []}
                 jy={jy}
                 jm={jm}
-                onYear={(y) => { setJy(y); setJm(null); }}
-                onMonth={setJm}
+                jd={jd}
+                onYear={(y) => { setJy(y); setJm(null); setJd(null); }}
+                onMonth={(m) => { setJm(m); setJd(null); }}
+                onDay={setJd}
                 locale={locale}
               />
-              <MarketChart product={selected} period={{ jy, jm }} />
+              <MarketChart product={selected} period={{ jy, jm, jd }} />
             </div>
           )}
           {selected && sel && (
