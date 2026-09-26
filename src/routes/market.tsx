@@ -326,6 +326,18 @@ function PeriodFilter({
           <option key={m} value={m}>{jalaliMonthName(m - 1)}</option>
         ))}
       </select>
+      <label className="sr-only" htmlFor="period-day">{L.day}</label>
+      <select
+        id="period-day"
+        value={jd === null ? "all" : String(jd)}
+        onChange={(e) => onDay(e.target.value === "all" ? null : Number(e.target.value))}
+        className="bg-tv-bg border border-tv-border rounded-sm text-xs text-tv-text px-2 py-1.5 outline-none focus:border-brass/60"
+      >
+        <option value="all">{L.allDays}</option>
+        {days.map((d) => (
+          <option key={d} value={d}>{`${L.day} ${num(d)}`}</option>
+        ))}
+      </select>
       <div className="flex flex-wrap items-center gap-1.5">
         {years.map((y) => (
           <button
