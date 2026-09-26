@@ -247,45 +247,54 @@ function IndexCard({ k, v, unit, accent }: { k: string; v: string; unit?: string
   );
 }
 type Loc = "fa" | "en" | "ar";
-const PERIOD_LABELS: Record<Loc, { title: string; year: string; month: string; all: string; allMonths: string; bars: string }> = {
-  fa: { title: "تاریخچه قیمت", year: "سال", month: "ماه", all: "همه سال‌ها", allMonths: "همه ماه‌ها", bars: "رکورد" },
-  en: { title: "Price history", year: "Year", month: "Month", all: "All years", allMonths: "All months", bars: "records" },
-  ar: { title: "سجل الأسعار", year: "السنة", month: "الشهر", all: "كل السنوات", allMonths: "كل الأشهر", bars: "سجل" },
+const PERIOD_LABELS: Record<Loc, { title: string; year: string; month: string; day: string; all: string; allMonths: string; allDays: string; bars: string }> = {
+  fa: { title: "تاریخچه قیمت", year: "سال", month: "ماه", day: "روز", all: "همه سال‌ها", allMonths: "همه ماه‌ها", allDays: "همه روزها", bars: "رکورد" },
+  en: { title: "Price history", year: "Year", month: "Month", day: "Day", all: "All years", allMonths: "All months", allDays: "All days", bars: "records" },
+  ar: { title: "سجل الأسعار", year: "السنة", month: "الشهر", day: "اليوم", all: "كل السنوات", allMonths: "كل الأشهر", allDays: "كل الأيام", bars: "سجل" },
 };
 
 function PeriodFilter({
   history,
   jy,
   jm,
+  jd,
   onYear,
   onMonth,
+  onDay,
   locale,
 }: {
   history: { date: string }[];
   jy: number | null;
   jm: number | null;
+  jd: number | null;
   onYear: (y: number | null) => void;
   onMonth: (m: number | null) => void;
+  onDay: (d: number | null) => void;
   locale: string;
 }) {
   const L = PERIOD_LABELS[(locale as Loc) in PERIOD_LABELS ? (locale as Loc) : "fa"];
-  const { years, months, count } = useMemo(() => {
+  const { years, months, days, count } = useMemo(() => {
     const ys = new Set<number>();
     const ms = new Set<number>();
+    const ds = new Set<number>();
     let count = 0;
     for (const p of history) {
       const j = jalaliParts(p.date);
       if (!j) continue;
       ys.add(j.jy);
-      if (jy === null || j.jy === jy) ms.add(j.jm);
-      if ((jy === null || j.jy === jy) && (jm === null || j.jm === jm)) count++;
+      if (jy === null || j.jy === jy) {
+        ms.add(j.jm);
+        if (jm === null || j.jm === jm) ds.add(j.jd);
+      }
+      if ((jy === null || j.jy === jy) && (jm === null || j.jm === jm) && (jd === null || j.jd === jd)) count++;
     }
     return {
       years: [...ys].sort((a, b) => b - a),
       months: [...ms].sort((a, b) => a - b),
+      days: [...ds].sort((a, b) => a - b),
       count,
     };
-  }, [history, jy, jm]);
+  }, [history, jy, jm, jd]);
 
   const fa = locale !== "en";
   const num = (n: number | string) => (fa ? toFaDigits(n) : String(n));
