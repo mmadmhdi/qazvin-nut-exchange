@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Public localization uses locale-keyed copy maps and the shared translation provider; this prevents Persian UI leakage while keeping business logic unchanged.
