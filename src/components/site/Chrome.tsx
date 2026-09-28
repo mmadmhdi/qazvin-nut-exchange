@@ -24,19 +24,20 @@ const NAV: { to: string; key: string; exact?: boolean }[] = [
 
 export function Header() {
   const { settings } = useStore();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   const [open, setOpen] = useState(false);
   return (
     <header className="hairline-b bg-background/92 backdrop-blur-xl sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-2.5 sm:py-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <Link to="/" className="flex min-w-0 items-center gap-3">
           <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-olive-deep/20 bg-paper shadow-sm">
-            <img src={"/images/dorjesabz-logo.jpg"} alt="نشان درج سبز قزوین" className="h-full w-full object-cover" />
+            <img src={"/images/dorjesabz-logo.jpg"} alt={locale === "fa" ? "نشان درج سبز قزوین" : locale === "ar" ? "شعار درج سبز قزوين" : "Darj Sabz Qazvin logo"} className="h-full w-full object-cover" />
           </div>
 
           <div className="min-w-0 leading-tight">
             <div className="font-display text-base sm:text-lg text-olive-deep truncate">
-              {settings.brandName}
+              {brandName}
             </div>
             <div className="hidden sm:block text-[10px] tracking-[0.3em] uppercase text-muted-foreground truncate">
               {settings.brandLatin}
@@ -100,22 +101,23 @@ export function Header() {
 
 export function Footer() {
   const { settings } = useStore();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
     <footer className="hairline-t mt-16 sm:mt-24 bg-cream/50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <img
             src={"/images/dorjesabz-logo.jpg"}
-            alt="لوگوی درج سبز قزوین"
+             alt={locale === "fa" ? "لوگوی درج سبز قزوین" : locale === "ar" ? "شعار درج سبز قزوين" : "Darj Sabz Qazvin logo"}
             className="mb-4 h-16 w-16 rounded-full border border-brass/50 object-cover"
           />
-          <div className="font-display text-xl text-olive-deep">{settings.brandName}</div>
+          <div className="font-display text-xl text-olive-deep">{brandName}</div>
           <div className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mt-1">
-            {settings.brandLatin} · Est. ۱۳۴۸
+            {settings.brandLatin} · {locale === "fa" ? "تأسیس ۱۳۴۸" : locale === "ar" ? "تأسست عام ١٩٦٩" : "Est. 1969"}
           </div>
           <p className="mt-4 text-sm text-muted-foreground leading-7 max-w-xs">
-            {settings.brandTagline}
+            {locale === "fa" ? settings.brandTagline : t("hero.subtitle")}
           </p>
         </div>
         <div className="text-sm text-cocoa space-y-2">

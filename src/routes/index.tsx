@@ -6,6 +6,8 @@ import { MarketChart } from "@/components/site/MarketChart";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
 import { ShellGate } from "@/components/site/ShellGate";
 import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct } from "@/lib/product-i18n";
+import { homeCopy } from "@/lib/public-copy";
 
 import { formatPercent, formatPrice, toFaDigits } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, ShieldCheck, Leaf, Boxes, BarChart3 } from "lucide-react";
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { products, settings } = useStore();
   const { t, locale } = useTranslation();
+  const copy = homeCopy(locale);
   const heroTitle = locale === "fa" ? settings.heroTitle : t("hero.title");
   const heroSubtitle = locale === "fa" ? settings.heroSubtitle : t("hero.subtitle");
   const active = products.filter((p) => p.active).sort((a, b) => b.priority - a.priority);
@@ -45,8 +48,8 @@ function Home() {
               const up = ch >= 0;
               return (
                 <div key={p.id} className="flex items-center gap-2 shrink-0">
-                  <span className="text-brass/80 tracking-widest text-[10px] uppercase">{p.origin}</span>
-                  <span className="text-paper/90">{p.name}</span>
+                  <span className="text-brass/80 tracking-widest text-[10px] uppercase">{localizeProduct(p, locale).origin}</span>
+                  <span className="text-paper/90">{localizeProduct(p, locale).name}</span>
                   <span className="num-fa text-brass">{formatPrice(p.price)}</span>
                   <span className={`num-fa flex items-center gap-0.5 ${up ? "text-bull" : "text-bear"}`}>
                     {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
@@ -67,7 +70,7 @@ function Home() {
           <div className="min-w-0 flex flex-col justify-between py-1 lg:py-3">
             <div>
             <div className="text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-brass-dark mb-2.5 sm:mb-6">
-              {settings.brandLatin} · Est. ۱۳۴۸
+              {settings.brandLatin} · {copy.est}
             </div>
             <h1 className="font-display text-[2.15rem] leading-[1.22] sm:text-5xl sm:leading-[1.1] lg:text-[3.9rem] text-olive-ink">
               {heroTitle}
@@ -95,8 +98,8 @@ function Home() {
             </div>
             <div className="mt-6 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md">
               <Stat label={t("home.stat.products")} value={toFaDigits(active.length)} />
-              <Stat label={t("home.stat.generations")} value="۴" />
-              <Stat label={t("home.stat.years")} value="۷۷+" />
+              <Stat label={t("home.stat.generations")} value={locale === "en" ? "4" : locale === "ar" ? "٤" : "۴"} />
+              <Stat label={t("home.stat.years")} value={locale === "en" ? "77+" : locale === "ar" ? "٧٧+" : "۷۷+"} />
             </div>
           </div>
           <div className="min-w-0 lg:order-first">
@@ -128,10 +131,10 @@ function Home() {
       {/* Value props */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-12">
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ValueProp icon={<Leaf className="h-4 w-4" />} title="اصالت باغی" desc="از باغ‌های اصیل قزوین و بویین‌زهرا." />
-          <ValueProp icon={<ShieldCheck className="h-4 w-4" />} title="کنترل کیفیت" desc="سه‌مرحله رنگ، رطوبت و اندازه." />
-          <ValueProp icon={<BarChart3 className="h-4 w-4" />} title="قیمت شفاف" desc="تابلوی زنده با تاریخچه و اندیکاتور." />
-          <ValueProp icon={<Boxes className="h-4 w-4" />} title="عمده و صادرات" desc="بسته‌بندی صادراتی و برند شخصی." />
+          <ValueProp icon={<Leaf className="h-4 w-4" />} title={copy.values[0][0]} desc={copy.values[0][1]} />
+          <ValueProp icon={<ShieldCheck className="h-4 w-4" />} title={copy.values[1][0]} desc={copy.values[1][1]} />
+          <ValueProp icon={<BarChart3 className="h-4 w-4" />} title={copy.values[2][0]} desc={copy.values[2][1]} />
+          <ValueProp icon={<Boxes className="h-4 w-4" />} title={copy.values[3][0]} desc={copy.values[3][1]} />
         </div>
       </section>
 
@@ -146,11 +149,11 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
           <div>
-            <div className="section-kicker">حرکات بازار</div>
-            <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">پرشتاب‌ترین‌های امروز</h2>
+            <div className="section-kicker">{copy.moversK}</div>
+            <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">{copy.movers}</h2>
           </div>
           <Link to="/analysis" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
-            تحلیل کامل ←
+            {copy.fullAnalysis}
           </Link>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -168,8 +171,8 @@ function Home() {
                   className="card-paper rounded-sm p-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 hover:-translate-y-0.5 transition-transform"
                 >
                   <div className="min-w-0">
-                    <div className="text-[10px] tracking-widest uppercase text-brass-dark truncate">{p.origin}</div>
-                    <div className="font-display text-olive-deep truncate mt-0.5">{p.name}</div>
+                     <div className="text-[10px] tracking-widest uppercase text-brass-dark truncate">{localizeProduct(p, locale).origin}</div>
+                     <div className="font-display text-olive-deep truncate mt-0.5">{localizeProduct(p, locale).name}</div>
                     <div className="num-fa text-sm text-cocoa mt-1">{formatPrice(p.price)}</div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
@@ -187,11 +190,11 @@ function Home() {
       {/* Featured pistachio */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="text-center max-w-2xl mx-auto">
-          <div className="section-kicker">محصولات ممتاز</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">خلال پسته، افتخار خانه</h2>
+          <div className="section-kicker">{copy.premiumK}</div>
+          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">{copy.premium}</h2>
           <div className="gold-rule my-6" />
           <p className="text-sm sm:text-base text-cocoa leading-8">
-            دو نگین اصلی بازار ما، برگرفته از باغ‌های قزوین و بویین‌زهرا؛ محصولاتی که سال‌ها اعتبار تجارت خانوادگی درج سبز بر آن استوار است.
+            {copy.premiumBody}
           </p>
         </div>
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2 mt-10">
@@ -205,11 +208,11 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 sm:mb-8 gap-3">
           <div>
-            <div className="section-kicker">سایر محصولات</div>
-            <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">مکمل‌های سفره خشکبار</h2>
+            <div className="section-kicker">{copy.othersK}</div>
+            <h2 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">{copy.others}</h2>
           </div>
           <Link to="/products" className="text-xs sm:text-sm tracking-widest text-cocoa hover:text-olive-deep shrink-0">
-            همه محصولات ←
+            {copy.allProducts}
           </Link>
         </div>
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -222,15 +225,15 @@ function Home() {
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="rounded-sm border border-olive-deep/15 bg-olive-ink p-8 sm:p-10 md:p-14 text-center text-paper">
-          <div className="text-[10px] tracking-[0.22em] uppercase text-brass">فروش عمده و صادراتی</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-paper mt-3">شریک تجاری قابل اعتماد</h2>
+          <div className="text-[10px] tracking-[0.22em] uppercase text-brass">{copy.wholesaleK}</div>
+          <h2 className="font-display text-3xl sm:text-4xl text-paper mt-3">{copy.wholesale}</h2>
           <div className="gold-rule my-5" />
           <p className="text-paper/70 max-w-2xl mx-auto leading-8 text-sm sm:text-base">
-            برای قنادان، صنایع غذایی و صادرکنندگان؛ شرایط اختصاصی خرید عمده، تضمین کیفیت و قرارداد سالانه.
+            {copy.wholesaleBody}
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <Link to="/wholesale" className="rounded-sm bg-brass px-6 py-3 text-sm text-olive-ink hover:bg-paper tracking-widest transition-colors">شرایط فروش عمده</Link>
-            <Link to="/contact" className="rounded-sm border border-paper/30 px-6 py-3 text-sm text-paper hover:bg-paper/10 tracking-widest transition-colors">تماس با ما</Link>
+            <Link to="/wholesale" className="rounded-sm bg-brass px-6 py-3 text-sm text-olive-ink hover:bg-paper tracking-widest transition-colors">{copy.terms}</Link>
+            <Link to="/contact" className="rounded-sm border border-paper/30 px-6 py-3 text-sm text-paper hover:bg-paper/10 tracking-widest transition-colors">{copy.contact}</Link>
           </div>
         </div>
       </section>
