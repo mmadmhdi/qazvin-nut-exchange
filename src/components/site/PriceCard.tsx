@@ -2,8 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { computeChange, type Product } from "@/lib/store";
 import { formatPercent, formatPrice, formatJalali } from "@/lib/format";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
+import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct } from "@/lib/product-i18n";
 
 export function PriceCard({ product, featured = false }: { product: Product; featured?: boolean }) {
+  const { t, locale } = useTranslation();
+  const l = localizeProduct(product, locale);
   const { pct } = computeChange(product.history);
   const trend = pct > 0.001 ? "up" : pct < -0.001 ? "down" : "flat";
   return (
@@ -17,13 +21,13 @@ export function PriceCard({ product, featured = false }: { product: Product; fea
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="text-[10px] tracking-[0.25em] uppercase text-brass-dark">
-            {product.category}
+            {l.category}
           </div>
           <div className={`font-display text-olive-deep mt-1 truncate ${featured ? "text-2xl" : "text-lg"}`}>
-            {product.name}
+            {l.name}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
-            به‌روزرسانی: {formatJalali(new Date(product.updatedAt))}
+             {t("meta.updated")}: {formatJalali(new Date(product.updatedAt))}
           </div>
         </div>
         <div
@@ -49,7 +53,7 @@ export function PriceCard({ product, featured = false }: { product: Product; fea
         <span className={`font-display num-fa text-olive-deep ${featured ? "text-4xl" : "text-2xl"}`}>
           {formatPrice(product.price)}
         </span>
-        <span className="text-xs text-muted-foreground">{product.unit}</span>
+        <span className="text-xs text-muted-foreground">{l.unit}</span>
       </div>
     </Link>
   );

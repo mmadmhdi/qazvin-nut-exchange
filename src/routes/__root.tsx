@@ -19,25 +19,26 @@ import { Toaster } from "sonner";
 import { WhatsAppFab } from "@/components/site/WhatsAppFab";
 import { GreenCurator } from "@/components/site/GreenCurator";
 import { MobileNav } from "@/components/site/MobileNav";
-import { LocaleProvider } from "@/lib/i18n-provider";
+import { LocaleProvider, useTranslation } from "@/lib/i18n-provider";
 import { parseLocale } from "@/lib/i18n";
 
 function NotFoundComponent() {
+  const { t, locale } = useTranslation();
   const links: { to: string; label: string }[] = [
-    { to: "/", label: "خانه" },
-    { to: "/market", label: "تابلوی بازار" },
-    { to: "/products", label: "محصولات" },
-    { to: "/journal", label: "دفتر سبز" },
-    { to: "/wholesale", label: "خرید عمده" },
-    { to: "/contact", label: "تماس" },
+    { to: "/", label: t("nav.home") },
+    { to: "/market", label: t("nav.market") },
+    { to: "/products", label: t("nav.products") },
+    { to: "/journal", label: t("nav.journal") },
+    { to: "/wholesale", label: t("nav.wholesale") },
+    { to: "/contact", label: t("nav.contact") },
   ];
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-olive-deep">۴۰۴</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">صفحه یافت نشد</h2>
+        <h1 className="font-display text-7xl text-olive-deep">{locale === "en" ? "404" : locale === "ar" ? "٤٠٤" : "۴۰۴"}</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{locale === "en" ? "Page not found" : locale === "ar" ? "الصفحة غير موجودة" : "صفحه یافت نشد"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          آدرس مورد نظر در دسترس نیست. یکی از مسیرهای زیر را انتخاب کنید.
+          {locale === "en" ? "The requested address is unavailable. Choose one of these pages." : locale === "ar" ? "العنوان المطلوب غير متاح. اختر إحدى الصفحات التالية." : "آدرس مورد نظر در دسترس نیست. یکی از مسیرهای زیر را انتخاب کنید."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {links.map((l) => (
@@ -58,20 +59,21 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  const { locale } = useTranslation();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-xl text-olive-deep">این صفحه بارگذاری نشد</h1>
-        <p className="mt-2 text-sm text-muted-foreground">می‌توانید دوباره تلاش کنید.</p>
+        <h1 className="font-display text-xl text-olive-deep">{locale === "en" ? "This page could not load" : locale === "ar" ? "تعذر تحميل هذه الصفحة" : "این صفحه بارگذاری نشد"}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{locale === "en" ? "Please try again." : locale === "ar" ? "يرجى المحاولة مرة أخرى." : "می‌توانید دوباره تلاش کنید."}</p>
         <div className="mt-6">
           <button
             onClick={() => { router.invalidate(); reset(); }}
             className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive"
           >
-            تلاش دوباره
+            {locale === "en" ? "Try again" : locale === "ar" ? "حاول مرة أخرى" : "تلاش دوباره"}
           </button>
         </div>
       </div>
@@ -178,9 +180,14 @@ function RootComponent() {
         <WhatsAppFab />
         <GreenCurator />
         <MobileNav />
-        <Toaster richColors position="top-center" dir="rtl" />
+        <LocalizedToaster />
         </LocaleProvider>
       </StoreProvider>
     </QueryClientProvider>
   );
+}
+
+function LocalizedToaster() {
+  const { dir } = useTranslation();
+  return <Toaster richColors position="top-center" dir={dir} />;
 }

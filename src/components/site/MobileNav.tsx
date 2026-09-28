@@ -15,7 +15,7 @@ export function MobileNav() {
   const { t } = useTranslation();
   return (
     <nav
-      aria-label="ناوبری سریع"
+      aria-label={t("nav.quick")}
       className="fixed inset-x-0 bottom-0 z-40 lg:hidden border-t border-olive-deep/15 bg-background/95 shadow-[0_-14px_36px_-28px_var(--olive-ink)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
     >
       <div className="grid grid-cols-5">

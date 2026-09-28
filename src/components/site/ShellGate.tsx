@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Leaf, LineChart, Sparkles } from "lucide-react";
+import { useTranslation } from "@/lib/i18n-provider";
+import { shellCopy } from "@/lib/public-copy";
 
 /**
  * «Crack to Enter» — the brand signature, now an inline landing section
@@ -8,6 +10,8 @@ import { Leaf, LineChart, Sparkles } from "lucide-react";
  * three paths: Taste · Origin · Trade.
  */
 export function ShellGate() {
+  const { locale } = useTranslation();
+  const copy = shellCopy(locale);
   const [open, setOpen] = useState(false);
   const shift = open ? 30 : 0;
   const rot = open ? 11 : 0;
@@ -28,7 +32,7 @@ export function ShellGate() {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-label="بازکردن پوسته پسته و دیدن سه مسیر"
+            aria-label={copy.aria}
             className="group relative block h-40 w-40 select-none sm:h-52 sm:w-52"
           >
             <svg viewBox="0 0 200 200" className="h-full w-full drop-shadow-lg">
@@ -71,18 +75,18 @@ export function ShellGate() {
 
         <div className="min-w-0">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Taste · Origin · Trade</div>
-          <h2 className="mt-2 font-display text-3xl text-olive-deep sm:text-4xl">سه مسیر خانه‌ی سبز</h2>
+          <h2 className="mt-2 font-display text-3xl text-olive-deep sm:text-4xl">{copy.title}</h2>
           <div className="gold-rule my-5 max-w-xs" />
           <p className="max-w-xl text-sm leading-8 text-cocoa">
-            پوسته را باز کنید و مسیر خود را انتخاب کنید: چشیدن، اصالت باغ یا تجارت.
+            {copy.body}
           </p>
           <div
             className="mt-6 grid gap-3 transition-all duration-500 sm:grid-cols-3"
             style={{ opacity: open ? 1 : 0.55 }}
           >
-            <PathCard to="/taste" icon={<Sparkles className="h-4 w-4" />} latin="Taste" title="آیین چشیدن" desc="آیین مصرف و ترکیب‌های پیشنهادی" />
-            <PathCard to="/origin" icon={<Leaf className="h-4 w-4" />} latin="Origin" title="اصالت باغ" desc="از باغ تا بسته و شناسنامه محصول" />
-            <PathCard to="/wholesale" icon={<LineChart className="h-4 w-4" />} latin="Trade" title="تجارت" desc="عمده، صادرات و تابلوی قیمت" />
+            <PathCard to="/taste" icon={<Sparkles className="h-4 w-4" />} latin="Taste" title={copy.paths[0][0]} desc={copy.paths[0][1]} />
+            <PathCard to="/origin" icon={<Leaf className="h-4 w-4" />} latin="Origin" title={copy.paths[1][0]} desc={copy.paths[1][1]} />
+            <PathCard to="/wholesale" icon={<LineChart className="h-4 w-4" />} latin="Trade" title={copy.paths[2][0]} desc={copy.paths[2][1]} />
           </div>
         </div>
       </div>

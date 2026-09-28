@@ -3,6 +3,7 @@
 // client always render identical strings — Intl calendar support differs
 // between the edge runtime and browsers, which caused hydration mismatches.
 const FA_DIGITS = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+const AR_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
 
 export function toFaDigits(input: string | number): string {
   return String(input).replace(/[0-9]/g, (d) => FA_DIGITS[Number(d)]);
@@ -17,13 +18,20 @@ export function setDigitLocale(l: "fa" | "en" | "ar") {
 }
 
 function digits(input: string | number): string {
-  return DIGIT_LOCALE === "en" ? String(input) : toFaDigits(input);
+  if (DIGIT_LOCALE === "en") return String(input);
+  if (DIGIT_LOCALE === "ar") return String(input).replace(/[0-9]/g, (d) => AR_DIGITS[Number(d)]);
+  return toFaDigits(input);
+}
+
+export function localizedDigits(input: string | number): string {
+  return digits(input);
 }
 
 export function formatPrice(value: number): string {
   if (!Number.isFinite(value)) return "—";
   const s = Math.round(value).toLocaleString("en-US");
-  return DIGIT_LOCALE === "en" ? s : toFaDigits(s.replace(/,/g, "٬"));
+  if (DIGIT_LOCALE === "en") return s;
+  return digits(s.replace(/,/g, "٬"));
 }
 
 export function formatPercent(value: number): string {
@@ -71,8 +79,18 @@ const JALALI_MONTHS_SHORT_EN = [
   "Far","Ord","Kho","Tir","Mor","Sha","Meh","Aba","Aza","Dey","Bah","Esf",
 ];
 
+const JALALI_MONTHS_AR = [
+  "فروردين", "أرديبهشت", "خرداد", "تير", "مرداد", "شهريور",
+  "مهر", "آبان", "آذر", "دي", "بهمن", "إسفند",
+];
+
+const JALALI_MONTHS_SHORT_AR = [
+  "فرو", "أرد", "خرد", "تير", "مرد", "شهر", "مهر", "آبا", "آذر", "دي", "بهم", "إسف",
+];
+
 function monthName(i: number, short = false): string {
   if (DIGIT_LOCALE === "en") return short ? JALALI_MONTHS_SHORT_EN[i] : JALALI_MONTHS_EN[i];
+  if (DIGIT_LOCALE === "ar") return short ? JALALI_MONTHS_SHORT_AR[i] : JALALI_MONTHS_AR[i];
   return short ? JALALI_MONTHS_SHORT[i] : JALALI_MONTHS[i];
 }
 
