@@ -5,7 +5,7 @@ import { MarketChart } from "@/components/site/MarketChart";
 import { MarketSnowflake } from "@/components/site/MarketSnowflake";
 import { Heatmap } from "@/components/site/Heatmap";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
-import { formatJalali, formatPercent, formatPrice, toFaDigits, jalaliParts, jalaliMonthName } from "@/lib/format";
+import { formatJalali, formatPercent, formatPrice, localizedDigits, jalaliParts, jalaliMonthName } from "@/lib/format";
 import { ArrowUpDown, Search } from "lucide-react";
 import { Faq } from "@/components/site/Faq";
 import { priceFaq } from "@/lib/faq-i18n";
@@ -103,8 +103,8 @@ function Market() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <IndexCard k={t("market.idx.avg")} v={formatPrice(Math.round(idx.avg))} unit={t("market.unit.rial")} />
         <IndexCard k={t("market.idx.trend")} v={formatPercent(idx.ch)} accent={idx.ch >= 0 ? "bull" : "bear"} />
-        <IndexCard k={t("market.idx.up")} v={toFaDigits(idx.up)} accent="bull" />
-        <IndexCard k={t("market.idx.down")} v={toFaDigits(idx.dn)} accent="bear" />
+        <IndexCard k={t("market.idx.up")} v={localizedDigits(idx.up)} accent="bull" />
+        <IndexCard k={t("market.idx.down")} v={localizedDigits(idx.dn)} accent="bear" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.9fr]">
@@ -178,7 +178,7 @@ function Market() {
                   <div className={`num-fa text-[11px] px-1.5 py-0.5 rounded-sm border ${
                     up ? "text-bull border-bull/40 bg-bull/5" : "text-bear border-bear/40 bg-bear/5"
                   }`}>
-                    {up ? "+" : "−"}{locale === "en" ? Math.abs(ch).toFixed(2) : toFaDigits(Math.abs(ch).toFixed(2))}{locale === "en" ? "%" : "٪"}
+                    {up ? "+" : "−"}{localizedDigits(Math.abs(ch).toFixed(2))}{locale === "en" ? "%" : "٪"}
                   </div>
                   <div className="sm:hidden">
                     <MiniSparkline history={p.history} up={up} width={64} height={14} />
@@ -296,8 +296,7 @@ function PeriodFilter({
     };
   }, [history, jy, jm, jd]);
 
-  const fa = locale !== "en";
-  const num = (n: number | string) => (fa ? toFaDigits(n) : String(n));
+  const num = (n: number | string) => localizedDigits(n);
 
   return (
     <div className="tv-panel rounded-sm px-3 py-2.5 flex flex-wrap items-center gap-2">

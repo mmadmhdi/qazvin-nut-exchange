@@ -324,7 +324,7 @@ export function MarketChart({
         <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto scrollbar-none">
           <SegGroup>
             {(["candle", "ha", "line", "area"] as Style[]).map((s) => (
-              <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s)}>
+              <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s, copy)}>
                 {styleIcon(s)}
               </SegBtn>
             ))}
@@ -800,11 +800,11 @@ function PriceTooltip({ active, payload, unit, copy, dir }: any) {
   );
 }
 
-function SimpleTooltip({ active, payload, labels, digits = 0, raw = false }: any) {
+function SimpleTooltip({ active, payload, labels, digits = 0, raw = false, dir }: any) {
   if (!active || !payload?.length) return null;
   const date = payload[0]?.payload?.date as string | undefined;
   return (
-    <TooltipShell dir={arguments[0]?.dir}>
+    <TooltipShell dir={dir}>
       {date && <div className="num-fa text-tv-muted mb-1">{formatJalali(date)}</div>}
       {payload
         .filter((p: any) => typeof p.value === "number" && labels[p.dataKey])
@@ -918,9 +918,8 @@ function styleIcon(s: Style) {
   if (s === "line") return <LineIcon className="h-3.5 w-3.5" />;
   return <AreaIcon className="h-3.5 w-3.5" />;
 }
-function styleLabel(s: Style) {
-  const labels = marketCopy((typeof document !== "undefined" ? document.documentElement.lang : "fa") as any).chartStyles;
-  return labels[["candle", "ha", "line", "area"].indexOf(s)];
+function styleLabel(s: Style, copy: ReturnType<typeof marketCopy>) {
+  return copy.chartStyles[["candle", "ha", "line", "area"].indexOf(s)];
 }
 function fibColor(r: number): string {
   if (r === 0 || r === 1) return "#c9a84c";
