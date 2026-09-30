@@ -13,7 +13,10 @@ import {
   YAxis,
 } from "recharts";
 import type { Product, PricePoint } from "@/lib/store";
-import { formatPrice, formatJalali, formatJalaliShort, toFaDigits, jalaliParts } from "@/lib/format";
+import { formatPrice, formatJalali, formatJalaliShort, localizedDigits, jalaliParts } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct } from "@/lib/product-i18n";
+import { marketCopy } from "@/lib/public-copy";
 import {
   bollinger,
   ema,
@@ -67,17 +70,17 @@ const MARGIN = { top: 8, right: 4, left: 4, bottom: 0 } as const;
 
 function compactPrice(v: number): string {
   const a = Math.abs(v);
-  if (a >= 1_000_000_000) return toFaDigits((v / 1_000_000_000).toFixed(1)) + "میلیارد";
-  if (a >= 1_000_000) return toFaDigits((v / 1_000_000).toFixed(a >= 10_000_000 ? 0 : 1)) + "م";
-  if (a >= 1_000) return toFaDigits(Math.round(v / 1_000)) + "هـ";
-  return toFaDigits(Math.round(v));
+  if (a >= 1_000_000_000) return localizedDigits((v / 1_000_000_000).toFixed(1)) + "B";
+  if (a >= 1_000_000) return localizedDigits((v / 1_000_000).toFixed(a >= 10_000_000 ? 0 : 1)) + "M";
+  if (a >= 1_000) return localizedDigits(Math.round(v / 1_000)) + "K";
+  return localizedDigits(Math.round(v));
 }
 
 function compactNum(v: number): string {
   const a = Math.abs(v);
-  if (a >= 1_000_000) return toFaDigits((v / 1_000_000).toFixed(1)) + "م";
-  if (a >= 1_000) return toFaDigits(Math.round(v / 1_000)) + "هـ";
-  return toFaDigits(Math.round(v));
+  if (a >= 1_000_000) return localizedDigits((v / 1_000_000).toFixed(1)) + "M";
+  if (a >= 1_000) return localizedDigits(Math.round(v / 1_000)) + "K";
+  return localizedDigits(Math.round(v));
 }
 
 // ─────────────────── Candle layer (uses real chart scales) ───────────────────
@@ -152,6 +155,9 @@ export function MarketChart({
   /** Optional Jalali year/month window. When set, the quick range buttons are hidden. */
   period?: ChartPeriod;
 }) {
+  const { locale, dir } = useTranslation();
+  const copy = marketCopy(locale);
+  const lp = localizeProduct(product, locale);
   const periodOn = !!period && (period.jy !== null || period.jm !== null || period.jd != null);
   const [range, setRange] = useState<Range>("3m");
   const [style, setStyle] = useState<Style>("candle");
@@ -306,28 +312,28 @@ export function MarketChart({
   };
 
   return (
-    <div className="tv-panel rounded-sm overflow-hidden" dir="rtl">
+    <div className="tv-panel rounded-sm overflow-hidden" dir={dir}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-3 md:px-4 py-3 border-b border-tv-border bg-tv-headband">
         <div className="min-w-0">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass">DARJ · MARKET</div>
           <div className="font-display text-tv-text text-base md:text-lg mt-0.5 truncate">
-            {product.name}
+             {lp.name}
           </div>
         </div>
         <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto scrollbar-none">
           <SegGroup>
             {(["candle", "ha", "line", "area"] as Style[]).map((s) => (
-              <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s)}>
+              <SegBtn key={s} on={style === s} onClick={() => setStyle(s)} title={styleLabel(s, copy)}>
                 {styleIcon(s)}
               </SegBtn>
             ))}
           </SegGroup>
           {!periodOn && (
             <SegGroup>
-              {RANGES.map((r) => (
+               {RANGES.map((r, i) => (
                 <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
-                  <span className="text-[11px] px-0.5">{r.label}</span>
+                   <span className="text-[11px] px-0.5">{copy.ranges[i]}</span>
                 </SegBtn>
               ))}
             </SegGroup>
@@ -349,18 +355,18 @@ export function MarketChart({
               <OHLCStat k="C" v={current.close} accent />
               <div className={`num-fa ${stats.chg >= 0 ? "text-bull" : "text-bear"}`}>
                 {stats.chg >= 0 ? "+" : "−"}
-                {toFaDigits(Math.abs(stats.chgPct).toFixed(2))}٪
+                 {localizedDigits(Math.abs(stats.chgPct).toFixed(2))}%
               </div>
               <div className="text-tv-muted">
                 <span className="mx-1">V</span>
-                <span className="num-fa text-tv-text">{toFaDigits(current.volume ?? 0)}</span>
+                 <span className="num-fa text-tv-text">{localizedDigits(current.volume ?? 0)}</span>
               </div>
               <div className="text-tv-muted ms-auto hidden sm:block num-fa">
-                {formatJalali(current.date)} · {product.unit}
+                 {formatJalali(current.date)} · {lp.unit}
               </div>
             </>
           ) : (
-            <div className="text-tv-muted">داده‌ای برای این بازه ثبت نشده است</div>
+             <div className="text-tv-muted">{copy.noData}</div>
           )}
         </div>
         <button
@@ -370,7 +376,7 @@ export function MarketChart({
           className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-tv-border px-3 py-2 text-[11px] tracking-widest uppercase text-tv-muted sm:hidden"
         >
           <Layers className="h-3.5 w-3.5" />
-          {showTools ? "بستن اندیکاتورها" : "اندیکاتورها"}
+           {showTools ? copy.closeIndicators : copy.indicators}
         </button>
         <div className={`${showTools ? "flex" : "hidden"} flex-wrap items-center gap-1.5 mt-2 pb-0.5 sm:flex sm:flex-nowrap sm:overflow-x-auto sm:scrollbar-none`}>
           <ToggleChip
@@ -428,9 +434,9 @@ export function MarketChart({
       {!hasData ? (
         <div className={`${priceHeight} bg-tv-bg flex items-center justify-center px-6 text-center`}>
           <p className="text-xs text-tv-muted leading-relaxed">
-            برای این محصول در بازه انتخابی داده‌ای ثبت نشده است.
+             {copy.noDataLong}
             <br />
-            بازه بلندتری انتخاب کنید یا قیمت را از پنل مدیریت ثبت کنید.
+             {copy.chooseLonger}
           </p>
         </div>
       ) : (
@@ -460,7 +466,7 @@ export function MarketChart({
                 )}
                 <Tooltip
                   cursor={{ stroke: "var(--brass)", strokeOpacity: 0.45, strokeDasharray: "2 3" }}
-                  content={<PriceTooltip unit={product.unit} />}
+                   content={<PriceTooltip unit={lp.unit} copy={copy} dir={dir} />}
                 />
                 {overlays.bb && (
                   <Area
@@ -600,14 +606,14 @@ export function MarketChart({
 
           {/* Volume panel */}
           {panels.volume && (
-            <SubPanelBox label="حجم معاملات">
+             <SubPanelBox label={copy.volume}>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "volume" ? dateTick : hiddenAxis)} />
                   <YAxis {...mutedYAxis} tickFormatter={(v: number) => compactNum(v)} />
                   <Tooltip
                     cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
-                    content={<SimpleTooltip labels={{ volume: "حجم" }} digits={0} />}
+                     content={<SimpleTooltip labels={{ volume: copy.volume }} digits={0} dir={dir} />}
                   />
                   {hoverDate && <ReferenceLine x={hoverDate} stroke="var(--brass)" strokeOpacity={0.35} />}
                   <Bar dataKey="volume" isAnimationActive={false}>
@@ -633,13 +639,13 @@ export function MarketChart({
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "rsi" ? dateTick : hiddenAxis)} />
-                  <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[30, 50, 70]} tickFormatter={(v: number) => toFaDigits(v)} />
+                   <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[30, 50, 70]} tickFormatter={(v: number) => localizedDigits(v)} />
                   <ReferenceLine y={70} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />
                   <ReferenceLine y={30} stroke="var(--bull)" strokeOpacity={0.4} strokeDasharray="2 3" />
                   <ReferenceLine y={50} stroke="var(--tv-border)" strokeDasharray="1 3" />
                   <Tooltip
                     cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
-                    content={<SimpleTooltip labels={{ rsi: "RSI" }} digits={1} raw />}
+                     content={<SimpleTooltip labels={{ rsi: "RSI" }} digits={1} raw dir={dir} />}
                   />
                   {hoverDate && <ReferenceLine x={hoverDate} stroke="var(--brass)" strokeOpacity={0.35} />}
                   <Line
@@ -668,8 +674,8 @@ export function MarketChart({
                     cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
                     content={
                       <SimpleTooltip
-                        labels={{ macd: "MACD", macdSignal: "سیگنال", macdHist: "هیستوگرام" }}
-                        digits={0}
+                         labels={{ macd: "MACD", macdSignal: copy.signal, macdHist: copy.histogram }}
+                         digits={0} dir={dir}
                       />
                     }
                   />
@@ -716,12 +722,12 @@ export function MarketChart({
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "stoch" ? dateTick : hiddenAxis)} />
-                  <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[20, 50, 80]} tickFormatter={(v: number) => toFaDigits(v)} />
+                   <YAxis {...mutedYAxis} domain={[0, 100]} ticks={[20, 50, 80]} tickFormatter={(v: number) => localizedDigits(v)} />
                   <ReferenceLine y={80} stroke="var(--bear)" strokeOpacity={0.4} strokeDasharray="2 3" />
                   <ReferenceLine y={20} stroke="var(--bull)" strokeOpacity={0.4} strokeDasharray="2 3" />
                   <Tooltip
                     cursor={{ stroke: "var(--brass)", strokeOpacity: 0.3 }}
-                    content={<SimpleTooltip labels={{ stochK: "%K", stochD: "%D" }} digits={1} raw />}
+                     content={<SimpleTooltip labels={{ stochK: "%K", stochD: "%D" }} digits={1} raw dir={dir} />}
                   />
                   {hoverDate && <ReferenceLine x={hoverDate} stroke="var(--brass)" strokeOpacity={0.35} />}
                   <Line
@@ -752,20 +758,20 @@ export function MarketChart({
 
       {/* Footer key stats */}
       <div className="px-3 md:px-4 py-2 border-t border-tv-border bg-tv-headband text-[10px] text-tv-muted grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
-        <Kv k="بالاترین" v={hasData ? formatPrice(stats.hi) : "—"} />
-        <Kv k="پایین‌ترین" v={hasData ? formatPrice(stats.lo) : "—"} />
-        <Kv k="میانگین حجم" v={hasData ? toFaDigits(Math.round(meta.avgVol)) : "—"} />
-        <Kv k="ATR ۱۴" v={hasData ? formatPrice(Math.round(meta.atrLast)) : "—"} />
+         <Kv k={copy.high} v={hasData ? formatPrice(stats.hi) : "—"} />
+         <Kv k={copy.low} v={hasData ? formatPrice(stats.lo) : "—"} />
+         <Kv k={copy.avgVolume} v={hasData ? localizedDigits(Math.round(meta.avgVol)) : "—"} />
+         <Kv k={`ATR ${localizedDigits(14)}`} v={hasData ? formatPrice(Math.round(meta.atrLast)) : "—"} />
       </div>
     </div>
   );
 }
 
 // ─────────────────────────── Tooltips ───────────────────────────
-function TooltipShell({ children }: { children: React.ReactNode }) {
+function TooltipShell({ children, dir = "rtl" }: { children: React.ReactNode; dir?: "rtl" | "ltr" }) {
   return (
     <div
-      dir="rtl"
+      dir={dir}
       className="rounded-sm border border-tv-border bg-tv-bg/95 px-2.5 py-2 text-[11px] text-tv-text shadow-lg backdrop-blur-sm"
     >
       {children}
@@ -773,32 +779,32 @@ function TooltipShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PriceTooltip({ active, payload, unit }: any) {
+function PriceTooltip({ active, payload, unit, copy, dir }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload as Row | undefined;
   if (!d) return null;
   const up = d.close >= d.open;
   return (
-    <TooltipShell>
+    <TooltipShell dir={dir}>
       <div className="num-fa text-tv-muted mb-1">{formatJalali(d.date)}</div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-        <TRow k="باز" v={formatPrice(d.open)} />
-        <TRow k="بالا" v={formatPrice(d.high)} />
-        <TRow k="پایین" v={formatPrice(d.low)} />
-        <TRow k="بسته" v={formatPrice(d.close)} accent={up ? "bull" : "bear"} />
+         <TRow k={copy.open} v={formatPrice(d.open)} />
+         <TRow k={copy.high} v={formatPrice(d.high)} />
+         <TRow k={copy.low} v={formatPrice(d.low)} />
+         <TRow k={copy.close} v={formatPrice(d.close)} accent={up ? "bull" : "bear"} />
       </div>
-      {d.volume ? <TRow k="حجم" v={toFaDigits(d.volume)} /> : null}
+       {d.volume ? <TRow k={copy.volume} v={localizedDigits(d.volume)} /> : null}
       {d.ma20 != null ? <TRow k="MA20" v={formatPrice(d.ma20)} /> : null}
       <div className="mt-1 text-[9px] text-tv-muted">{unit}</div>
     </TooltipShell>
   );
 }
 
-function SimpleTooltip({ active, payload, labels, digits = 0, raw = false }: any) {
+function SimpleTooltip({ active, payload, labels, digits = 0, raw = false, dir }: any) {
   if (!active || !payload?.length) return null;
   const date = payload[0]?.payload?.date as string | undefined;
   return (
-    <TooltipShell>
+    <TooltipShell dir={dir}>
       {date && <div className="num-fa text-tv-muted mb-1">{formatJalali(date)}</div>}
       {payload
         .filter((p: any) => typeof p.value === "number" && labels[p.dataKey])
@@ -806,7 +812,7 @@ function SimpleTooltip({ active, payload, labels, digits = 0, raw = false }: any
           <TRow
             key={p.dataKey}
             k={labels[p.dataKey]}
-            v={raw ? toFaDigits(p.value.toFixed(digits)) : formatPrice(p.value)}
+             v={raw ? localizedDigits(p.value.toFixed(digits)) : formatPrice(p.value)}
           />
         ))}
     </TooltipShell>
@@ -912,8 +918,8 @@ function styleIcon(s: Style) {
   if (s === "line") return <LineIcon className="h-3.5 w-3.5" />;
   return <AreaIcon className="h-3.5 w-3.5" />;
 }
-function styleLabel(s: Style) {
-  return s === "candle" ? "شمعی" : s === "ha" ? "هیکن‌آشی" : s === "line" ? "خطی" : "ناحیه‌ای";
+function styleLabel(s: Style, copy: ReturnType<typeof marketCopy>) {
+  return copy.chartStyles[["candle", "ha", "line", "area"].indexOf(s)];
 }
 function fibColor(r: number): string {
   if (r === 0 || r === 1) return "#c9a84c";

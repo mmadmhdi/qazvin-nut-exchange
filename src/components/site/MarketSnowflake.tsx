@@ -4,9 +4,13 @@ import {
   trendScore, momentumScore, volatilityScore, liquidityScore, qualityScore, valueScore,
 } from "@/lib/indicators";
 import type { OHLC } from "@/lib/indicators";
-import { toFaDigits } from "@/lib/format";
+import { localizedDigits } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n-provider";
+import { marketCopy } from "@/lib/public-copy";
 
 export function MarketSnowflake({ product, size = 220 }: { product: Product; size?: number }) {
+  const { locale } = useTranslation();
+  const copy = marketCopy(locale);
   const rows: OHLC[] = useMemo(
     () =>
       product.history.map((p) => ({
@@ -22,14 +26,14 @@ export function MarketSnowflake({ product, size = 220 }: { product: Product; siz
 
   const scores = useMemo(
     () => [
-      { k: "روند", v: trendScore(rows) },
-      { k: "شتاب", v: momentumScore(rows) },
-      { k: "ثبات", v: volatilityScore(rows) },
-      { k: "نقدشوندگی", v: liquidityScore(rows) },
-      { k: "کیفیت", v: qualityScore(product.price) },
-      { k: "ارزندگی", v: valueScore(rows) },
+       { k: copy.scores[0], v: trendScore(rows) },
+       { k: copy.scores[1], v: momentumScore(rows) },
+       { k: copy.scores[2], v: volatilityScore(rows) },
+       { k: copy.scores[3], v: liquidityScore(rows) },
+       { k: copy.scores[4], v: qualityScore(product.price) },
+       { k: copy.scores[5], v: valueScore(rows) },
     ],
-    [rows, product.price],
+     [rows, product.price, copy],
   );
 
   const cx = size / 2, cy = size / 2;
@@ -55,12 +59,12 @@ export function MarketSnowflake({ product, size = 220 }: { product: Product; siz
     <div className="tv-panel rounded-sm p-5">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Health · سلامت بازار</div>
-          <div className="font-display text-lg text-tv-text mt-0.5">امتیاز کلی</div>
+           <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Health · {copy.health}</div>
+           <div className="font-display text-lg text-tv-text mt-0.5">{copy.overall}</div>
         </div>
         <div className="text-right">
-          <div className="num-fa font-display text-3xl text-brass">{toFaDigits(avg.toFixed(0))}</div>
-          <div className="text-[10px] text-tv-muted tracking-widest">از ۱۰۰</div>
+           <div className="num-fa font-display text-3xl text-brass">{localizedDigits(avg.toFixed(0))}</div>
+           <div className="text-[10px] text-tv-muted tracking-widest">{copy.outOf}</div>
         </div>
       </div>
       <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
@@ -113,7 +117,7 @@ export function MarketSnowflake({ product, size = 220 }: { product: Product; siz
             <div key={s.k} className="text-[11px]">
               <div className="flex justify-between text-tv-muted">
                 <span>{s.k}</span>
-                <span className="num-fa text-tv-text">{toFaDigits(s.v.toFixed(0))}</span>
+                 <span className="num-fa text-tv-text">{localizedDigits(s.v.toFixed(0))}</span>
               </div>
               <div className="h-1 rounded-full bg-tv-border/60 overflow-hidden mt-1">
                 <div
