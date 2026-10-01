@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { articleBySlug, categoryLabel, relatedArticles } from "@/lib/articles";
 import { useStore } from "@/lib/store";
 
-import { formatJalali, toFaDigits } from "@/lib/format";
+import { formatJalali, localizedDigits } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n-provider";
 import { seoLinks, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/journal/$slug")({
@@ -58,6 +59,7 @@ export const Route = createFileRoute("/journal/$slug")({
 
 /** Mobile-only fixed reading progress bar. */
 function ReadingProgress() {
+  const { locale } = useTranslation();
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     const onScroll = () => {
@@ -74,23 +76,25 @@ function ReadingProgress() {
     };
   }, []);
   return (
-    <div className="fixed inset-x-0 top-0 z-50 h-1 bg-olive-deep/10 sm:hidden" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label="پیشرفت مطالعه">
+    <div className="fixed inset-x-0 top-0 z-50 h-1 bg-olive-deep/10 sm:hidden" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label={locale === "en" ? "Reading progress" : locale === "ar" ? "تقدم القراءة" : "پیشرفت مطالعه"}>
       <div className="h-full bg-olive-deep transition-[width] duration-150 ease-out" style={{ width: `${progress}%` }} />
     </div>
   );
 }
 
 function ArticlePage() {
+  const { locale } = useTranslation();
+  const copy = locale === "fa" ? { missing: "مقاله یافت نشد", missingBody: "این نوشته در دفتر سبز موجود نیست یا حذف شده است.", back: "بازگشت به دفتر سبز ←", journal: "→ دفتر سبز", note: "متن مقاله به زبان فارسی است.", editorial: "تحریریه دفتر سبز", read: "دقیقه مطالعه", related: "خواندنی‌های مرتبط" } : locale === "ar" ? { missing: "المقال غير موجود", missingBody: "هذا المقال غير متاح أو تمت إزالته.", back: "العودة إلى المجلة الخضراء ←", journal: "→ المجلة الخضراء", note: "نص المقال متاح باللغة الفارسية.", editorial: "فريق المجلة الخضراء", read: "دقيقة قراءة", related: "مقالات ذات صلة" } : { missing: "Article not found", missingBody: "This article is unavailable or has been removed.", back: "Back to the Green Journal →", journal: "← Green Journal", note: "This article is available in Persian.", editorial: "Green Journal editorial team", read: "min read", related: "Related reading" };
   const { slug } = Route.useParams();
   const { articles: custom } = useStore();
   const article = articleBySlug(slug) ?? custom.find((a) => a.slug === slug);
   if (!article) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <h1 className="font-display text-3xl text-olive-deep">مقاله یافت نشد</h1>
-        <p className="mt-3 text-muted-foreground">این نوشته در دفتر سبز موجود نیست یا حذف شده است.</p>
+         <h1 className="font-display text-3xl text-olive-deep">{copy.missing}</h1>
+         <p className="mt-3 text-muted-foreground">{copy.missingBody}</p>
         <Link to="/journal" className="mt-6 inline-block text-brass-dark hover:text-olive-deep">
-          بازگشت به دفتر سبز ←
+           {copy.back}
         </Link>
       </div>
     );
@@ -102,7 +106,7 @@ function ArticlePage() {
     <div className="mx-auto max-w-3xl px-5 py-7 sm:px-6 sm:py-14">
       <ReadingProgress />
       <Link to="/journal" className="inline-flex min-h-10 items-center text-xs text-cocoa hover:text-olive-deep sm:min-h-0 sm:tracking-widest">
-        → دفتر سبز
+         {copy.journal}
       </Link>
       <header className="mt-3 border-b border-olive-deep/15 pb-7 sm:mt-6 sm:border-0 sm:pb-0">
         <div className="inline-flex rounded-full bg-cream px-3 py-1 text-[10px] text-brass-dark sm:bg-transparent sm:p-0 sm:tracking-[0.3em] sm:uppercase">
@@ -115,18 +119,19 @@ function ArticlePage() {
         <div className="mt-5 flex items-center gap-3 text-[11px] text-muted-foreground">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-olive-deep font-display text-sm text-paper" aria-hidden="true">د</div>
           <div className="min-w-0">
-            <div className="font-medium text-cocoa">تحریریه دفتر سبز</div>
+           <div className="font-medium text-cocoa">{copy.editorial}</div>
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
               <span>{formatJalali(article.date)}</span>
               <span>·</span>
-              <span className="num-fa">{toFaDigits(article.minutes)} دقیقه مطالعه</span>
+               <span className="num-fa">{localizedDigits(article.minutes)} {copy.read}</span>
             </div>
           </div>
         </div>
       </header>
       <div className="gold-rule my-7 hidden sm:block" />
 
-      <article className="mt-7 space-y-6 text-[15px] leading-[2.15] text-cocoa sm:mt-0 sm:space-y-5 sm:text-base sm:leading-9">
+       {locale !== "fa" && <p className="mt-6 rounded-sm border border-brass/30 bg-cream px-4 py-2 text-xs text-cocoa">{copy.note}</p>}
+       <article lang="fa" dir="rtl" className="mt-7 space-y-6 text-[15px] leading-[2.15] text-cocoa sm:mt-0 sm:space-y-5 sm:text-base sm:leading-9">
         {article.body.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
@@ -145,7 +150,7 @@ function ArticlePage() {
 
       {related.length > 0 && (
         <section className="mt-12 hairline-t pt-8">
-          <h2 className="font-display text-2xl text-olive-deep">خواندنی‌های مرتبط</h2>
+           <h2 className="font-display text-2xl text-olive-deep">{copy.related}</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {related.map((a) => (
               <Link
