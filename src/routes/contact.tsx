@@ -34,7 +34,7 @@ const SUBJECT_KEYS = [
 
 function Contact() {
   const { settings } = useStore();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const subjects = SUBJECT_KEYS.map((k) => t(k));
   const [form, setForm] = useState({
     name: "",
@@ -51,7 +51,7 @@ function Contact() {
     const payload = { ...form, subject };
     const err = validateInquiry(payload);
     if (err) {
-      toast.error(err);
+       toast.error(locale === "fa" ? err : locale === "ar" ? "يرجى إكمال الحقول المطلوبة بصورة صحيحة." : "Please complete the required fields correctly.");
       return;
     }
     // Keep a copy of the request in the CRM inbox, then hand off to WhatsApp.
@@ -61,7 +61,7 @@ function Contact() {
       /* delivery to WhatsApp must still happen */
     }
     const via = sendInquiry(payload, settings);
-    toast.success(via === "whatsapp" ? "در حال انتقال به واتساپ…" : "در حال بازکردن نامه‌ی درخواست…");
+     toast.success(via === "whatsapp" ? t("contact.sendWa") : t("contact.send"));
     setForm({ name: "", phone: "", subject: "", quantity: "", message: "" });
   };
 

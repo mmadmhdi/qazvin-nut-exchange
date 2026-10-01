@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { COMPANY, LICENSES } from "@/lib/licenses";
 import { BadgeCheck } from "lucide-react";
+import { useTranslation } from "@/lib/i18n-provider";
 
 export const Route = createFileRoute("/licenses")({
   head: () => ({
@@ -21,21 +22,22 @@ export const Route = createFileRoute("/licenses")({
 });
 
 function Licenses() {
+  const { locale } = useTranslation();
+  const c = locale === "fa" ? { title: "پروانه‌ها و مجوزها", intro: "همه‌ی فرآورده‌های ما با علامت تجاری درج سبز و در کارخانه درج تجارت لیا تولید می‌شوند و تحت نظارت مرجع بهداشتی هستند.", facts: ["کد ده‌رقمی ثبت منبع", "تاریخ صدور کد منبع", "تلفن کارخانه", "نشانی کارخانه"], rows: ["شماره پروانه ساخت", "شماره نامه", "تاریخ صدور", "اعتبار تا", "فرمول ترکیبی", "علامت تجاری"], weights: "اوزان بسته‌بندی (کیلوگرم)", note: "بسته‌بندی: کیسه‌ی پلیمری پلی‌اتیلن، درون کارتن مقوایی. اوزان بالاتر از یک کیلوگرم مخصوص صنایع غذایی و مراکز خاص است.", request: "درخواست نسخه‌ی اسناد" } : locale === "ar" ? { title: "التراخيص والشهادات", intro: "تُنتج جميع منتجاتنا تحت علامة درج سبز في مصنع درج تجارت ليا وبإشراف الجهة الصحية المختصة.", facts: ["رمز تسجيل المصدر", "تاريخ إصدار الرمز", "هاتف المصنع", "عنوان المصنع"], rows: ["رقم ترخيص الإنتاج", "رقم الخطاب", "تاريخ الإصدار", "صالح حتى", "التركيبة", "العلامة التجارية"], weights: "أوزان العبوات (كغم)", note: "التعبئة في كيس بولي إيثيلين داخل كرتون. الأوزان التي تزيد عن كيلوغرام مخصصة للصناعات الغذائية والمراكز المتخصصة.", request: "طلب نسخة من الوثائق" } : { title: "Licences & certifications", intro: "All products are made under the Darj Sabz trademark at the Darj Tejarat Lia factory under the relevant health authority.", facts: ["Source registration code", "Code issue date", "Factory telephone", "Factory address"], rows: ["Manufacturing licence", "Letter number", "Issue date", "Valid until", "Formula", "Trademark"], weights: "Pack weights (kg)", note: "Packed in a polyethylene bag inside a cardboard carton. Packs above one kilogram are intended for food manufacturers and specialist venues.", request: "Request document copies" };
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14">
       <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">Licenses</div>
-      <h1 className="font-display text-3xl sm:text-5xl text-olive-deep mt-2">پروانه‌ها و مجوزها</h1>
+       <h1 className="font-display text-3xl sm:text-5xl text-olive-deep mt-2">{c.title}</h1>
       <div className="gold-rule my-6" />
       <p className="max-w-2xl text-sm sm:text-base leading-8 text-cocoa">
-        همه‌ی فرآورده‌های ما با علامت تجاری «{COMPANY.trademark}» و در کارخانه‌ی «
-        {COMPANY.legalName}» تولید می‌شوند؛ زیر نظر {COMPANY.authority}.
+         {c.intro}
       </p>
 
       <dl className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Fact k="کد ده‌رقمی ثبت منبع" v={COMPANY.sourceCode} />
-        <Fact k="تاریخ صدور کد منبع" v={COMPANY.sourceCodeIssued} />
-        <Fact k="تلفن کارخانه" v={COMPANY.factoryPhone} />
-        <Fact k="نشانی کارخانه" v={COMPANY.factoryAddress} />
+         <Fact k={c.facts[0]} v={COMPANY.sourceCode} />
+         <Fact k={c.facts[1]} v={COMPANY.sourceCodeIssued} />
+         <Fact k={c.facts[2]} v={COMPANY.factoryPhone} />
+         <Fact k={c.facts[3]} v={COMPANY.factoryAddress} />
       </dl>
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
@@ -51,16 +53,16 @@ function Licenses() {
               <BadgeCheck className="h-5 w-5 shrink-0 text-brass-dark" />
             </div>
             <dl className="mt-5 grid gap-x-6 text-xs sm:grid-cols-2">
-              <Row k="شماره پروانه ساخت" v={l.licenseNo} />
-              <Row k="شماره نامه" v={l.letterNo} />
-              <Row k="تاریخ صدور" v={l.issuedAt} />
-              <Row k="اعتبار تا" v={l.validUntil} />
-              <Row k="فرمول ترکیبی" v={l.formula} />
-              <Row k="علامت تجاری" v={COMPANY.trademark} />
+               <Row k={c.rows[0]} v={l.licenseNo} />
+               <Row k={c.rows[1]} v={l.letterNo} />
+               <Row k={c.rows[2]} v={l.issuedAt} />
+               <Row k={c.rows[3]} v={l.validUntil} />
+               <Row k={c.rows[4]} v={l.formula} />
+               <Row k={c.rows[5]} v={COMPANY.trademark} />
             </dl>
             <div className="mt-4">
               <div className="text-[10px] tracking-widest uppercase text-muted-foreground">
-                اوزان بسته‌بندی (کیلوگرم)
+                 {c.weights}
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {l.packaging.map((w) => (
@@ -74,8 +76,7 @@ function Licenses() {
               </div>
             </div>
             <p className="mt-4 text-[11px] leading-6 text-muted-foreground">
-              بسته‌بندی: کیسه‌ی پلیمری پلی‌اتیلن، درون کارتن مقوایی. اوزان بالاتر از یک کیلوگرم
-              مخصوص عرضه به صنایع غذایی و مراکز خاص (هتل، رستوران، قنادی) است.
+               {c.note}
             </p>
           </div>
         ))}
@@ -91,7 +92,7 @@ function Licenses() {
             to="/contact"
             className="inline-flex rounded-sm bg-olive-deep px-5 py-2.5 text-xs tracking-widest text-paper hover:bg-olive"
           >
-            درخواست نسخه‌ی اسناد
+             {c.request}
           </Link>
         </div>
       </div>
