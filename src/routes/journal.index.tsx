@@ -4,7 +4,8 @@ import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/l
 import { useStore } from "@/lib/store";
 import { BookOpen, Search } from "lucide-react";
 
-import { formatJalali, toFaDigits } from "@/lib/format";
+import { formatJalali, localizedDigits } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n-provider";
 
 export const Route = createFileRoute("/journal/")({
   head: () => ({
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/journal/")({
 });
 
 function Journal() {
+  const { locale, t } = useTranslation();
+  const copy = locale === "fa" ? { title: "دفتر سبز", intro: `هرچه در چهار نسل تجارت خشکبار آموخته‌ایم، اینجا مکتوب است: از سازوکار قیمت خلال پسته تا مدیریت آب باغ، کنترل کیفیت و مسیر صادرات. مجموعاً ${localizedDigits(ARTICLES.length)} مقاله.`, search: "جست‌وجو در مقالات…", results: "نتیجه", all: "همه", empty: "مقاله‌ای با این عنوان یافت نشد.", minutes: "دقیقه" } : locale === "ar" ? { title: "المجلة الخضراء", intro: `مقالاتنا المتخصصة متاحة حالياً بالفارسية. تضم المكتبة ${localizedDigits(ARTICLES.length)} مقالاً عن السوق والبساتين والجودة والتصدير.`, search: "البحث في المقالات الفارسية…", results: "نتيجة", all: "الكل", empty: "لم يتم العثور على مقال بهذا العنوان.", minutes: "دقائق" } : { title: "The Green Journal", intro: `Our specialist articles are currently available in Persian. The library contains ${ARTICLES.length} articles on markets, orchards, quality and export.`, search: "Search Persian articles…", results: "results", all: "All", empty: "No article matched this title.", minutes: "min read" };
   const { articles: custom } = useStore();
   const [cat, setCat] = useState<ArticleCategoryId | "all">("all");
   const [q, setQ] = useState("");
@@ -43,11 +46,10 @@ function Journal() {
     <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-14">
       <header className="border-b border-olive-deep/15 pb-6 sm:border-0 sm:pb-0">
         <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">The Green Journal</div>
-        <h1 className="mt-2 font-display text-[2rem] leading-tight text-olive-deep sm:text-5xl">دفتر سبز</h1>
+         <h1 className="mt-2 font-display text-[2rem] leading-tight text-olive-deep sm:text-5xl">{copy.title}</h1>
         <div className="gold-rule my-5 hidden sm:block" />
         <p className="max-w-2xl text-[13px] leading-7 text-cocoa sm:text-base sm:leading-8">
-        هرچه در چهار نسل تجارت خشکبار آموخته‌ایم، اینجا مکتوب است: از سازوکار قیمت خلال پسته تا
-        مدیریت آب باغ، کنترل کیفیت و مسیر صادرات. مجموعاً {toFaDigits(ARTICLES.length)} مقاله.
+         {copy.intro}
         </p>
       </header>
 
@@ -57,23 +59,23 @@ function Journal() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="جست‌وجو در مقالات…"
-            aria-label="جست‌وجو در مقالات"
+             placeholder={copy.search}
+             aria-label={copy.search}
             className="h-12 w-full rounded-md border border-input bg-card pe-11 ps-4 text-sm outline-none transition-shadow focus:ring-2 focus:ring-ring/30 sm:h-auto sm:rounded-sm sm:bg-background sm:px-3 sm:py-2"
           />
         </label>
         <div className="text-xs text-muted-foreground num-fa">
-          {toFaDigits(list.length)} نتیجه
+           {localizedDigits(list.length)} {copy.results}
         </div>
       </div>
 
       <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:mt-4 sm:px-0 sm:pb-1">
         <Chip on={cat === "all"} onClick={() => setCat("all")}>
-          همه
+           {copy.all}
         </Chip>
         {CATEGORIES.map((c) => (
           <Chip key={c.id} on={cat === c.id} onClick={() => setCat(c.id)}>
-            {c.label}
+             {locale === "fa" ? c.label : c.id}
           </Chip>
         ))}
       </div>
@@ -98,14 +100,14 @@ function Journal() {
               <div className="mt-auto flex items-center gap-2 pt-3 text-[10px] text-muted-foreground sm:mt-4 sm:justify-between sm:pt-0 sm:text-[11px]">
                 <span>{formatJalali(a.date)}</span>
                 <span className="h-1 w-1 rounded-full bg-border sm:hidden" aria-hidden="true" />
-                <span className="num-fa">{toFaDigits(a.minutes)} دقیقه</span>
+                 <span className="num-fa">{localizedDigits(a.minutes)} {copy.minutes}</span>
               </div>
             </div>
           </Link>
         ))}
       </div>
       {list.length === 0 && (
-        <div className="mt-10 text-sm text-muted-foreground">مقاله‌ای با این عنوان یافت نشد.</div>
+         <div className="mt-10 text-sm text-muted-foreground">{copy.empty}</div>
       )}
       <div className="h-8 sm:h-16" />
     </div>
