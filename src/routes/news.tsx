@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { formatJalali } from "@/lib/format";
+import { useTranslation } from "@/lib/i18n-provider";
 
 export const Route = createFileRoute("/news")({
   head: () => ({
@@ -67,12 +68,15 @@ const NEWS = [
 ];
 
 function News() {
+  const { locale } = useTranslation();
+  const c = locale === "fa" ? { room: "اتاق خبر", title: "اخبار بازار خشکبار", note: "خبرهای این بخش فعلاً به زبان فارسی منتشر می‌شوند.", analysis: "به تحلیل بازار", market: "تابلوی قیمت" } : locale === "ar" ? { room: "غرفة الأخبار", title: "أخبار سوق المكسرات", note: "تنشر أخبار هذا القسم حالياً باللغة الفارسية.", analysis: "تحليل السوق", market: "لوحة الأسعار" } : { room: "Newsroom", title: "Nut market news", note: "News articles in this section are currently published in Persian.", analysis: "Market analysis", market: "Price board" };
   const [lead, ...rest] = NEWS;
   return (
     <div className="mx-auto max-w-7xl px-6 py-14">
-      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">اتاق خبر</div>
-      <h1 className="font-display text-4xl md:text-5xl text-olive-deep mt-2">اخبار بازار خشکبار</h1>
+       <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{c.room}</div>
+       <h1 className="font-display text-4xl md:text-5xl text-olive-deep mt-2">{c.title}</h1>
       <div className="gold-rule my-6" />
+       {locale !== "fa" && <p className="mb-6 text-xs text-muted-foreground">{c.note}</p>}
 
       {/* Lead */}
       <article className="grid md:grid-cols-[1.4fr_1fr] gap-6 card-paper rounded-sm p-6">
@@ -101,8 +105,8 @@ function News() {
       </div>
 
       <div className="mt-14 flex flex-wrap gap-3">
-        <Link to="/analysis" className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">به تحلیل بازار</Link>
-        <Link to="/market" className="rounded-sm border border-olive-deep/40 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest">تابلوی قیمت</Link>
+         <Link to="/analysis" className="rounded-sm bg-olive-deep px-6 py-3 text-sm text-paper hover:bg-olive tracking-widest">{c.analysis}</Link>
+         <Link to="/market" className="rounded-sm border border-olive-deep/40 px-6 py-3 text-sm text-olive-deep hover:bg-cream tracking-widest">{c.market}</Link>
       </div>
     </div>
   );
