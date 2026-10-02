@@ -11,8 +11,10 @@ import {
   Legend,
 } from "recharts";
 import { useStore, computeChange, type Product } from "@/lib/store";
-import { formatJalaliShort, formatPercent, formatPrice, toFaDigits } from "@/lib/format";
+import { formatJalaliShort, formatPercent, formatPrice, localizedDigits } from "@/lib/format";
 import { X, Plus } from "lucide-react";
+import { useTranslation } from "@/lib/i18n-provider";
+import { localizeProduct } from "@/lib/product-i18n";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -30,6 +32,8 @@ const COLORS = ["#c9a84c", "#4a6741", "#8b6f5e", "#e85d3a", "#2d8a9e"];
 
 function Compare() {
   const { products } = useStore();
+  const { locale } = useTranslation();
+  const c = locale === "fa" ? { eyebrow: "مقایسه", title: "مقایسه‌ی بازدهی محصولات", intro: "تا ۵ محصول را انتخاب کنید تا بازدهی نرمال‌شده روی یک نمودار مقایسه شود.", select: "انتخاب محصولات", range: "بازه", ranges: ["۱ هفته", "۱ ماه", "۳ ماه", "۶ ماه", "۱ سال"], chart: "بازدهی نرمال‌شده از ابتدای بازه", date: "تاریخ", table: "جدول مقایسه", keys: "شاخص‌های کلیدی", cols: ["محصول", "قیمت روز", "تغییر ۲۴ س", "بازدهی بازه", "سقف بازه", "کف بازه"] } : locale === "ar" ? { eyebrow: "المقارنة", title: "مقارنة عوائد المنتجات", intro: "اختر حتى ٥ منتجات لمقارنة العائد المعياري على رسم واحد.", select: "اختيار المنتجات", range: "الفترة", ranges: ["أسبوع", "شهر", "٣ أشهر", "٦ أشهر", "سنة"], chart: "العائد المعياري منذ بداية الفترة", date: "التاريخ", table: "جدول المقارنة", keys: "المؤشرات الرئيسية", cols: ["المنتج", "السعر الحالي", "تغير ٢٤ س", "عائد الفترة", "أعلى الفترة", "أدنى الفترة"] } : { eyebrow: "Compare", title: "Compare product returns", intro: "Select up to five products to compare normalized returns on one chart.", select: "Select products", range: "Period", ranges: ["1 week", "1 month", "3 months", "6 months", "1 year"], chart: "Normalized return from period start", date: "Date", table: "Comparison table", keys: "Key indicators", cols: ["Product", "Current price", "24h change", "Period return", "Period high", "Period low"] };
   const active = products.filter((p) => p.active);
   const [selected, setSelected] = useState<string[]>(
     active.slice(0, Math.min(3, active.length)).map((p) => p.id)
@@ -98,16 +102,16 @@ function Compare() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">
-      <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">مقایسه</div>
-      <h1 className="font-display text-3xl sm:text-5xl text-olive-deep mt-2">مقایسه‌ی بازدهی محصولات</h1>
+       <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{c.eyebrow}</div>
+       <h1 className="font-display text-3xl sm:text-5xl text-olive-deep mt-2">{c.title}</h1>
       <p className="text-cocoa max-w-2xl mt-3 leading-8 text-sm">
-        تا ۵ محصول را انتخاب کنید تا بازدهی نرمال‌شده (٪ تغییر از ابتدای بازه) روی یک نمودار مقایسه شود.
+         {c.intro}
       </p>
       <div className="gold-rule my-6" />
 
       {/* Selector chips */}
       <div className="card-paper rounded-sm p-4 mb-6">
-        <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark mb-3">انتخاب محصولات</div>
+         <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark mb-3">{c.select}</div>
         <div className="flex flex-wrap gap-2">
           {active.map((p, i) => {
             const on = selected.includes(p.id);
@@ -129,7 +133,7 @@ function Compare() {
                   />
                 )}
                 {on ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-                {p.name}
+                 {localizeProduct(p, locale).name}
               </button>
             );
           })}
@@ -138,13 +142,13 @@ function Compare() {
 
       {/* Range */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">بازه</span>
+         <span className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{c.range}</span>
         {[
-          { d: 7, l: "۱ هفته" },
-          { d: 30, l: "۱ ماه" },
-          { d: 90, l: "۳ ماه" },
-          { d: 180, l: "۶ ماه" },
-          { d: 365, l: "۱ سال" },
+           { d: 7, l: c.ranges[0] },
+           { d: 30, l: c.ranges[1] },
+           { d: 90, l: c.ranges[2] },
+           { d: 180, l: c.ranges[3] },
+           { d: 365, l: c.ranges[4] },
         ].map((r) => (
           <button
             key={r.d}
@@ -164,7 +168,7 @@ function Compare() {
       <div className="tv-panel rounded-sm overflow-hidden">
         <div className="px-4 py-3 border-b border-tv-border bg-tv-headband">
           <div className="text-[10px] tracking-[0.3em] uppercase text-brass">Normalized Return %</div>
-          <div className="font-display text-tv-text mt-1">بازدهی نرمال‌شده از ابتدای بازه</div>
+           <div className="font-display text-tv-text mt-1">{c.chart}</div>
         </div>
         <div className="h-96 bg-tv-bg px-2">
           <ResponsiveContainer width="100%" height="100%">
@@ -182,7 +186,7 @@ function Compare() {
                 tick={{ fill: "var(--tv-muted)", fontSize: 10 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--tv-border)" }}
-                tickFormatter={(v) => toFaDigits(v) + "٪"}
+                 tickFormatter={(v) => localizedDigits(v) + "%"}
                 width={44}
               />
               <ReferenceLine y={0} stroke="var(--brass)" strokeOpacity={0.5} strokeDasharray="2 3" />
@@ -194,15 +198,15 @@ function Compare() {
                   fontSize: 11,
                   color: "var(--tv-text)",
                 }}
-                labelFormatter={(l) => `تاریخ: ${l}`}
+                 labelFormatter={(l) => `${c.date}: ${l}`}
                 formatter={(v: any, k: string) => {
                   const p = picked.find((x) => x.id === k);
-                  return [typeof v === "number" ? toFaDigits(v.toFixed(2)) + "٪" : v, p?.name ?? k];
+                   return [typeof v === "number" ? localizedDigits(v.toFixed(2)) + "%" : v, p ? localizeProduct(p, locale).name : k];
                 }}
               />
               <Legend
                 wrapperStyle={{ fontSize: 11, color: "var(--tv-text)" }}
-                formatter={(v) => picked.find((p) => p.id === v)?.name ?? v}
+                 formatter={(v) => { const p = picked.find((x) => x.id === v); return p ? localizeProduct(p, locale).name : v; }}
               />
               {picked.map((p, i) => (
                 <Line
@@ -224,19 +228,14 @@ function Compare() {
       {picked.length > 0 && (
         <div className="mt-8 card-paper rounded-sm overflow-hidden">
           <div className="px-4 sm:px-5 py-3 border-b border-border">
-            <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">جدول مقایسه</div>
-            <div className="font-display text-xl text-olive-deep mt-1">شاخص‌های کلیدی</div>
+             <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">{c.table}</div>
+             <div className="font-display text-xl text-olive-deep mt-1">{c.keys}</div>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-cream/50 text-[10px] tracking-widest uppercase text-brass-dark">
                 <tr>
-                  <th className="text-right px-4 py-2">محصول</th>
-                  <th className="text-right px-3 py-2">قیمت روز</th>
-                  <th className="text-right px-3 py-2">تغییر ۲۴ س</th>
-                  <th className="text-right px-3 py-2">بازدهی بازه</th>
-                  <th className="text-right px-3 py-2">سقف بازه</th>
-                  <th className="text-right px-3 py-2">کف بازه</th>
+                   {c.cols.map((x) => <th key={x} className="text-start px-3 sm:px-4 py-2">{x}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -256,10 +255,10 @@ function Compare() {
                             className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
                             style={{ background: COLORS[i] }}
                           />
-                          <span className="text-olive-deep">{p.name}</span>
+                           <span className="text-olive-deep">{localizeProduct(p, locale).name}</span>
                         </div>
                         <div className="text-[10px] text-muted-foreground mt-0.5 tracking-widest uppercase">
-                          {p.origin} · {p.grade}
+                           {localizeProduct(p, locale).origin} · {localizeProduct(p, locale).grade}
                         </div>
                       </td>
                       <td className="px-3 py-3 num-fa text-cocoa">{formatPrice(p.price)}</td>
