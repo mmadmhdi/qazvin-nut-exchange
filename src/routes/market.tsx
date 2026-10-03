@@ -16,10 +16,10 @@ import { seoLinks } from "@/lib/seo";
 export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
-      { title: "بازار پسته — تابلوی معاملات درج سبز" },
-      { name: "description", content: "تابلوی معاملات پسته و خشکبار با نمودار شمعی حرفه‌ای، اندیکاتورهای RSI و MACD و نقشه بازار." },
-      { property: "og:title", content: "بازار پسته امروز" },
-      { property: "og:description", content: "قیمت لحظه‌ای، اندیکاتورهای تکنیکال و نقشه بازار خشکبار." },
+      { title: "قیمت روز پسته و خشکبار — تابلوی معاملات درج سبز قزوین" },
+      { name: "description", content: "قیمت روز پسته، خلال پسته، بادام درختی و بادام زمینی با تاریخچه معاملات واقعی، نمودار شمعی و فیلتر سال، ماه و روز." },
+      { property: "og:title", content: "قیمت روز پسته و خشکبار | درج سبز قزوین" },
+      { property: "og:description", content: "تابلوی قیمت لحظه‌ای و تاریخچه معاملات واقعی پسته و خشکبار." },
     ],
     links: seoLinks("/market"),
   }),
