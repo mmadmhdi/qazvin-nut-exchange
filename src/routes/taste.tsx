@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { Coffee, Croissant, Salad, Cake, Wine, Check } from "lucide-react";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/taste")({
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: seoLinks("/taste"),
   }),
   component: TastePage,
 });

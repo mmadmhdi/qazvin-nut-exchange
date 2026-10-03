@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { getPassport, passportRows } from "@/lib/passport";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/origin")({
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: seoLinks("/origin"),
   }),
   component: OriginPage,
 });

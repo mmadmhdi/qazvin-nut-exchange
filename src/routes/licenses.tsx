@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { COMPANY, LICENSES } from "@/lib/licenses";
 import { BadgeCheck } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/licenses")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: seoLinks("/licenses"),
   }),
   component: Licenses,
 });
