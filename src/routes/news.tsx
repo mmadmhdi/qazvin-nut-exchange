@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { formatJalali } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n-provider";
 
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/news")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: seoLinks("/news"),
   }),
   component: News,
 });

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { useStore, computeChange } from "@/lib/store";
 import { MarketChart } from "@/components/site/MarketChart";
 import { Heatmap } from "@/components/site/Heatmap";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/analysis")({
       { property: "og:description", content: "شاخص‌های تکنیکال، مووی‌های برتر و روند قیمت‌ها." },
       { property: "og:type", content: "article" },
     ],
+    links: seoLinks("/analysis"),
   }),
   component: Analysis,
 });

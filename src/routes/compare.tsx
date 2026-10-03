@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { useMemo, useState } from "react";
 import {
   ComposedChart,
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/compare")({
       { property: "og:title", content: "مقایسه بازار خشکبار" },
       { property: "og:description", content: "بازدهی نرمال‌شده و شکاف قیمتی محصولات پسته و بادام." },
     ],
+    links: seoLinks("/compare"),
   }),
   component: Compare,
 });

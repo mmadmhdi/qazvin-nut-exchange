@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { seoLinks } from "@/lib/seo";
 import { useState } from "react";
 import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/lib/articles";
 import { useStore } from "@/lib/store";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/journal/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: seoLinks("/journal"),
   }),
   component: Journal,
 });
