@@ -11,14 +11,15 @@ import { useTranslation } from "@/lib/i18n-provider";
 export const Route = createFileRoute("/journal/")({
   head: () => ({
     meta: [
-      { title: "دفتر سبز — مقالات بازار، باغ و فرآوری پسته" },
+      { title: "قیمت پسته، خرید عمده و صادرات | مجله درج سبز" },
       {
         name: "description",
         content:
-          "آرشیو مقالات درج سبز قزوین: قیمت‌گذاری خلال پسته، مدیریت باغ، فرآوری، کنترل کیفیت و صادرات خشکبار.",
+          "مقالات تخصصی درباره قیمت پسته، خرید عمده پسته، صادرات پسته ایرانی، مدیریت باغ، فرآوری مغز و خلال پسته و کنترل کیفیت خشکبار.",
       },
-      { property: "og:title", content: "دفتر سبز — مقالات درج سبز قزوین" },
-      { property: "og:description", content: "دانش کاربردی بازار و تولید خشکبار، به زبان فارسی." },
+      { name: "keywords", content: "قیمت پسته، خرید عمده پسته، صادرات پسته، بازار پسته، فرآوری پسته، مقالات پسته" },
+      { property: "og:title", content: "قیمت پسته، خرید عمده و صادرات | مجله درج سبز" },
+      { property: "og:description", content: "راهنمای تخصصی بازار، خرید عمده، تولید، فرآوری و صادرات پسته ایرانی." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
