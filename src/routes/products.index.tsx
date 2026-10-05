@@ -3,15 +3,18 @@ import { useStore } from "@/lib/store";
 import { ProductCard } from "@/components/site/ProductCard";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeCategory } from "@/lib/product-i18n";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/products/")({
   head: () => ({
     meta: [
+      ...seoMeta("/products"),
       { title: "محصولات — درج سبز قزوین" },
       { name: "description", content: "فهرست کامل محصولات خشکبار: خلال مغز پسته، خلال بادام درختی و بادام زمینی." },
       { property: "og:title", content: "محصولات درج سبز قزوین" },
       { property: "og:description", content: "همه محصولات اصیل، از خلال پسته قزوین تا خلال بادام درختی." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: seoLinks("/products"),
   }),

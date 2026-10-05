@@ -11,11 +11,12 @@ import { Faq } from "@/components/site/Faq";
 import { priceFaq } from "@/lib/faq-i18n";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct, localizeCategory } from "@/lib/product-i18n";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
+      ...seoMeta("/market"),
       { title: "قیمت روز پسته و خلال پسته | بازار عمده درج سبز" },
       { name: "description", content: "قیمت روز پسته، قیمت مغز و خلال پسته و نرخ عمده خشکبار را با معاملات واقعی، نمودار قیمت و تاریخچه روزانه بازار بررسی کنید." },
       { name: "keywords", content: "قیمت روز پسته، قیمت پسته امروز، قیمت عمده پسته، قیمت مغز پسته، قیمت خلال پسته، بازار پسته" },

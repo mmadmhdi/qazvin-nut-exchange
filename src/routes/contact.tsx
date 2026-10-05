@@ -7,11 +7,12 @@ import { sendInquiry, validateInquiry, telHref, waHref } from "@/lib/contact";
 import { recordInquiry } from "@/lib/inquiry.functions";
 import { Phone, MapPin, Mail, Clock, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
+      ...seoMeta("/contact"),
       { title: "تماس با درج سبز قزوین — استعلام قیمت خلال پسته" },
       { name: "description", content: "شماره تماس کارخانه، نشانی شهرک صنعتی لیا و فرم استعلام قیمت روز خلال پسته و بادام درج سبز قزوین." },
       { property: "og:title", content: "تماس با درج سبز قزوین" },

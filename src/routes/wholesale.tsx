@@ -8,15 +8,18 @@ import { wholesaleFaq } from "@/lib/faq-i18n";
 import { defaultTiers, defaultBenefits } from "@/lib/wholesale-i18n";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct } from "@/lib/product-i18n";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/wholesale")({
   head: () => ({
     meta: [
+      ...seoMeta("/wholesale"),
       { title: "فروش عمده خلال پسته — درج سبز قزوین" },
       { name: "description", content: "شرایط فروش عمده و صادراتی خلال پسته قزوین، بویین و مغز پسته سبز برای صنایع و بازار جهانی." },
       { property: "og:title", content: "فروش عمده و صادراتی | درج سبز قزوین" },
       { property: "og:description", content: "شرایط ویژه‌ی خرید عمده برای قنادان، صنایع غذایی و صادرکنندگان." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: seoLinks("/wholesale"),
   }),

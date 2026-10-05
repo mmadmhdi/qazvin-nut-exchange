@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useMemo, useState } from "react";
 import {
   ComposedChart,
@@ -20,10 +20,13 @@ import { localizeProduct } from "@/lib/product-i18n";
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
+      ...seoMeta("/compare"),
       { title: "مقایسه محصولات — درج سبز قزوین" },
       { name: "description", content: "مقایسه چند محصول خشکبار به صورت نرمال‌شده روی یک نمودار؛ تحلیل بازدهی، همبستگی و شکاف قیمتی." },
       { property: "og:title", content: "مقایسه بازار خشکبار" },
       { property: "og:description", content: "بازدهی نرمال‌شده و شکاف قیمتی محصولات پسته و بادام." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: seoLinks("/compare"),
   }),
