@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { getPassport, passportRows } from "@/lib/passport";
@@ -11,6 +11,7 @@ import { localizedDigits } from "@/lib/format";
 export const Route = createFileRoute("/origin")({
   head: () => ({
     meta: [
+      ...seoMeta("/origin"),
       { title: "پسته قزوین از باغ تا بسته‌بندی | اصالت درج سبز" },
       {
         name: "description",

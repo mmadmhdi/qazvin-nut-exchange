@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useState } from "react";
 import { ARTICLES, CATEGORIES, categoryLabel, type ArticleCategoryId } from "@/lib/articles";
 import { useStore } from "@/lib/store";
@@ -11,6 +11,7 @@ import { useTranslation } from "@/lib/i18n-provider";
 export const Route = createFileRoute("/journal/")({
   head: () => ({
     meta: [
+      ...seoMeta("/journal"),
       { title: "قیمت پسته، خرید عمده و صادرات | مجله درج سبز" },
       {
         name: "description",

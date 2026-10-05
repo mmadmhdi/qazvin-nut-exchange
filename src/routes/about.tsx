@@ -6,11 +6,12 @@ import { formatJalali, toFaDigits } from "@/lib/format";
 import { ShieldCheck, Leaf, Handshake, Globe2, Award, Truck } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
 import { aboutValues, aboutTimeline, aboutCopy } from "@/lib/about-i18n";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
+      ...seoMeta("/about"),
       { title: "درباره درج سبز قزوین — چهار نسل تجارت پسته" },
       {
         name: "description",

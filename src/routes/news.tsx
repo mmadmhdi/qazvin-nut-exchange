@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { formatJalali } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n-provider";
 
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
+      ...seoMeta("/news"),
       { title: "اخبار بازار خشکبار — درج سبز قزوین" },
       { name: "description", content: "تازه‌ترین اخبار و یادداشت‌های بازار خلال پسته قزوین، صادرات و اقتصاد خشکبار." },
       { property: "og:title", content: "اخبار خشکبار | درج سبز قزوین" },

@@ -1,4 +1,9 @@
-export const SITE_URL = "https://qazvin-nut-exchange.lovable.app";
+export const SITE_URL = "https://dorjesabz.eu";
+
+/** Keep share URLs aligned with each page's canonical URL. */
+export function seoMeta(path: string) {
+  return [{ property: "og:url", content: localizedUrls(path).fa }];
+}
 
 /** Locale variants are query-param based: /path, /path?lang=en, /path?lang=ar */
 export function localizedUrls(path: string) {

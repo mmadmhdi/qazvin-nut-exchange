@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { Coffee, Croissant, Salad, Cake, Wine, Check } from "lucide-react";
@@ -10,6 +10,7 @@ import { localizedDigits } from "@/lib/format";
 export const Route = createFileRoute("/taste")({
   head: () => ({
     meta: [
+      ...seoMeta("/taste"),
       { title: "آیین چشیدن — ترکیب‌ساز پسته | درج سبز قزوین" },
       {
         name: "description",

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useStore, computeChange } from "@/lib/store";
 import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -16,6 +16,7 @@ import { ArrowDownRight, ArrowUpRight, ShieldCheck, Leaf, Boxes, BarChart3 } fro
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      ...seoMeta("/"),
       { title: "درج سبز قزوین — تابلوی قیمت خلال پسته" },
       { name: "description", content: "درج سبز قزوین: تابلوی رسمی قیمت روز خلال پسته قزوین و بویین با نمودار حرفه‌ای، اندیکاتورها و تحلیل بازار." },
       { property: "og:title", content: "درج سبز قزوین — تابلوی قیمت خلال پسته" },

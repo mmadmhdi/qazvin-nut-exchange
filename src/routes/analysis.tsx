@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { seoLinks } from "@/lib/seo";
+import { seoLinks, seoMeta } from "@/lib/seo";
 import { useStore, computeChange } from "@/lib/store";
 import { MarketChart } from "@/components/site/MarketChart";
 import { Heatmap } from "@/components/site/Heatmap";
@@ -13,6 +13,7 @@ import { localizeProduct } from "@/lib/product-i18n";
 export const Route = createFileRoute("/analysis")({
   head: () => ({
     meta: [
+      ...seoMeta("/analysis"),
       { title: "تحلیل قیمت پسته و روند بازار امروز | درج سبز" },
       { name: "description", content: "تحلیل بازار پسته و خلال پسته، روند قیمت امروز، تغییرات معاملات و شاخص‌های تکنیکال RSI و MACD برای بررسی بازار عمده خشکبار." },
       { name: "keywords", content: "تحلیل قیمت پسته، بازار پسته امروز، پیش بینی قیمت پسته، روند قیمت پسته، تحلیل بازار خشکبار، قیمت خلال پسته" },
