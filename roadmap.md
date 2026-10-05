@@ -7,5 +7,5 @@
 - [x] Localize accessibility labels and preserve the existing EN/AR noindex metadata policy
 - [x] Verify English and Arabic on desktop and mobile
 
-- [ ] Align public canonical, Open Graph, structured data, sitemap, and robots URLs with the primary domain
-- [ ] Verify market metadata and preserve English/Arabic noindex
+- [x] Align public canonical, Open Graph, structured data, sitemap, and robots URLs with the primary domain
+- [x] Verify market metadata and preserve English/Arabic noindex
