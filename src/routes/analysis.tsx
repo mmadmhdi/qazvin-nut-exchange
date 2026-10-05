@@ -13,11 +13,13 @@ import { localizeProduct } from "@/lib/product-i18n";
 export const Route = createFileRoute("/analysis")({
   head: () => ({
     meta: [
-      { title: "تحلیل بازار خلال پسته — درج سبز قزوین" },
-      { name: "description", content: "تحلیل بنیادی و تکنیکال بازار خشکبار: RSI، MACD، شاخص میانگین و نقشه حرارتی بازار." },
-      { property: "og:title", content: "تحلیل بازار خلال پسته | درج سبز" },
-      { property: "og:description", content: "شاخص‌های تکنیکال، مووی‌های برتر و روند قیمت‌ها." },
+      { title: "تحلیل قیمت پسته و روند بازار امروز | درج سبز" },
+      { name: "description", content: "تحلیل بازار پسته و خلال پسته، روند قیمت امروز، تغییرات معاملات و شاخص‌های تکنیکال RSI و MACD برای بررسی بازار عمده خشکبار." },
+      { name: "keywords", content: "تحلیل قیمت پسته، بازار پسته امروز، پیش بینی قیمت پسته، روند قیمت پسته، تحلیل بازار خشکبار، قیمت خلال پسته" },
+      { property: "og:title", content: "تحلیل قیمت پسته و روند بازار امروز | درج سبز" },
+      { property: "og:description", content: "روند قیمت پسته و خلال پسته، تغییرات بازار و شاخص‌های معاملات واقعی را بررسی کنید." },
       { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: seoLinks("/analysis"),
   }),

@@ -11,14 +11,15 @@ import { localizedDigits } from "@/lib/format";
 export const Route = createFileRoute("/origin")({
   head: () => ({
     meta: [
-      { title: "اصالت باغ — از باغ تا بسته | درج سبز قزوین" },
+      { title: "پسته قزوین از باغ تا بسته‌بندی | اصالت درج سبز" },
       {
         name: "description",
         content:
-          "مسیر هشت‌مرحله‌ای پسته درج سبز از باغ‌های قزوین تا بسته‌بندی، همراه با شناسنامه دیجیتال هر بچ تولید.",
+          "مسیر تولید پسته قزوین را از باغ، برداشت و فرآوری تا کنترل کیفیت و بسته‌بندی ببینید؛ همراه با شناسنامه اصالت هر بچ تولید.",
       },
-      { property: "og:title", content: "از باغ تا بسته — اصالت پسته درج سبز" },
-      { property: "og:description", content: "هشت مرحله سفر پسته و شناسنامه دیجیتال هر بچ تولید." },
+      { name: "keywords", content: "پسته قزوین، پسته اصیل ایرانی، تولید پسته، فرآوری پسته، بسته بندی پسته، باغ پسته" },
+      { property: "og:title", content: "پسته قزوین از باغ تا بسته‌بندی | درج سبز" },
+      { property: "og:description", content: "مسیر تولید و فرآوری پسته اصیل قزوین همراه با کنترل کیفیت و شناسنامه هر بچ." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

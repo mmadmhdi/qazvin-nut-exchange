@@ -16,10 +16,13 @@ import { seoLinks } from "@/lib/seo";
 export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
-      { title: "قیمت روز پسته و خشکبار — تابلوی معاملات درج سبز قزوین" },
-      { name: "description", content: "قیمت روز پسته، خلال پسته، بادام درختی و بادام زمینی با تاریخچه معاملات واقعی، نمودار شمعی و فیلتر سال، ماه و روز." },
-      { property: "og:title", content: "قیمت روز پسته و خشکبار | درج سبز قزوین" },
-      { property: "og:description", content: "تابلوی قیمت لحظه‌ای و تاریخچه معاملات واقعی پسته و خشکبار." },
+      { title: "قیمت روز پسته و خلال پسته | بازار عمده درج سبز" },
+      { name: "description", content: "قیمت روز پسته، قیمت مغز و خلال پسته و نرخ عمده خشکبار را با معاملات واقعی، نمودار قیمت و تاریخچه روزانه بازار بررسی کنید." },
+      { name: "keywords", content: "قیمت روز پسته، قیمت پسته امروز، قیمت عمده پسته، قیمت مغز پسته، قیمت خلال پسته، بازار پسته" },
+      { property: "og:title", content: "قیمت روز پسته و خلال پسته | بازار عمده درج سبز" },
+      { property: "og:description", content: "قیمت روز و عمده پسته، مغز و خلال پسته همراه با نمودار و تاریخچه معاملات واقعی بازار." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: seoLinks("/market"),
   }),

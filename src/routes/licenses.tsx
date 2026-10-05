@@ -7,14 +7,15 @@ import { useTranslation } from "@/lib/i18n-provider";
 export const Route = createFileRoute("/licenses")({
   head: () => ({
     meta: [
-      { title: "پروانه‌ها و مجوزها — درج سبز قزوین" },
+      { title: "تولیدکننده مجاز خلال و مغز پسته | درج سبز" },
       {
         name: "description",
         content:
-          "پروانه‌های بهداشتی ساخت کارخانه درج تجارت لیا با علامت تجاری درج سبز برای خلال و پرک مغز پسته، بادام درختی و بادام زمینی.",
+          "مشاهده مجوزهای بهداشتی تولید و بسته‌بندی خلال پسته، مغز پسته، بادام درختی و بادام زمینی درج سبز؛ همراه با شماره و اعتبار پروانه ساخت.",
       },
-      { property: "og:title", content: "پروانه‌ها و مجوزهای درج سبز" },
-      { property: "og:description", content: "شماره پروانه، اوزان بسته‌بندی و اعتبار هر مجوز." },
+      { name: "keywords", content: "تولید کننده خلال پسته، تولید کننده مغز پسته، مجوز بهداشت پسته، کارخانه فرآوری پسته، بسته بندی پسته" },
+      { property: "og:title", content: "تولیدکننده مجاز خلال و مغز پسته | درج سبز" },
+      { property: "og:description", content: "مجوزهای بهداشتی تولید، فرآوری و بسته‌بندی خلال و مغز پسته درج سبز." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
