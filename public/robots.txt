@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://qazvin-nut-exchange.lovable.app/sitemap.xml
+Sitemap: https://dorjesabz.eu/sitemap.xml

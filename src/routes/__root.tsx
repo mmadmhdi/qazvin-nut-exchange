@@ -21,6 +21,7 @@ import { GreenCurator } from "@/components/site/GreenCurator";
 import { MobileNav } from "@/components/site/MobileNav";
 import { LocaleProvider, useTranslation } from "@/lib/i18n-provider";
 import { parseLocale } from "@/lib/i18n";
+import { SITE_URL } from "@/lib/seo";
 
 function NotFoundComponent() {
   const { t, locale } = useTranslation();
@@ -113,19 +114,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@graph": [
             {
               "@type": "WebSite",
-              "@id": "https://qazvin-nut-exchange.lovable.app/#website",
-              url: "https://qazvin-nut-exchange.lovable.app/",
+              "@id": `${SITE_URL}/#website`,
+              url: `${SITE_URL}/`,
               name: "درج سبز قزوین",
               alternateName: "Darj Sabz Qazvin",
               inLanguage: "fa-IR",
             },
             {
               "@type": "LocalBusiness",
-              "@id": "https://qazvin-nut-exchange.lovable.app/#business",
+              "@id": `${SITE_URL}/#business`,
               name: "درج سبز قزوین (درج تجارت لیا)",
-              url: "https://qazvin-nut-exchange.lovable.app/",
-              image: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
-              logo: "https://qazvin-nut-exchange.lovable.app/images/dorjesabz-logo.jpg",
+              url: `${SITE_URL}/`,
+              image: `${SITE_URL}/images/dorjesabz-logo.jpg`,
+              logo: `${SITE_URL}/images/dorjesabz-logo.jpg`,
               telephone: "+982833455010",
               email: "mmd85mmd@gmail.com",
               address: {

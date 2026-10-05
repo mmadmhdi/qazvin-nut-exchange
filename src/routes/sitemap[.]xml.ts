@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-
-const BASE_URL = "https://qazvin-nut-exchange.lovable.app";
+import { SITE_URL } from "@/lib/seo";
 
 interface SitemapEntry {
   path: string;
@@ -53,7 +52,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const urls = entries
           .filter((e) => (seen.has(e.path) ? false : (seen.add(e.path), true)))
           .map((e) => {
-            const loc = `${BASE_URL}${e.path}`;
+            const loc = `${SITE_URL}${e.path}`;
             // en/ar variants are noindexed — only fa/x-default alternates are advertised
             const alt = (hreflang: string, href: string) =>
               `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${href}"/>`;
