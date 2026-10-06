@@ -103,6 +103,25 @@ function Market() {
       </div>
       <div className="gold-rule mb-6" />
 
+      {locale === "fa" && active.length > 0 && (
+        <section className="card-paper rounded-sm p-4 mb-6 text-sm leading-8 text-cocoa">
+          <h2 className="font-display text-lg text-olive-deep">قیمت امروز پسته در تاریخ {formatJalali(new Date())}</h2>
+          <p className="mt-1">
+            قیمت روز پسته و خلال پسته بر اساس آخرین معاملات ثبت‌شده در بازار درج سبز قزوین:{" "}
+            {active.slice(0, 6).map((p, i) => (
+              <span key={p.id}>
+                {i > 0 && "، "}
+                <Link to="/products/$slug" params={{ slug: p.slug }} className="text-olive-deep hover:text-brass-dark">
+                  قیمت {p.name}
+                </Link>{" "}
+                <span className="num-fa">{formatPrice(p.price)}</span> ریال
+              </span>
+            ))}
+            .
+          </p>
+        </section>
+      )}
+
       {/* Index strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <IndexCard k={t("market.idx.avg")} v={formatPrice(Math.round(idx.avg))} unit={t("market.unit.rial")} />

@@ -137,6 +137,13 @@ function ArticlePage() {
         ))}
       </article>
 
+      <Link
+        to="/market"
+        className="mt-9 block card-paper rounded-sm p-4 text-sm text-olive-deep hover:text-brass-dark"
+      >
+        {locale === "en" ? "See today's pistachio prices →" : locale === "ar" ? "← أسعار الفستق اليوم" : "مشاهده قیمت روز پسته و خلال پسته در تابلوی بازار ←"}
+      </Link>
+
       <div className="mt-9 flex flex-wrap gap-2">
         {article.tags.map((t) => (
           <span
