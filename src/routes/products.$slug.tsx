@@ -20,9 +20,9 @@ export const Route = createFileRoute("/products/$slug")({
   head: ({ params, loaderData }) => {
     const p = loaderData?.product ?? null;
     const url = `${SITE_URL}/products/${params.slug}`;
-    const title = p ? `${p.name} — قیمت روز | درج سبز قزوین` : "محصول — درج سبز قزوین";
+    const title = p ? `قیمت ${p.name} امروز — قیمت روز و عمده | درج سبز قزوین` : "محصول — درج سبز قزوین";
     const desc = p
-      ? `${p.name} (${p.grade}، ${p.origin}): قیمت روز، نمودار تاریخی و شناسنامه اصالت در تابلوی درج سبز قزوین.`
+      ? `قیمت ${p.name} امروز (${p.grade}، ${p.origin})، قیمت عمده، نمودار تغییرات قیمت و تاریخچه معاملات واقعی در بازار درج سبز قزوین.`
       : "قیمت روز، نمودار تکنیکال و شناسنامه دیجیتال محصولات خشکبار درج سبز قزوین.";
     return {
       meta: [
