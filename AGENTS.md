@@ -11,3 +11,6 @@
 
 - Public localization uses locale-keyed copy maps and the shared translation provider; this prevents Persian UI leakage while keeping business logic unchanged.
 - All public SEO URLs derive from SITE_URL in src/lib/seo.ts (including route metadata, structured data, and the sitemap); this keeps canonical domain changes consistent without duplicating configuration.
+
+- Immersive photographic sections live in the homepage, while shared navigation uses the existing Dialog and Button primitives; this keeps the cinematic presentation accessible without changing market or admin data flows.
+- Scope scene colors to dedicated semantic tokens and the homepage/footer wrappers; this preserves readability of existing financial tools and forms.

@@ -5,13 +5,16 @@ import { PriceCard } from "@/components/site/PriceCard";
 import { ProductCard } from "@/components/site/ProductCard";
 import { MarketChart } from "@/components/site/MarketChart";
 import { MiniSparkline } from "@/components/site/MiniSparkline";
-import { ShellGate } from "@/components/site/ShellGate";
+import { Button } from "@/components/ui/button";
+import growers from "@/assets/pistachio-growers.jpg";
+import orchard from "@/assets/pistachio-orchard.jpg";
+import slivers from "@/assets/pistachio-slivers.jpg";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct } from "@/lib/product-i18n";
 import { homeCopy } from "@/lib/public-copy";
 
-import { formatPercent, formatPrice, toFaDigits } from "@/lib/format";
-import { ArrowDownRight, ArrowUpRight, ShieldCheck, Leaf, Boxes, BarChart3 } from "lucide-react";
+import { formatPercent, formatPrice } from "@/lib/format";
+import { ShieldCheck, Leaf, Boxes, BarChart3, ArrowLeft, ArrowRight, ArrowDown } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,79 +43,37 @@ function Home() {
   const others = active.filter((p) => !p.featured);
   const top = active.slice(0, 4);
 
+  const Arrow = locale === "en" ? ArrowRight : ArrowLeft;
+  const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
-    <div>
-      {/* Ticker strip (mobile-scroll friendly) */}
-      <div className="ticker-strip">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-2.5 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-6 sm:gap-8 text-xs whitespace-nowrap">
-            {active.map((p) => {
-              const ch = computeChange(p.history).pct;
-              const up = ch >= 0;
-              return (
-                <div key={p.id} className="flex items-center gap-2 shrink-0">
-                  <span className="text-brass/80 tracking-widest text-[10px] uppercase">{localizeProduct(p, locale).origin}</span>
-                  <span className="text-paper/90">{localizeProduct(p, locale).name}</span>
-                  <span className="num-fa text-brass">{formatPrice(p.price)}</span>
-                  <span className={`num-fa flex items-center gap-0.5 ${up ? "text-bull" : "text-bear"}`}>
-                    {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                    {formatPercent(ch)}
-                  </span>
-                  <span className="text-paper/20">|</span>
-                </div>
-              );
-            })}
+    <div className="experience-home">
+      <section className="experience-scene" aria-labelledby="experience-title">
+        <img src={growers} alt={locale === "fa" ? "تصویر هنری باغداران و مغز پسته" : locale === "ar" ? "صورة فنية للمزارعين والفستق" : "Illustrative pistachio growers and kernels"} width={1920} height={1024} fetchPriority="high" className="experience-scene-image" />
+        <div className="experience-grid" aria-hidden="true">{Array.from({length: 5}, (_, i) => <span key={i} />)}</div>
+        <div className="experience-copy">
+          <div className="mb-5 flex items-center gap-3 text-[10px] text-scene-muted"><span className="h-px w-8 bg-signal" />{settings.brandLatin} · {copy.est}</div>
+          <h1 id="experience-title" className="text-scene-text">{brandName}</h1>
+          <p className="mt-2 text-xl font-light leading-9 text-scene-text sm:text-2xl">{heroTitle}</p>
+          <p className="mt-5 max-w-md text-sm font-light leading-7 text-scene-muted">{heroSubtitle}</p>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <Button asChild className="experience-enter"><Link to="/market">{t("cta.liveMarket")}<Arrow /></Link></Button>
+            <Button asChild variant="link" className="p-0 text-scene-text"><Link to="/origin">{t("nav.origin")}<Arrow /></Link></Button>
+          </div>
+        </div>
+        <div className="absolute inset-x-5 bottom-6 flex items-center justify-between border-t border-scene-line pt-4 text-[10px] text-scene-muted sm:inset-x-10">
+          <span dir="ltr">01 / 04 — DORJESABZ</span>
+          <Button variant="ghost" size="icon" aria-label={t("home.todayBoard")} className="text-scene-text hover:bg-scene-panel" onClick={() => document.getElementById("daily-market")?.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"})}><ArrowDown /></Button>
+        </div>
+      </section>
+      <div className="border-y border-scene-line bg-scene-panel">
+        <div className="mx-auto max-w-7xl overflow-x-auto px-5 py-4 scrollbar-none">
+          <div className="flex items-center gap-8 whitespace-nowrap text-xs">
+            {active.map(p => { const ch = computeChange(p.history).pct; return <Link key={p.id} to="/products/$slug" params={{slug:p.slug}} className="flex shrink-0 items-center gap-3"><span className="text-scene-muted">{localizeProduct(p,locale).name}</span><span className="num-fa text-scene-text">{formatPrice(p.price)}</span><span className={ch >= 0 ? "text-bull" : "text-bear"}>{formatPercent(ch)}</span></Link>; })}
           </div>
         </div>
       </div>
-
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border/70">
-        <div className="absolute inset-0 -z-10 bg-cream/35" />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-7 sm:py-12 lg:py-14 grid lg:grid-cols-[0.84fr_1.25fr] gap-6 lg:gap-8 items-stretch">
-          <div className="min-w-0 flex flex-col justify-between py-1 lg:py-3">
-            <div>
-            <div className="text-[10px] tracking-[0.25em] sm:tracking-[0.4em] uppercase text-brass-dark mb-2.5 sm:mb-6">
-              {settings.brandLatin} · {copy.est}
-            </div>
-            <h1 className="font-display text-[2.15rem] leading-[1.22] sm:text-5xl sm:leading-[1.1] lg:text-[3.9rem] text-olive-ink">
-              {heroTitle}
-            </h1>
-            <div className="mt-4 sm:mt-6 max-w-2xl">
-              <div className="h-px w-20 bg-brass mb-3 sm:mb-6" />
-              <p className="text-sm sm:text-base md:text-lg text-cocoa leading-7 sm:leading-9">
-                {heroSubtitle}
-              </p>
-            </div>
-            <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:gap-3">
-              <Link
-                to="/market"
-                className="inline-flex items-center justify-center gap-2 rounded-sm bg-olive-deep px-4 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-paper hover:bg-olive transition-colors"
-              >
-                {t("cta.liveMarket")}
-              </Link>
-              <Link
-                to="/analysis"
-                className="inline-flex items-center justify-center gap-2 rounded-sm border border-olive-deep/40 px-4 sm:px-6 py-3 text-xs sm:text-sm tracking-widest text-olive-deep hover:bg-cream transition-colors"
-              >
-                {t("cta.analysis")}
-              </Link>
-            </div>
-            </div>
-            <div className="mt-6 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md">
-              <Stat label={t("home.stat.products")} value={toFaDigits(active.length)} />
-              <Stat label={t("home.stat.generations")} value={locale === "en" ? "4" : locale === "ar" ? "٤" : "۴"} />
-              <Stat label={t("home.stat.years")} value={locale === "en" ? "77+" : locale === "ar" ? "٧٧+" : "۷۷+"} />
-            </div>
-          </div>
-          <div className="min-w-0 lg:order-first">
-            {featured[0] && <MarketChart product={featured[0]} compact />}
-          </div>
-        </div>
-      </section>
-
       {/* Ticker preview */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+      <section id="daily-market" className="mx-auto max-w-7xl scroll-mt-24 px-5 sm:px-10">
         <div className="hairline-b py-8 sm:py-10">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
             <div className="min-w-0">
@@ -131,6 +92,10 @@ function Home() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-5 py-8 sm:px-10">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><h2 className="text-2xl font-light">{t("cta.analysis")}</h2><Button asChild variant="link" className="text-signal"><Link to="/analysis">{copy.fullAnalysis}</Link></Button></div>
+        {featured[0] && <MarketChart product={featured[0]} compact />}
+      </section>
       {/* Value props */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-12">
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -141,13 +106,11 @@ function Home() {
         </div>
       </section>
 
-      {/* Three paths — brand signature, inline (no loading overlay) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
-        <ShellGate />
+      <section className="experience-scene secondary mt-14">
+        <img src={orchard} alt={locale === "fa" ? "تصویر هنری باغ پسته" : locale === "ar" ? "صورة فنية لبستان الفستق" : "Illustrative pistachio orchard"} width={1920} height={1024} loading="lazy" className="experience-scene-image" />
+        <div className="experience-grid" aria-hidden="true">{Array.from({length:5},(_,i)=><span key={i}/>)}</div>
+        <div className="experience-copy"><div className="mb-4 text-[10px] text-signal">02 — {t("nav.origin")}</div><h2>{copy.values[0][0]}</h2><p className="mt-4 max-w-sm text-sm leading-8 text-scene-muted">{copy.values[0][1]}</p><div className="mt-8"><Button asChild className="experience-enter"><Link to="/origin">{t("nav.origin")}<Arrow /></Link></Button></div></div>
       </section>
-
-
-
       {/* Movers */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-10 sm:mt-16">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 gap-3">
@@ -190,23 +153,14 @@ function Home() {
         </div>
       </section>
 
-      {/* Featured pistachio */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <div className="section-kicker">{copy.premiumK}</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-olive-deep mt-2">{copy.premium}</h2>
-          <div className="gold-rule my-6" />
-          <p className="text-sm sm:text-base text-cocoa leading-8">
-            {copy.premiumBody}
-          </p>
-        </div>
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 mt-10">
-          {featured.map((p) => (
-            <ProductCard key={p.id} product={p} size="lg" />
-          ))}
-        </div>
+      <section className="experience-scene secondary mt-16">
+        <img src={slivers} alt={locale === "fa" ? "تصویر هنری مغز و خلال پسته" : locale === "ar" ? "صورة فنية لحبات وشرائح الفستق" : "Illustrative pistachio kernels and slivers"} width={1920} height={1024} loading="lazy" className="experience-scene-image" />
+        <div className="experience-grid" aria-hidden="true">{Array.from({length:5},(_,i)=><span key={i}/>)}</div>
+        <div className="experience-copy"><div className="mb-4 text-[10px] text-signal">03 — {copy.premiumK}</div><h2>{copy.premium}</h2><p className="mt-4 max-w-md text-sm leading-8 text-scene-muted">{copy.premiumBody}</p><div className="mt-8"><Button asChild className="experience-enter"><Link to="/products">{t("nav.products")}<Arrow /></Link></Button></div></div>
       </section>
-
+      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-10">
+        <div className="grid gap-4 md:grid-cols-2">{featured.map(p=><ProductCard key={p.id} product={p} size="lg" />)}</div>
+      </section>
       {/* Others */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-6 sm:mb-8 gap-3">
@@ -227,16 +181,16 @@ function Home() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-12 sm:mt-20">
-        <div className="rounded-sm border border-olive-deep/15 bg-olive-ink p-8 sm:p-10 md:p-14 text-center text-paper">
-          <div className="text-[10px] tracking-[0.22em] uppercase text-brass">{copy.wholesaleK}</div>
-          <h2 className="font-display text-3xl sm:text-4xl text-paper mt-3">{copy.wholesale}</h2>
+        <div className="border-t border-scene-line py-12 sm:py-20 text-center text-scene-text">
+          <div className="text-[10px] text-signal">04 — {copy.wholesaleK}</div>
+          <h2 className="font-display text-3xl sm:text-4xl text-scene-text mt-3">{copy.wholesale}</h2>
           <div className="gold-rule my-5" />
-          <p className="text-paper/70 max-w-2xl mx-auto leading-8 text-sm sm:text-base">
+          <p className="text-scene-muted max-w-2xl mx-auto leading-8 text-sm sm:text-base">
             {copy.wholesaleBody}
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <Link to="/wholesale" className="rounded-sm bg-brass px-6 py-3 text-sm text-olive-ink hover:bg-paper tracking-widest transition-colors">{copy.terms}</Link>
-            <Link to="/contact" className="rounded-sm border border-paper/30 px-6 py-3 text-sm text-paper hover:bg-paper/10 tracking-widest transition-colors">{copy.contact}</Link>
+            <Button asChild className="experience-enter"><Link to="/wholesale">{copy.terms}<Arrow /></Link></Button>
+            <Button asChild variant="link" className="text-scene-text"><Link to="/contact">{copy.contact}<Arrow /></Link></Button>
           </div>
         </div>
       </section>
@@ -245,17 +199,6 @@ function Home() {
     </div>
   );
 }
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="font-display text-xl sm:text-3xl text-olive-deep num-fa">{value}</div>
-      <div className="text-[10px] tracking-widest uppercase text-muted-foreground mt-1">{label}</div>
-    </div>
-  );
-}
-
-
 
 
 function ValueProp({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
