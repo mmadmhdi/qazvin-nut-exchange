@@ -11,9 +11,15 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: "Neue Haas Grotesk", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Canela", "Cormorant Garamond", "Vazirmatn", serif;
+  --font-display: "Vazirmatn", "Neue Haas Grotesk", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
+  --color-scene: var(--scene);
+  --color-scene-text: var(--scene-text);
+  --color-scene-muted: var(--scene-muted);
+  --color-scene-line: var(--scene-line);
+  --color-signal: var(--signal);
+  --color-scene-panel: var(--scene-panel);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -59,7 +65,14 @@
 }
 
 :root {
-  --radius: 0.375rem;
+  --radius: 0.25rem;
+  --scene: oklch(0.14 0.006 150);
+  --scene-panel: oklch(0.19 0.008 150);
+  --scene-text: oklch(0.96 0.004 110);
+  --scene-muted: oklch(0.73 0.014 110);
+  --scene-line: oklch(0.30 0.009 150);
+  --signal: oklch(0.90 0.19 106);
+  --scene-shade: linear-gradient(90deg, transparent 15%, color-mix(in oklab, var(--scene) 20%, transparent) 45%, color-mix(in oklab, var(--scene) 85%, transparent) 100%);
 
   /* Sage archive palette — quiet, tactile and editorial */
   --paper: oklch(0.958 0.012 84);
@@ -185,4 +198,37 @@
   font-family: var(--font-display, inherit);
   color: var(--olive-deep);
   margin-block: 0.4rem;
+}
+
+/* Immersive public experience; data tools retain their established tokens. */
+.experience-home { background: var(--scene); color: var(--scene-text); --card: var(--scene-panel); --olive-deep: var(--scene-text); --cocoa: var(--scene-muted); --brass-dark: var(--signal); --border: var(--scene-line); --muted-foreground: var(--scene-muted); }
+.experience-home .card-paper { box-shadow: none; border-color: var(--scene-line); }
+.experience-header { background: color-mix(in oklab, var(--scene) 94%, transparent); color: var(--scene-text); }
+.experience-scene { min-height: min(780px, calc(100svh - 125px)); position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; }
+.experience-scene-image { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.experience-scene::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--scene-shade); }
+.experience-grid { position: absolute; inset: 0; z-index: -1; pointer-events: none; display: grid; grid-template-columns: repeat(5, 1fr); opacity: .34; }
+.experience-grid span { border-inline-end: 1px solid var(--scene-line); }
+.experience-copy { width: 43%; margin-left: auto; margin-right: 9%; padding: 70px 0 110px; text-align: start; }
+.experience-copy h1 { font-size: 54px; font-weight: 300; line-height: 1.55; }
+.experience-copy h2 { font-size: 44px; font-weight: 300; line-height: 1.5; }
+.experience-scene.secondary { min-height: 650px; }
+.experience-enter { border-radius: 0; background: var(--scene-text); color: var(--scene); border-inline-start: 6px solid var(--signal); min-width: 180px; height: 48px; justify-content: space-between; padding-inline: 24px; }
+.experience-enter:hover { background: var(--signal); }
+.experience-footer { background: var(--scene); color: var(--scene-text); --olive-deep: var(--scene-text); --muted-foreground: var(--scene-muted); --cocoa: var(--scene-muted); --brass-dark: var(--signal); }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .experience-copy { animation: experience-arrive 900ms ease both; }
+  .experience-scene-image { animation: experience-image 1800ms ease-out both; }
+  @keyframes experience-arrive { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes experience-image { from { transform: scale(1.045); } to { transform: scale(1); } }
+}
+@media (max-width: 767px) {
+  .experience-scene { min-height: min(740px, calc(100svh - 116px)); align-items: flex-end; }
+  .experience-scene-image { object-position: 29% center; }
+  .experience-scene::before { background: linear-gradient(0deg, var(--scene) 3%, color-mix(in oklab, var(--scene) 90%, transparent) 24%, transparent 80%); }
+  .experience-copy { width: 100%; margin: 0; padding: 200px 24px 85px; }
+  .experience-copy h1 { font-size: 34px; line-height: 1.5; }
+  .experience-copy h2 { font-size: 32px; }
+  .experience-scene.secondary { min-height: 610px; }
 }

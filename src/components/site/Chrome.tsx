@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { jalaliYear } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n-provider";
 import { LangSwitcher } from "@/components/site/LangSwitcher";
@@ -25,76 +27,32 @@ const NAV: { to: string; key: string; exact?: boolean }[] = [
 export function Header() {
   const { settings } = useStore();
   const { t, locale } = useTranslation();
-  const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   const [open, setOpen] = useState(false);
+  const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
-    <header className="hairline-b bg-background/92 backdrop-blur-xl sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-2.5 sm:py-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+    <header className="experience-header sticky top-0 z-40 border-b border-scene-line backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-5 py-4 sm:px-10">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-olive-deep/20 bg-paper shadow-sm">
-            <img src={"/images/dorjesabz-logo.jpg"} alt={locale === "fa" ? "نشان درج سبز قزوین" : locale === "ar" ? "شعار درج سبز قزوين" : "Darj Sabz Qazvin logo"} className="h-full w-full object-cover" />
-          </div>
-
-          <div className="min-w-0 leading-tight">
-            <div className="font-display text-base sm:text-lg text-olive-deep truncate">
-              {brandName}
-            </div>
-            <div className="hidden sm:block text-[10px] tracking-[0.3em] uppercase text-muted-foreground truncate">
-              {settings.brandLatin}
-            </div>
-          </div>
+          <img src="/images/dorjesabz-logo.jpg" alt={brandName} className="h-10 w-10 rounded-full object-cover" />
+          <div className="min-w-0"><div className="text-base font-medium text-scene-text sm:text-lg">{brandName}</div><div className="text-[9px] text-scene-muted" dir="ltr">{settings.brandLatin}</div></div>
         </Link>
-        <nav className="hidden xl:flex items-center gap-5 text-[13px] text-cocoa">
-          {NAV.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={n.exact ? { exact: true } : undefined}
-              className="whitespace-nowrap border-b border-transparent py-2 hover:text-olive-deep [&.active]:border-brass [&.active]:text-olive-deep [&.active]:font-semibold transition-colors"
-            >
-              {t(n.key)}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-8 text-xs text-scene-muted lg:flex" aria-label={t("nav.quick")}>
+          {NAV.filter(n => ["/market", "/products", "/origin", "/journal"].includes(n.to)).map(n => <Link key={n.to} to={n.to} className="py-2 transition-colors hover:text-signal [&.active]:text-signal">{t(n.key)}</Link>)}
         </nav>
-        <div className="flex items-center gap-2 shrink-0">
-          <LangSwitcher className="hidden md:flex" />
-          <Link
-            to="/market"
-            className="hidden sm:inline-flex items-center rounded-sm border border-olive-deep/70 bg-olive-deep px-3 sm:px-4 py-2 text-xs tracking-widest text-paper hover:bg-olive transition-colors"
-          >
-            {t("cta.liveBoard")}
-          </Link>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label={t("nav.menu")}
-            className="xl:hidden grid h-9 w-9 place-items-center rounded-sm border border-olive-deep/30 text-olive-deep hover:bg-cream"
-          >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
+        <div className="flex shrink-0 items-center gap-4">
+          <div className="hidden xl:block"><LangSwitcher className="scene-language" /></div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button variant="ghost" size="icon" aria-label={t("nav.menu")} className="rounded-none text-scene-text hover:bg-scene-panel hover:text-signal"><Menu className="h-5 w-5" /></Button></DialogTrigger>
+            <DialogContent className="max-h-[85svh] max-w-3xl overflow-y-auto border-scene-line bg-scene p-6 text-scene-text sm:p-10">
+              <DialogTitle className="mb-5 text-xl font-normal">{brandName}</DialogTitle>
+              <nav className="grid gap-x-8 sm:grid-cols-2">
+                {NAV.map((n, i) => <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="flex items-center gap-4 border-b border-scene-line py-4 text-sm hover:text-signal [&.active]:text-signal"><span className="font-mono text-[10px] text-scene-muted">{String(i + 1).padStart(2, "0")}</span>{t(n.key)}</Link>)}
+              </nav>
+              <LangSwitcher className="scene-language mt-5" />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-
-      {/* Mobile drawer */}
-      {open && (
-        <div className="xl:hidden hairline-b bg-background max-h-[70vh] overflow-y-auto">
-          <nav className="mx-auto max-w-7xl px-4 py-2 grid gap-0.5 text-sm">
-            {NAV.map((n) => (
-              <Link
-                key={n.to}
-                to={n.to}
-                onClick={() => setOpen(false)}
-                activeOptions={n.exact ? { exact: true } : undefined}
-                className="rounded-sm border-b border-border/50 px-3 py-3 text-cocoa hover:bg-cream [&.active]:bg-olive-deep [&.active]:text-paper"
-              >
-                {t(n.key)}
-              </Link>
-            ))}
-          </nav>
-          <div className="mx-auto max-w-7xl px-4 pb-4">
-            <LangSwitcher />
-          </div>
-        </div>
-      )}
     </header>
   );
 }
@@ -104,7 +62,7 @@ export function Footer() {
   const { t, locale } = useTranslation();
   const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
-    <footer className="hairline-t mt-16 sm:mt-24 bg-cream/50">
+    <footer className="experience-footer border-t border-scene-line">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 grid gap-8 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <img
