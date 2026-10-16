@@ -224,10 +224,10 @@
   @keyframes experience-image { from { transform: scale(1.045); } to { transform: scale(1); } }
 }
 @media (max-width: 767px) {
-  .experience-scene { min-height: min(740px, calc(100svh - 116px)); align-items: flex-end; }
+  .experience-scene { min-height: min(670px, calc(100svh - 190px)); align-items: flex-end; }
   .experience-scene-image { object-position: 29% center; }
   .experience-scene::before { background: linear-gradient(0deg, var(--scene) 3%, color-mix(in oklab, var(--scene) 90%, transparent) 24%, transparent 80%); }
-  .experience-copy { width: 100%; margin: 0; padding: 200px 24px 85px; }
+  .experience-copy { width: 100%; margin: 0; padding: 140px 24px 85px; }
   .experience-copy h1 { font-size: 34px; line-height: 1.5; }
   .experience-copy h2 { font-size: 32px; }
   .experience-scene.secondary { min-height: 610px; }
