@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Redesign public presentation to match the Orano innovation reference while preserving data, localization and SEO
-- [ ] Verify redesigned navigation, market access and layouts on desktop and mobile
+- [x] Redesign public presentation to match the Orano innovation reference while preserving data, localization and SEO
+- [x] Verify redesigned navigation, market access and layouts on desktop and mobile
 
 - [x] Complete shared English and Arabic navigation, homepage, widgets, and formatting
 - [x] Localize market charts, heatmap, health scores, and price history

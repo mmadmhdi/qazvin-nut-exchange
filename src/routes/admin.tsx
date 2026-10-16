@@ -57,6 +57,10 @@ export const Route = createFileRoute("/admin")({
     meta: [
       { title: "پنل مدیریت — درج سبز قزوین" },
       { name: "description", content: "پنل مدیریت داخلی درج سبز قزوین." },
+      { property: "og:title", content: "پنل مدیریت — درج سبز قزوین" },
+      { property: "og:description", content: "پنل مدیریت داخلی درج سبز قزوین." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

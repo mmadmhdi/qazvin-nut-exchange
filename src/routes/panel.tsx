@@ -21,6 +21,10 @@ export const Route = createFileRoute("/panel")({
     meta: [
       { title: "پنل کنترل فروش — درج سبز قزوین" },
       { name: "description", content: "نمای سریع معاملات، مشتریان و پیام‌های درج سبز قزوین." },
+      { property: "og:title", content: "پنل کنترل فروش — درج سبز قزوین" },
+      { property: "og:description", content: "نمای سریع معاملات، مشتریان و پیام‌های درج سبز قزوین." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
