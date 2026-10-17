@@ -216,6 +216,26 @@
 .experience-enter { border-radius: 0; background: var(--scene-text); color: var(--scene); border-inline-start: 6px solid var(--signal); min-width: 180px; height: 48px; justify-content: space-between; padding-inline: 24px; }
 .experience-enter:hover { background: var(--signal); }
 .experience-footer { background: var(--scene); color: var(--scene-text); --olive-deep: var(--scene-text); --muted-foreground: var(--scene-muted); --cocoa: var(--scene-muted); --brass-dark: var(--signal); }
+
+/* Financial charts use a locally scoped cinematic palette. */
+.market-experience-chart {
+  --tv-bg: var(--scene);
+  --tv-headband: var(--scene-panel);
+  --tv-border: var(--scene-line);
+  --tv-text: var(--scene-text);
+  --tv-muted: var(--scene-muted);
+  --brass: var(--signal);
+  --brass-dark: var(--signal);
+  --olive: oklch(0.76 0.08 168);
+  --cocoa: oklch(0.78 0.05 240);
+  --bull: oklch(0.77 0.14 153);
+  --bear: oklch(0.72 0.16 28);
+  border-radius: 4px;
+  box-shadow: none;
+}
+.market-experience-chart .recharts-wrapper { touch-action: pan-y; }
+.market-experience-chart button { letter-spacing: 0; }
+.market-experience-chart .recharts-brush rect { stroke: var(--tv-border); }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
   .experience-copy { animation: experience-arrive 900ms ease both; }

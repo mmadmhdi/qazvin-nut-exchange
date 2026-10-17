@@ -12,6 +12,7 @@ import { priceFaq } from "@/lib/faq-i18n";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct, localizeCategory } from "@/lib/product-i18n";
 import { seoLinks, seoMeta } from "@/lib/seo";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -171,6 +172,7 @@ function Market() {
             </button>
           </div>
           <div className="overflow-y-auto max-h-[560px]">
+            {!rows.length && <p className="p-5 text-sm text-tv-muted">{locale === "en" ? "No matching products" : locale === "ar" ? "لا توجد منتجات مطابقة" : "محصولی پیدا نشد"}</p>}
             {rows.map((p) => {
               const ch = computeChange(p.history).pct;
               const up = ch >= 0;
@@ -179,7 +181,7 @@ function Market() {
               return (
                 <button
                   key={p.id}
-                  onClick={() => setSelectedId(p.id)}
+                  onClick={() => { setSelectedId(p.id); setJy(null); setJm(null); setJd(null); }}
                   className={`w-full grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[2fr_1fr_auto] items-center gap-2 px-3 py-2.5 text-start border-b border-tv-border/60 transition-colors ${
                     on ? "bg-brass/10" : "hover:bg-tv-headband/60"
                   }`}
