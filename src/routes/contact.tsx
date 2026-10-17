@@ -8,6 +8,7 @@ import { recordInquiry } from "@/lib/inquiry.functions";
 import { Phone, MapPin, Mail, Clock, MessageCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n-provider";
 import { seoLinks, seoMeta } from "@/lib/seo";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -44,26 +45,35 @@ function Contact() {
     quantity: "",
     message: "",
   });
+  const [busy, setBusy] = useState(false);
   const wa = (settings.contactWhatsapp ?? "").trim();
   const subject = form.subject || subjects[0];
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (busy) return;
     const payload = { ...form, subject };
     const err = validateInquiry(payload);
     if (err) {
        toast.error(locale === "fa" ? err : locale === "ar" ? "يرجى إكمال الحقول المطلوبة بصورة صحيحة." : "Please complete the required fields correctly.");
       return;
     }
-    // Keep a copy of the request in the CRM inbox, then hand off to WhatsApp.
+    setBusy(true);
+    // Do not clear the inquiry or report success until it is saved.
     try {
-      await recordInquiry({ data: { ...payload, email: "", product: "" } });
+      const result = await recordInquiry({ data: { ...payload, email: "", product: "" } });
+      if (!result.ok) {
+        toast.error(locale === "fa" ? "درخواست ذخیره نشد؛ لطفاً کمی بعد دوباره تلاش کنید." : locale === "ar" ? "لم يُحفظ الطلب؛ يرجى المحاولة لاحقاً." : "Your request was not saved. Please try again shortly.");
+        return;
+      }
+      const via = sendInquiry(payload, settings);
+      toast.success(via === "whatsapp" ? t("contact.sendWa") : t("contact.send"));
+      setForm({ name: "", phone: "", subject: "", quantity: "", message: "" });
     } catch {
-      /* delivery to WhatsApp must still happen */
+      toast.error(locale === "fa" ? "ارسال درخواست ناموفق بود؛ متن فرم حفظ شد." : locale === "ar" ? "تعذر إرسال الطلب؛ تم الاحتفاظ بالنص." : "The request could not be sent. Your form has been kept.");
+    } finally {
+      setBusy(false);
     }
-    const via = sendInquiry(payload, settings);
-     toast.success(via === "whatsapp" ? t("contact.sendWa") : t("contact.send"));
-    setForm({ name: "", phone: "", subject: "", quantity: "", message: "" });
   };
 
   return (
@@ -172,9 +182,9 @@ function Contact() {
               className="mt-2 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm outline-none focus:border-olive-deep"
             />
           </div>
-          <button type="submit" className="w-full rounded-sm bg-olive-deep px-6 py-3 text-sm tracking-widest text-paper hover:bg-olive">
+          <Button type="submit" disabled={busy} className="w-full h-12 rounded-sm">
             {wa ? t("contact.sendWa") : t("contact.send")}
-          </button>
+          </Button>
           <p className="text-[11px] leading-6 text-muted-foreground">
             {wa ? t("contact.noteWa") : t("contact.noteMail")}
           </p>
