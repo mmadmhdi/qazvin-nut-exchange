@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Redesign market charts to match the cinematic presentation without changing real prices
+- [ ] Test real chart data, filters and controls; fix confirmed calculation and interaction bugs
+- [ ] Test public pages, contact validation and protected entry points; fix confirmed failures
+
 - [x] Redesign public presentation to match the Orano innovation reference while preserving data, localization and SEO
 - [x] Verify redesigned navigation, market access and layouts on desktop and mobile
 
