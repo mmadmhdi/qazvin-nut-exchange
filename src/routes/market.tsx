@@ -171,7 +171,7 @@ function Market() {
               {t("market.col.change")} <ArrowUpDown className="h-3 w-3" />
             </button>
           </div>
-          <div className="overflow-y-auto max-h-[560px]">
+          <div className="overflow-y-auto max-h-64 lg:max-h-[560px]">
             {!rows.length && <p className="p-5 text-sm text-tv-muted">{locale === "en" ? "No matching products" : locale === "ar" ? "لا توجد منتجات مطابقة" : "محصولی پیدا نشد"}</p>}
             {rows.map((p) => {
               const ch = computeChange(p.history).pct;
@@ -364,7 +364,8 @@ function PeriodFilter({
       </select>
       <div className="flex flex-wrap items-center gap-1.5">
         {years.map((y) => (
-          <button
+          <Button
+            variant="chart"
             key={y}
             onClick={() => onYear(jy === y ? null : y)}
             className={`text-[11px] num-fa px-2 py-1 rounded-sm border transition-colors ${
@@ -372,7 +373,7 @@ function PeriodFilter({
             }`}
           >
             {num(y)}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="ms-auto text-[10px] text-tv-muted num-fa">{`${num(count)} ${L.bars}`}</div>
