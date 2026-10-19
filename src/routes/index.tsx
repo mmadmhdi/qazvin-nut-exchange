@@ -9,6 +9,7 @@ import { useTranslation } from "@/lib/i18n-provider";
 import { homeCopy } from "@/lib/public-copy";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import heroImage from "@/assets/pistachio-product-hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,12 +41,17 @@ function Home() {
   const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
     <div className="experience-home">
-      <section className="mx-auto max-w-7xl px-5 pt-20 pb-14 sm:px-10 sm:pt-28 sm:pb-20" aria-labelledby="experience-title">
-        <h1 id="experience-title" className="text-4xl font-light leading-snug text-scene-text sm:text-6xl">{brandName}</h1>
-        <p className="mt-4 max-w-xl text-base font-light leading-8 text-scene-muted sm:text-lg">{heroTitle}</p>
-        <div className="mt-8 flex flex-wrap items-center gap-6">
-          <Button asChild className="experience-enter"><Link to="/market">{t("cta.liveMarket")}<Arrow /></Link></Button>
-          <Button asChild variant="link" className="p-0 text-scene-text"><Link to="/origin">{t("nav.origin")}<Arrow /></Link></Button>
+      <section className="home-hero" aria-labelledby="experience-title">
+        <img src={heroImage} alt={brandName} width={1920} height={1088} fetchPriority="high" />
+        <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-10">
+          <div className="max-w-xl">
+            <h1 id="experience-title" className="text-4xl font-bold leading-snug text-scene-text sm:text-6xl">{brandName}</h1>
+            <p className="mt-4 text-base leading-8 text-scene-text sm:text-lg">{heroTitle}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button asChild size="lg" className="rounded-full bg-signal text-scene-panel hover:bg-scene-text"><Link to="/products">{copy.allProducts}<Arrow /></Link></Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full border-scene-text bg-scene-panel/70 text-scene-text"><Link to="/market">{t("cta.liveMarket")}</Link></Button>
+            </div>
+          </div>
         </div>
       </section>
 
