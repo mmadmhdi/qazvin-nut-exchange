@@ -268,6 +268,7 @@ async function stampTodayPrice(productId: string, price: number): Promise<void> 
 }
 
 export async function writeProduct(p: Product): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   const row: Row = {
     slug: p.slug || p.id,
@@ -298,6 +299,7 @@ export async function writeProduct(p: Product): Promise<void> {
 
 
 export async function removeProduct(id: string): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   await db.from("price_history").delete().eq("product_id", id);
   const { error } = await db.from("products").delete().eq("id", id);
@@ -316,6 +318,7 @@ export async function writePricePoints(
     volume?: number;
   }[],
 ): Promise<void> {
+  invalidateSiteDataCache();
   if (!points.length) return;
   const db = await admin();
   // Normalise: one row per date, valid OHLC ordering, chronological.
@@ -361,6 +364,7 @@ export async function writePricePoints(
 }
 
 export async function removePricePoint(productId: string, date: string): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   const { error } = await db
     .from("price_history")
@@ -373,6 +377,7 @@ export async function removePricePoint(productId: string, date: string): Promise
 }
 
 export async function writeSettings(patch: Partial<SiteSettings>): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   const row = settingsToRow(patch);
   if (!Object.keys(row).length) return;
@@ -382,6 +387,7 @@ export async function writeSettings(patch: Partial<SiteSettings>): Promise<void>
 }
 
 export async function writeArticle(a: Article): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   const { error } = await db.from("articles").upsert(
     {
@@ -401,6 +407,7 @@ export async function writeArticle(a: Article): Promise<void> {
 }
 
 export async function removeArticle(slug: string): Promise<void> {
+  invalidateSiteDataCache();
   const db = await admin();
   const { error } = await db.from("articles").delete().eq("slug", slug);
   if (error) throw new Error(error.message);
