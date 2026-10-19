@@ -48,7 +48,7 @@ function Home() {
             <h1 id="experience-title" className="text-4xl font-bold leading-snug text-scene-text sm:text-6xl">{brandName}</h1>
             <p className="mt-4 text-base leading-8 text-scene-text sm:text-lg">{heroTitle}</p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button asChild size="lg" className="rounded-full bg-signal text-scene-panel hover:bg-scene-text"><Link to="/products">{copy.allProducts}<Arrow /></Link></Button>
+              <Button asChild size="lg" className="rounded-full bg-signal text-scene-panel hover:bg-scene-text"><Link to="/products">{copy.allProducts}</Link></Button>
               <Button asChild size="lg" variant="outline" className="rounded-full border-scene-text bg-scene-panel/70 text-scene-text"><Link to="/market">{t("cta.liveMarket")}</Link></Button>
             </div>
           </div>
