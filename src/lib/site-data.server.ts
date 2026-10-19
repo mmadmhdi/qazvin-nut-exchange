@@ -108,22 +108,49 @@ function settingsToRow(s: Partial<SiteSettings>): Row {
 /** PostgREST caps responses at 1000 rows — page through the full history. */
 async function readAllHistory(db: ReturnType<typeof publicClient>): Promise<{ data: Row[] }> {
   const PAGE = 1000;
+  const { count, error: countError } = await db
+    .from("price_history")
+    .select("id", { count: "exact", head: true });
+  if (countError) throw new Error(countError.message);
+  const pages = Math.max(1, Math.ceil((count ?? 0) / PAGE));
+  // Fetch all pages in parallel instead of one after another.
+  const results = await Promise.all(
+    Array.from({ length: pages }, (_, i) =>
+      db
+        .from("price_history")
+        .select("*")
+        .order("date", { ascending: true })
+        .order("id", { ascending: true })
+        .range(i * PAGE, i * PAGE + PAGE - 1),
+    ),
+  );
   const out: Row[] = [];
-  for (let from = 0; from < 200_000; from += PAGE) {
-    const { data, error } = await db
-      .from("price_history")
-      .select("*")
-      .order("date", { ascending: true })
-      .order("id", { ascending: true })
-      .range(from, from + PAGE - 1);
+  for (const { data, error } of results) {
     if (error) throw new Error(error.message);
     out.push(...((data ?? []) as Row[]));
-    if (!data || data.length < PAGE) break;
   }
   return { data: out };
 }
 
-export async function readSiteData(): Promise<SiteData> {
+let cache: { at: number; data: Promise<SiteData> } | null = null;
+const CACHE_MS = 30_000;
+
+/** Drop the short-lived read cache after any admin write. */
+export function invalidateSiteDataCache() {
+  cache = null;
+}
+
+export function readSiteData(): Promise<SiteData> {
+  if (cache && Date.now() - cache.at < CACHE_MS) return cache.data;
+  const data = readSiteDataFresh();
+  cache = { at: Date.now(), data };
+  data.catch(() => {
+    if (cache?.data === data) cache = null;
+  });
+  return data;
+}
+
+async function readSiteDataFresh(): Promise<SiteData> {
   const db = publicClient();
   const [products, history, settings, articles] = await Promise.all([
     db.from("products").select("*").order("priority", { ascending: false }),
