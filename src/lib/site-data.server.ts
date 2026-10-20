@@ -132,22 +132,42 @@ async function readAllHistory(db: ReturnType<typeof publicClient>): Promise<{ da
   return { data: out };
 }
 
-let cache: { at: number; data: Promise<SiteData> } | null = null;
+let cache: { at: number; gen: number; data: Promise<SiteData> } | null = null;
+let generation = 0;
+let writesInFlight = 0;
 const CACHE_MS = 30_000;
 
 /** Drop the short-lived read cache after any admin write. */
 export function invalidateSiteDataCache() {
+  generation++;
   cache = null;
 }
 
 export function readSiteData(): Promise<SiteData> {
-  if (cache && Date.now() - cache.at < CACHE_MS) return cache.data;
+  if (cache && cache.gen === generation && Date.now() - cache.at < CACHE_MS) return cache.data;
+  const gen = generation;
   const data = readSiteDataFresh();
-  cache = { at: Date.now(), data };
-  data.catch(() => {
-    if (cache?.data === data) cache = null;
-  });
+  // Never cache a read that overlapped an admin write — it may be stale.
+  if (writesInFlight === 0) {
+    cache = { at: Date.now(), gen, data };
+    data.then(
+      () => { if (cache?.data === data && generation !== gen) cache = null; },
+      () => { if (cache?.data === data) cache = null; },
+    );
+  }
   return data;
+}
+
+/** Wraps a write so concurrent reads are not cached and the cache resets afterwards. */
+export async function withWrite<T>(fn: () => Promise<T>): Promise<T> {
+  writesInFlight++;
+  invalidateSiteDataCache();
+  try {
+    return await fn();
+  } finally {
+    writesInFlight--;
+    invalidateSiteDataCache();
+  }
 }
 
 async function readSiteDataFresh(): Promise<SiteData> {

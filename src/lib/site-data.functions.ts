@@ -13,8 +13,8 @@ export const adminSaveProduct = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireRole } = await import("./admin-session.server");
     await requireRole("write");
-    const { writeProduct } = await import("./site-data.server");
-    await writeProduct(data.product);
+    const { writeProduct, withWrite } = await import("./site-data.server");
+    await withWrite(() => writeProduct(data.product));
     return { ok: true as const };
   });
 
@@ -23,8 +23,8 @@ export const adminDeleteProduct = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("./admin-session.server");
     await requireAdmin();
-    const { removeProduct } = await import("./site-data.server");
-    await removeProduct(data.id);
+    const { removeProduct, withWrite } = await import("./site-data.server");
+    await withWrite(() => removeProduct(data.id));
     return { ok: true as const };
   });
 
@@ -47,8 +47,8 @@ export const adminSavePricePoints = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireRole } = await import("./admin-session.server");
     await requireRole("write");
-    const { writePricePoints } = await import("./site-data.server");
-    await writePricePoints(data.productId, data.points);
+    const { writePricePoints, withWrite } = await import("./site-data.server");
+    await withWrite(() => writePricePoints(data.productId, data.points));
     return { ok: true as const };
   });
 
@@ -64,8 +64,8 @@ export const adminSaveDailyPrices = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireRole } = await import("./admin-session.server");
     await requireRole("write");
-    const { writeDailyPrices } = await import("./site-data.server");
-    return writeDailyPrices(data.date, data.items);
+    const { writeDailyPrices, withWrite } = await import("./site-data.server");
+    return withWrite(() => writeDailyPrices(data.date, data.items));
   });
 
 export const adminDeletePricePoint = createServerFn({ method: "POST" })
@@ -75,8 +75,8 @@ export const adminDeletePricePoint = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("./admin-session.server");
     await requireAdmin();
-    const { removePricePoint } = await import("./site-data.server");
-    await removePricePoint(data.productId, data.date);
+    const { removePricePoint, withWrite } = await import("./site-data.server");
+    await withWrite(() => removePricePoint(data.productId, data.date));
     return { ok: true as const };
   });
 
@@ -85,8 +85,8 @@ export const adminUpdateSettings = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireRole } = await import("./admin-session.server");
     await requireRole("write");
-    const { writeSettings } = await import("./site-data.server");
-    await writeSettings(data.settings);
+    const { writeSettings, withWrite } = await import("./site-data.server");
+    await withWrite(() => writeSettings(data.settings));
     return { ok: true as const };
   });
 
@@ -95,8 +95,8 @@ export const adminSaveArticle = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireRole } = await import("./admin-session.server");
     await requireRole("write");
-    const { writeArticle } = await import("./site-data.server");
-    await writeArticle(data.article);
+    const { writeArticle, withWrite } = await import("./site-data.server");
+    await withWrite(() => writeArticle(data.article));
     return { ok: true as const };
   });
 
@@ -105,8 +105,8 @@ export const adminDeleteArticle = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("./admin-session.server");
     await requireAdmin();
-    const { removeArticle } = await import("./site-data.server");
-    await removeArticle(data.slug);
+    const { removeArticle, withWrite } = await import("./site-data.server");
+    await withWrite(() => removeArticle(data.slug));
     return { ok: true as const };
   });
 
