@@ -11,8 +11,8 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async (): P
 export const adminSaveProduct = createServerFn({ method: "POST" })
   .inputValidator((data: { product: Product }) => data)
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("./admin-session.server");
-    await requireAdmin();
+    const { requireRole } = await import("./admin-session.server");
+    await requireRole("write");
     const { writeProduct } = await import("./site-data.server");
     await writeProduct(data.product);
     return { ok: true as const };
@@ -45,8 +45,8 @@ export const adminSavePricePoints = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("./admin-session.server");
-    await requireAdmin();
+    const { requireRole } = await import("./admin-session.server");
+    await requireRole("write");
     const { writePricePoints } = await import("./site-data.server");
     await writePricePoints(data.productId, data.points);
     return { ok: true as const };
@@ -67,8 +67,8 @@ export const adminDeletePricePoint = createServerFn({ method: "POST" })
 export const adminUpdateSettings = createServerFn({ method: "POST" })
   .inputValidator((data: { settings: Partial<SiteSettings> }) => data)
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("./admin-session.server");
-    await requireAdmin();
+    const { requireRole } = await import("./admin-session.server");
+    await requireRole("write");
     const { writeSettings } = await import("./site-data.server");
     await writeSettings(data.settings);
     return { ok: true as const };
@@ -77,8 +77,8 @@ export const adminUpdateSettings = createServerFn({ method: "POST" })
 export const adminSaveArticle = createServerFn({ method: "POST" })
   .inputValidator((data: { article: Article }) => data)
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("./admin-session.server");
-    await requireAdmin();
+    const { requireRole } = await import("./admin-session.server");
+    await requireRole("write");
     const { writeArticle } = await import("./site-data.server");
     await writeArticle(data.article);
     return { ok: true as const };
