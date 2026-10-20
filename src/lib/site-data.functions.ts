@@ -52,6 +52,22 @@ export const adminSavePricePoints = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const adminSaveDailyPrices = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        items: z.array(z.object({ productId: z.string().min(1), price: z.number().finite().positive() })).min(1).max(200),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { requireRole } = await import("./admin-session.server");
+    await requireRole("write");
+    const { writeDailyPrices } = await import("./site-data.server");
+    return writeDailyPrices(data.date, data.items);
+  });
+
 export const adminDeletePricePoint = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
     z.object({ productId: z.string().min(1), date: z.string().min(8).max(10) }).parse(data),

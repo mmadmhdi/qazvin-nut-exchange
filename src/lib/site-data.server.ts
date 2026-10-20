@@ -238,7 +238,7 @@ async function syncProductPrice(productId: string): Promise<void> {
 async function stampTodayPrice(productId: string, price: number): Promise<void> {
   if (!price || price <= 0) return;
   const db = await admin();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date(Date.now() + 3.5 * 3600_000).toISOString().slice(0, 10);
   const { data: prev } = await db
     .from("price_history")
     .select("date, close, open, high, low, volume")
@@ -249,8 +249,12 @@ async function stampTodayPrice(productId: string, price: number): Promise<void> 
     .maybeSingle();
   const prevRow = prev as Row | null;
   const isToday = str(prevRow?.["date"]).slice(0, 10) === today;
-  // Toggling active/featured or editing text must not invent a new candle.
-  if (prevRow && Math.round(num(prevRow["close"])) === Math.round(price)) return;
+  // Re-saving today with the same price is a no-op; an unchanged price on a
+  // new day still gets its own candle so the site shows it was updated.
+  if (isToday && Math.round(num(prevRow?.["close"])) === Math.round(price)) {
+    await syncProductPrice(productId);
+    return;
+  }
   const open = isToday ? num(prevRow?.["open"]) || price : num(prevRow?.["close"]) || price;
   const high = Math.max(open, price, isToday ? num(prevRow?.["high"]) : 0);
   const low = Math.min(open, price, isToday ? num(prevRow?.["low"]) || price : price);
@@ -265,6 +269,49 @@ async function stampTodayPrice(productId: string, price: number): Promise<void> 
     volume: isToday ? Math.round(num(prevRow?.["volume"])) : 0,
   });
   if (error) throw new Error(error.message);
+  await syncProductPrice(productId);
+}
+
+/**
+ * Records one day's price for many products in a single request. Unchanged
+ * prices are still written so every product shows a fresh update date.
+ */
+export async function writeDailyPrices(
+  date: string,
+  items: { productId: string; price: number }[],
+): Promise<{ saved: number }> {
+  invalidateSiteDataCache();
+  const db = await admin();
+  let saved = 0;
+  await Promise.all(
+    items.map(async ({ productId, price }) => {
+      const close = Math.round(price);
+      if (!(close > 0)) return;
+      const [{ data: prev }, { data: same }] = await Promise.all([
+        db.from("price_history").select("close").eq("product_id", productId).lt("date", date)
+          .order("date", { ascending: false }).limit(1).maybeSingle(),
+        db.from("price_history").select("high, low, volume").eq("product_id", productId).eq("date", date).maybeSingle(),
+      ]);
+      const open = Math.round(num((prev as Row | null)?.["close"])) || close;
+      const ex = same as Row | null;
+      const row = {
+        product_id: productId,
+        date,
+        open,
+        close,
+        high: Math.max(open, close),
+        low: Math.min(open, close),
+        volume: Math.round(num(ex?.["volume"])),
+      };
+      await db.from("price_history").delete().eq("product_id", productId).eq("date", date);
+      const { error } = await db.from("price_history").insert(row);
+      if (error) throw new Error(error.message);
+      await syncProductPrice(productId);
+      saved++;
+    }),
+  );
+  invalidateSiteDataCache();
+  return { saved };
 }
 
 export async function writeProduct(p: Product): Promise<void> {
