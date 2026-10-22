@@ -196,48 +196,54 @@ function Admin({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }
 
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10">
+      <div className="card-paper rounded-xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">پنل مدیریت</div>
+          <div className="text-xs text-brass-dark">پنل مدیریت</div>
           <h1 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">مرکز کنترل درج سبز</h1>
-          <div className="mt-1 text-[11px] text-muted-foreground">
-            {role === "admin" ? "نقش: مدیر — دسترسی کامل" : "نقش: کارشناس فروش — خواندن و ویرایش CRM"}
+          <div className="mt-2 inline-flex rounded-full bg-cream px-3 py-1 text-[11px] text-muted-foreground">
+            {role === "admin" ? "مدیر — دسترسی کامل" : "کارشناس فروش — CRM"}
           </div>
         </div>
         <div className="flex gap-2">
+          {role === "admin" && (
+            <button
+              onClick={() => setTab("prices")}
+              className="inline-flex items-center gap-1.5 rounded-full bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive"
+            >
+              <LineChart className="h-4 w-4" /> ثبت قیمت امروز
+            </button>
+          )}
           <button
-            onClick={() => void act(refresh, "داده‌ها از پایگاه داده بازخوانی شد")}
-            className="text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
+            onClick={() => void act(refresh, "داده‌ها بازخوانی شد")}
+            className="text-xs px-3 py-2 rounded-full border border-border hover:bg-cream"
           >
             بازخوانی
           </button>
           <button
             onClick={logout}
-            className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-full border border-border hover:bg-cream"
           >
             <LogOut className="h-3.5 w-3.5" /> خروج
           </button>
         </div>
       </div>
-      <div className="gold-rule my-5 sm:my-6" />
 
-      <div className="flex gap-1 mb-6 overflow-x-auto border-b border-border">
+      <nav className="my-5 flex gap-1.5 overflow-x-auto scrollbar-none rounded-full bg-cream/70 p-1.5">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 sm:px-4 py-2 text-sm ${
-              tab === t.id
-                ? "text-olive-deep border-b-2 border-olive-deep -mb-px font-semibold"
-                : "text-muted-foreground hover:text-cocoa"
+            aria-current={tab === t.id ? "page" : undefined}
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
+              tab === t.id ? "bg-card text-olive-deep font-semibold shadow-sm" : "text-muted-foreground hover:text-olive-deep"
             }`}
           >
-            <t.icon className="h-3.5 w-3.5" />
+            <t.icon className="h-4 w-4" />
             {t.label}
           </button>
         ))}
-      </div>
+      </nav>
 
       {tab === "dashboard" && <Dashboard />}
 
