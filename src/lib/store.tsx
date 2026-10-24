@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useMemo, type Context, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 
 import {
   adminDeleteArticle,
@@ -65,10 +65,6 @@ type StoreCtx = SiteData & {
   importData: (json: string) => Promise<boolean>;
 };
 
-// Keep one context instance across hot reloads so providers and consumers match.
-const g = globalThis as { __darjStoreCtx?: Context<StoreCtx | null> };
-const StoreContext = (g.__darjStoreCtx ??= createContext<StoreCtx | null>(null));
-
 export function slugify(name: string): string {
   return name
     .trim()
@@ -79,7 +75,8 @@ export function slugify(name: string): string {
 
 export const SITE_DATA_KEY = ["site-data"] as const;
 
-export function StoreProvider({ children }: { children: ReactNode }) {
+// All consumers read the same QueryClient cache, not a hot-reload-sensitive context.
+function useSiteStore() {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: SITE_DATA_KEY,
@@ -163,6 +160,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
   }, [data, queryClient]);
 
+  return { value, query };
+}
+
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const { query } = useSiteStore();
   if (query.isError) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center">
@@ -177,8 +179,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={value}>
-      {data ? (
+    <>
+      {query.data ? (
         children
       ) : (
         <div className="flex min-h-screen items-center justify-center px-4">
@@ -190,14 +192,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           </div>
         </div>
       )}
-    </StoreContext.Provider>
+    </>
   );
 }
 
 export function useStore(): StoreCtx {
-  const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error("useStore must be used within StoreProvider");
-  return ctx;
+  return useSiteStore().value;
 }
 
 export function useProductBySlug(slug: string): Product | undefined {

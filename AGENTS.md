@@ -14,4 +14,6 @@
 
 - Immersive photographic sections live in the homepage, while shared navigation uses the existing Dialog and Button primitives; this keeps the cinematic presentation accessible without changing market or admin data flows.
 - Scope scene colors to dedicated semantic tokens and the homepage/footer wrappers; this preserves readability of existing financial tools and forms.
+- Keep public editorial imagery and quiet-luxury interaction styles scoped to the homepage and shared chrome; this lets operational forms retain their established readable surfaces.
 - Scope cinematic chart colors to the chart wrapper, and normalize real history plus fixed-period indicator warmup in a browser-safe shared module; this preserves other forms and consistent calculations across filters.
+- Site-store consumers read the shared QueryClient cache directly rather than a separate React context; this prevents provider/consumer identity mismatches during route hot reloads without duplicating requests.

@@ -31,9 +31,9 @@ export function Header() {
   const brandName = locale === "fa" ? settings.brandName : settings.brandLatin;
   return (
     <header className="experience-header sticky top-0 z-40 border-b border-scene-line backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-5 py-4 sm:px-10">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-5 py-5 sm:px-10">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <img src="/images/dorjesabz-logo.jpg" alt={brandName} className="h-10 w-10 rounded-full object-cover" />
+          <img src="/images/dorjesabz-logo.jpg" alt={brandName} className="h-10 w-10 rounded-full object-cover opacity-90" />
           <div className="min-w-0"><div className="text-base font-medium text-scene-text sm:text-lg">{brandName}</div><div className="text-[9px] text-scene-muted" dir="ltr">{settings.brandLatin}</div></div>
         </Link>
         <nav className="hidden items-center gap-8 text-xs text-scene-muted lg:flex" aria-label={t("nav.quick")}>
@@ -43,7 +43,7 @@ export function Header() {
           <div className="hidden xl:block"><LangSwitcher className="scene-language" /></div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button variant="ghost" size="icon" aria-label={t("nav.menu")} className="rounded-none text-scene-text hover:bg-scene-panel hover:text-signal"><Menu className="h-5 w-5" /></Button></DialogTrigger>
-            <DialogContent className="max-h-[85svh] max-w-3xl overflow-y-auto border-scene-line bg-scene p-6 text-scene-text sm:p-10">
+            <DialogContent className="luxury-menu max-h-[85svh] max-w-3xl overflow-y-auto rounded-none border-scene-line bg-scene p-6 text-scene-text sm:p-12">
               <DialogTitle className="mb-5 text-xl font-normal">{brandName}</DialogTitle>
               <nav className="grid gap-x-8 sm:grid-cols-2">
                 {NAV.map((n, i) => <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="flex items-center gap-4 border-b border-scene-line py-4 text-sm hover:text-signal [&.active]:text-signal"><span className="font-mono text-[10px] text-scene-muted">{String(i + 1).padStart(2, "0")}</span>{t(n.key)}</Link>)}
@@ -101,7 +101,7 @@ export function Footer() {
         </div>
       </div>
       <div className="gold-rule" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-5 flex justify-center"><LangSwitcher /></div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-5 flex justify-center"><LangSwitcher className="scene-language" /></div>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 text-xs text-muted-foreground flex flex-wrap justify-between gap-2">
         <span className="num-fa">© {jalaliYear()} · {t("footer.rights")}</span>
         <span className="tracking-widest uppercase">Since MCMLXIX</span>
