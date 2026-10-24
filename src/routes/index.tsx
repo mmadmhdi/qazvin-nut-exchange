@@ -9,7 +9,8 @@ import { useTranslation } from "@/lib/i18n-provider";
 import { homeCopy } from "@/lib/public-copy";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import heroImage from "@/assets/pistachio-product-hero.jpg";
+import heroImage from "@/assets/pistachio-noir-hero.jpg";
+import orchardImage from "@/assets/pistachio-orchard.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,22 +44,24 @@ function Home() {
     <div className="experience-home">
       <section className="home-hero" aria-labelledby="experience-title">
         <img src={heroImage} alt={brandName} width={1920} height={1088} fetchPriority="high" />
-        <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-10">
-          <div className="max-w-xl">
-            <h1 id="experience-title" className="text-4xl font-bold leading-snug text-scene-text sm:text-6xl">{brandName}</h1>
-            <p className="mt-4 text-base leading-8 text-scene-text sm:text-lg">{heroTitle}</p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Button asChild size="lg" className="rounded-full bg-signal text-scene-panel hover:bg-scene-text"><Link to="/products">{copy.allProducts}</Link></Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-scene-text bg-scene-panel/70 text-scene-text"><Link to="/market">{t("cta.liveMarket")}</Link></Button>
+        <div className="home-hero-content mx-auto w-full max-w-7xl px-6 sm:px-10">
+          <div className="experience-copy max-w-xl">
+            <p className="mb-8 text-xs text-scene-muted">{copy.est} <span className="mx-3 text-scene-line">/</span> <span dir="ltr">{settings.brandLatin}</span></p>
+            <h1 id="experience-title" className="home-brand-title font-display text-scene-text">{brandName}</h1>
+            <p className="mt-6 max-w-sm text-sm leading-8 text-scene-muted">{heroTitle}</p>
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <Button asChild size="lg" variant="ghost" className="luxury-link"><Link to="/products">{copy.allProducts.replace(/[←→]/g, "").trim()}<Arrow /></Link></Button>
+              <Button asChild variant="link" className="px-0 text-xs text-scene-muted"><Link to="/market">{t("cta.liveMarket")}</Link></Button>
             </div>
           </div>
         </div>
+        <div className="hero-footnote"><span dir="ltr">DORJESABZ</span><a href="#daily-market" aria-label={t("home.nutMarket")} className="hero-scroll"><span className="h-8 w-px bg-scene-muted" /></a><span>{copy.premiumK}</span></div>
       </section>
 
       <section id="daily-market" className="mx-auto max-w-7xl scroll-mt-24 px-5 sm:px-10">
-        <div className="border-t border-scene-line py-10 sm:py-14">
+        <div className="border-t border-scene-line py-14 sm:py-20">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-8">
-            <h2 className="font-display text-2xl sm:text-3xl text-scene-text">{t("home.nutMarket")}</h2>
+            <div><p className="mb-3 text-[10px] text-scene-muted" dir="ltr">01 / MARKET</p><h2 className="font-display text-2xl sm:text-3xl text-scene-text">{t("home.nutMarket")}</h2></div>
             <Link to="/market" className="text-xs sm:text-sm tracking-widest text-scene-muted hover:text-signal shrink-0">
               {t("cta.allPrices")}
             </Link>
@@ -67,6 +70,18 @@ function Home() {
             {top.map((p) => (
               <PriceCard key={p.id} product={p} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="provenance-scene" aria-labelledby="provenance-title">
+        <img src={orchardImage} alt={t("nav.origin")} loading="lazy" width={1920} height={1024} />
+        <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:px-10 sm:py-28">
+          <div className="max-w-md">
+            <p className="mb-6 text-[10px] text-scene-muted" dir="ltr">02 / PROVENANCE</p>
+            <h2 id="provenance-title" className="font-display text-3xl leading-relaxed text-scene-text sm:text-4xl">{t("nav.origin")}</h2>
+            <p className="mt-6 text-sm leading-8 text-scene-muted">{copy.premiumBody}</p>
+            <Button asChild variant="ghost" className="luxury-link mt-8"><Link to="/origin">{t("nav.origin")}<Arrow /></Link></Button>
           </div>
         </div>
       </section>
@@ -84,7 +99,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-5 sm:px-10">
         <div className="border-t border-scene-line py-10 sm:py-14">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end mb-8 gap-3">
-            <h2 className="font-display text-2xl sm:text-3xl text-scene-text">{copy.others}</h2>
+            <div><p className="mb-3 text-[10px] text-scene-muted" dir="ltr">03 / COLLECTION</p><h2 className="font-display text-2xl sm:text-3xl text-scene-text">{copy.premiumK}</h2></div>
             <Link to="/products" className="text-xs sm:text-sm tracking-widest text-scene-muted hover:text-signal shrink-0">
               {copy.allProducts}
             </Link>

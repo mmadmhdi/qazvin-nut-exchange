@@ -66,12 +66,12 @@
 
 :root {
   --radius: 0.25rem;
-  --scene: oklch(0.955 0.025 120);
-  --scene-panel: oklch(0.985 0.012 110);
-  --scene-text: oklch(0.33 0.07 135);
-  --scene-muted: oklch(0.50 0.05 120);
-  --scene-line: oklch(0.86 0.04 120);
-  --signal: oklch(0.65 0.15 128);
+  --scene: oklch(0.17 0.004 150);
+  --scene-panel: oklch(0.205 0.006 150);
+  --scene-text: oklch(0.94 0.008 100);
+  --scene-muted: oklch(0.69 0.012 120);
+  --scene-line: oklch(0.31 0.008 150);
+  --signal: oklch(0.78 0.06 160);
   --scene-shade: linear-gradient(90deg, transparent 15%, color-mix(in oklab, var(--scene) 20%, transparent) 45%, color-mix(in oklab, var(--scene) 85%, transparent) 100%);
 
   /* Pearl surfaces, charcoal typography and restrained emerald accents. */
@@ -202,7 +202,8 @@
 
 /* Immersive public experience; data tools retain their established tokens. */
 .experience-home { background: var(--scene); color: var(--scene-text); --card: var(--scene-panel); --olive-deep: var(--scene-text); --cocoa: var(--scene-muted); --brass-dark: var(--signal); --border: var(--scene-line); --muted-foreground: var(--scene-muted); }
-.experience-home .card-paper { box-shadow: none; border-color: var(--scene-line); }
+.experience-home .card-paper { box-shadow: none; border: 0; border-top: 1px solid var(--scene-line); border-radius: 0; background: transparent; }
+.experience-home .card-paper:hover { transform: none; border-color: var(--signal); }
 .experience-header { background: color-mix(in oklab, var(--scene) 94%, transparent); color: var(--scene-text); }
 .experience-scene { min-height: min(780px, calc(100svh - 125px)); position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; }
 .experience-scene-image { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: center; }
@@ -247,11 +248,30 @@
   .experience-scene.secondary { min-height: 610px; }
 }
 
-.home-hero { position: relative; isolation: isolate; overflow: hidden; min-height: min(720px, calc(100svh - 64px)); display: flex; align-items: center; }
+.home-hero { position: relative; isolation: isolate; overflow: hidden; height: min(850px, calc(100svh - 150px)); min-height: 520px; display: flex; align-items: center; }
 .home-hero img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
-.home-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(270deg, color-mix(in oklab, var(--scene) 92%, transparent) 0%, color-mix(in oklab, var(--scene) 70%, transparent) 38%, transparent 70%); }
+.home-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(270deg, color-mix(in oklab, var(--scene) 32%, transparent), transparent 65%), linear-gradient(0deg, var(--scene), transparent 20%); }
+.home-brand-title { font-size: 56px; font-weight: 300; line-height: 1.6; }
+.luxury-link { border-radius: 0; border: 0; border-bottom: 1px solid var(--scene-muted); padding: 0 0 10px; height: auto; min-height: 44px; color: var(--scene-text); font-weight: 400; gap: 28px; background: transparent; }
+.luxury-link:hover { background: transparent; color: var(--signal); border-color: var(--signal); }
+.hero-footnote { position: absolute; bottom: 28px; inset-inline: 40px; display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: var(--scene-muted); }
+.hero-scroll { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+.provenance-scene { position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; min-height: 520px; }
+.provenance-scene img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
+.provenance-scene::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(270deg, color-mix(in oklab, var(--scene) 90%, transparent), color-mix(in oklab, var(--scene) 65%, transparent) 45%, transparent); }
+.luxury-menu a { transition: color 200ms ease; }
+[dir="ltr"] .home-hero-content .experience-copy { margin-left: auto; }
+[dir="ltr"] .provenance-scene .max-w-md { margin-left: auto; }
+@media (prefers-reduced-motion: no-preference) { .home-hero img { animation: noir-arrive 1600ms ease-out both; } @keyframes noir-arrive { from { opacity: 0.4; transform: scale(1.025); } to { opacity: 1; transform: scale(1); } } }
 @media (max-width: 767px) {
-  .home-hero { align-items: flex-end; min-height: 600px; }
-  .home-hero img { object-position: 70% center; }
-  .home-hero::before { background: linear-gradient(0deg, var(--scene) 8%, color-mix(in oklab, var(--scene) 80%, transparent) 40%, transparent 75%); }
+  .home-hero { align-items: flex-end; height: calc(100svh - 190px); min-height: 550px; max-height: 800px; }
+  .home-hero img { object-position: 25% center; }
+  .home-hero::before { background: linear-gradient(0deg, var(--scene) 3%, color-mix(in oklab, var(--scene) 96%, transparent) 25%, color-mix(in oklab, var(--scene) 35%, transparent) 65%, transparent); }
+  .home-hero .experience-copy { padding: 0 0 90px; margin: 0; }
+  .home-hero .home-brand-title { font-size: 36px; line-height: 1.6; }
+  .home-hero .experience-copy > p:first-child { margin-bottom: 18px; }
+  .hero-footnote { inset-inline: 24px; bottom: 20px; }
+  .provenance-scene { min-height: 520px; }
+  .provenance-scene img { object-position: 35% center; }
+  .provenance-scene::before { background: color-mix(in oklab, var(--scene) 75%, transparent); }
 }
