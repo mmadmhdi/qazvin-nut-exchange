@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type Context, type ReactNode } from "react";
 
 import {
   adminDeleteArticle,
@@ -65,7 +65,9 @@ type StoreCtx = SiteData & {
   importData: (json: string) => Promise<boolean>;
 };
 
-const StoreContext = createContext<StoreCtx | null>(null);
+// Keep one context instance across hot reloads so providers and consumers match.
+const g = globalThis as { __darjStoreCtx?: Context<StoreCtx | null> };
+const StoreContext = (g.__darjStoreCtx ??= createContext<StoreCtx | null>(null));
 
 export function slugify(name: string): string {
   return name
