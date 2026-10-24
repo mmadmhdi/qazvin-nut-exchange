@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Create a mysterious quiet-luxury public presentation inspired by Orano, preserving prices and existing flows
+- [ ] Verify imagery, navigation and market access across screen sizes
+
 - [x] Redesign market charts to match the cinematic presentation without changing real prices
 - [x] Test real chart data, filters and controls; fix confirmed calculation and interaction bugs
 - [x] Test public pages, contact validation and protected entry points; fix confirmed failures
