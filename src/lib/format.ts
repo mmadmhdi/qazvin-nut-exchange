@@ -226,16 +226,9 @@ export function parseDateInput(input: string): string | null {
   if (!m) return null;
   let y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
   if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
-  const original = { y, mo, d };
-  if (y < 1700) {
-    if (mo > 6 && d > 30) return null;
-    ({ gy: y, gm: mo, gd: d } = jalaliToGregorian(y, mo, d));
-    const back = gregorianToJalali(y, mo, d);
-    if (back.jy !== original.y || back.jm !== original.mo || back.jd !== original.d) return null;
-  }
+  if (y < 1700) ({ gy: y, gm: mo, gd: d } = jalaliToGregorian(y, mo, d));
   const iso = `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-  const parsed = new Date(iso);
-  return Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== iso ? null : iso;
+  return Number.isNaN(new Date(iso).getTime()) ? null : iso;
 }
 
 /** Today's date in Tehran (the market's calendar day), ISO. */

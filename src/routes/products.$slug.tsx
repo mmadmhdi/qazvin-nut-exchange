@@ -14,7 +14,7 @@ export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
     const { getSiteData } = await import("@/lib/site-data.functions");
     const data = await getSiteData();
-    const product = data.products.find((p) => p.active && (p.slug === params.slug || p.id === params.slug));
+    const product = data.products.find((p) => p.slug === params.slug || p.id === params.slug);
     return { product: product ?? null, currency: data.settings.currency };
   },
   head: ({ params, loaderData }) => {
@@ -69,7 +69,7 @@ function ProductDetail() {
   const { slug } = Route.useParams();
   const { products, settings } = useStore();
   const { t, locale } = useTranslation();
-  const product = products.find((p) => p.active && (p.slug === slug || p.id === slug));
+  const product = products.find((p) => p.slug === slug || p.id === slug);
   if (!product) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 text-center">
@@ -83,15 +83,14 @@ function ProductDetail() {
   const { pct } = computeChange(product.history);
   const up = pct >= 0;
 
-  const closes = product.history.map((h) => h.close ?? h.price).filter((price) => Number.isFinite(price) && price > 0);
-  if (!closes.length) closes.push(product.price);
+  const closes = product.history.map((h) => h.close ?? h.price);
   const hi52 = Math.max(...closes);
   const lo52 = Math.min(...closes);
   const first = closes[0];
-  const yr = first > 0 ? ((closes[closes.length - 1] - first) / first) * 100 : 0;
+  const yr = ((closes[closes.length - 1] - first) / first) * 100;
   const inRange = ((product.price - lo52) / (hi52 - lo52 || 1)) * 100;
 
-  const related = products.filter((p) => p.active && p.category === product.category && p.id !== product.id).slice(0, 3);
+  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-14">

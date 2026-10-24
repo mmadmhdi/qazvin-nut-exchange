@@ -66,53 +66,53 @@
 
 :root {
   --radius: 0.25rem;
-  --scene: oklch(0.955 0.025 120);
-  --scene-panel: oklch(0.985 0.012 110);
-  --scene-text: oklch(0.33 0.07 135);
-  --scene-muted: oklch(0.50 0.05 120);
-  --scene-line: oklch(0.86 0.04 120);
-  --signal: oklch(0.65 0.15 128);
+  --scene: oklch(0.14 0.006 150);
+  --scene-panel: oklch(0.19 0.008 150);
+  --scene-text: oklch(0.96 0.004 110);
+  --scene-muted: oklch(0.73 0.014 110);
+  --scene-line: oklch(0.30 0.009 150);
+  --signal: oklch(0.90 0.19 106);
   --scene-shade: linear-gradient(90deg, transparent 15%, color-mix(in oklab, var(--scene) 20%, transparent) 45%, color-mix(in oklab, var(--scene) 85%, transparent) 100%);
 
-  /* Pearl surfaces, charcoal typography and restrained emerald accents. */
-  --paper: oklch(0.965 0.02 115);
-  --cream: oklch(0.935 0.03 115);
-  --bone: oklch(0.86 0.035 115);
-  --olive: oklch(0.65 0.15 128);
-  --olive-deep: oklch(0.45 0.09 135);
-  --olive-ink: oklch(0.28 0.05 135);
-  --brass: oklch(0.68 0.08 65);
-  --brass-dark: oklch(0.52 0.08 60);
-  --cocoa: oklch(0.45 0.04 80);
-  --bull: oklch(0.52 0.12 160);
-  --bear: oklch(0.55 0.17 25);
+  /* Sage archive palette — quiet, tactile and editorial */
+  --paper: oklch(0.958 0.012 84);
+  --cream: oklch(0.93 0.012 78);
+  --bone: oklch(0.86 0.013 75);
+  --olive: oklch(0.64 0.035 134);
+  --olive-deep: oklch(0.42 0.035 132);
+  --olive-ink: oklch(0.29 0.026 128);
+  --brass: oklch(0.69 0.065 78);
+  --brass-dark: oklch(0.56 0.055 76);
+  --cocoa: oklch(0.45 0.025 72);
+  --bull: oklch(0.58 0.13 148);        /* candle green */
+  --bear: oklch(0.55 0.16 28);         /* candle red-brick */
 
   --background: var(--paper);
   --foreground: var(--olive-ink);
-  --card: oklch(0.99 0.01 110);
+  --card: oklch(0.982 0.008 84);
   --card-foreground: var(--olive-ink);
-  --popover: var(--card);
+  --popover: oklch(0.982 0.008 84);
   --popover-foreground: var(--olive-ink);
   --primary: var(--olive-deep);
   --primary-foreground: var(--paper);
   --secondary: var(--bone);
   --secondary-foreground: var(--olive-deep);
   --muted: var(--cream);
-  --muted-foreground: oklch(0.48 0.04 110);
+  --muted-foreground: oklch(0.51 0.024 126);
   --accent: var(--brass);
-  --accent-foreground: var(--olive-ink);
+  --accent-foreground: var(--olive-deep);
   --destructive: oklch(0.55 0.18 28);
   --destructive-foreground: var(--paper);
   --border: var(--bone);
-  --input: var(--bone);
+  --input: oklch(0.89 0.014 82);
   --ring: var(--brass);
 
   /* TradingView-style dark panels (used inside chart cards) */
-  --tv-bg: var(--scene);
-  --tv-headband: var(--scene-panel);
-  --tv-border: var(--scene-line);
-  --tv-text: var(--scene-text);
-  --tv-muted: var(--scene-muted);
+  --tv-bg: oklch(0.18 0.02 140);
+  --tv-headband: oklch(0.22 0.025 140);
+  --tv-border: oklch(0.32 0.02 138);
+  --tv-text: oklch(0.94 0.02 90);
+  --tv-muted: oklch(0.68 0.02 88);
 
   --chart-1: var(--olive-deep);
   --chart-2: var(--brass-dark);
@@ -207,29 +207,15 @@
 .experience-scene { min-height: min(780px, calc(100svh - 125px)); position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; }
 .experience-scene-image { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .experience-scene::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--scene-shade); }
-.experience-enter { border-radius: 0; background: var(--scene-text); color: var(--scene); min-width: 160px; height: 44px; justify-content: space-between; padding-inline: 20px; }
+.experience-grid { position: absolute; inset: 0; z-index: -1; pointer-events: none; display: grid; grid-template-columns: repeat(5, 1fr); opacity: .34; }
+.experience-grid span { border-inline-end: 1px solid var(--scene-line); }
+.experience-copy { width: 43%; margin-left: auto; margin-right: 9%; padding: 70px 0 110px; text-align: start; }
+.experience-copy h1 { font-size: 54px; font-weight: 300; line-height: 1.55; }
+.experience-copy h2 { font-size: 44px; font-weight: 300; line-height: 1.5; }
+.experience-scene.secondary { min-height: 650px; }
+.experience-enter { border-radius: 0; background: var(--scene-text); color: var(--scene); border-inline-start: 6px solid var(--signal); min-width: 180px; height: 48px; justify-content: space-between; padding-inline: 24px; }
 .experience-enter:hover { background: var(--signal); }
 .experience-footer { background: var(--scene); color: var(--scene-text); --olive-deep: var(--scene-text); --muted-foreground: var(--scene-muted); --cocoa: var(--scene-muted); --brass-dark: var(--signal); }
-
-/* Financial charts use a locally scoped cinematic palette. */
-.market-experience-chart {
-  --tv-bg: oklch(0.26 0.04 135);
-  --tv-headband: oklch(0.30 0.045 135);
-  --tv-border: oklch(0.40 0.04 135);
-  --tv-text: oklch(0.97 0.015 110);
-  --tv-muted: oklch(0.80 0.03 115);
-  --brass: var(--signal);
-  --brass-dark: var(--signal);
-  --olive: oklch(0.76 0.08 168);
-  --cocoa: oklch(0.78 0.05 240);
-  --bull: oklch(0.77 0.14 153);
-  --bear: oklch(0.72 0.16 28);
-  border-radius: 4px;
-  box-shadow: none;
-}
-.market-experience-chart .recharts-wrapper { touch-action: pan-y; }
-.market-experience-chart button { letter-spacing: 0; }
-.market-experience-chart .recharts-brush rect { stroke: var(--tv-border); }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
   .experience-copy { animation: experience-arrive 900ms ease both; }
@@ -245,13 +231,4 @@
   .experience-copy h1 { font-size: 34px; line-height: 1.5; }
   .experience-copy h2 { font-size: 32px; }
   .experience-scene.secondary { min-height: 610px; }
-}
-
-.home-hero { position: relative; isolation: isolate; overflow: hidden; min-height: min(720px, calc(100svh - 64px)); display: flex; align-items: center; }
-.home-hero img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
-.home-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(270deg, color-mix(in oklab, var(--scene) 92%, transparent) 0%, color-mix(in oklab, var(--scene) 70%, transparent) 38%, transparent 70%); }
-@media (max-width: 767px) {
-  .home-hero { align-items: flex-end; min-height: 600px; }
-  .home-hero img { object-position: 70% center; }
-  .home-hero::before { background: linear-gradient(0deg, var(--scene) 8%, color-mix(in oklab, var(--scene) 80%, transparent) 40%, transparent 75%); }
 }

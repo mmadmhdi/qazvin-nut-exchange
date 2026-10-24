@@ -14,4 +14,3 @@
 
 - Immersive photographic sections live in the homepage, while shared navigation uses the existing Dialog and Button primitives; this keeps the cinematic presentation accessible without changing market or admin data flows.
 - Scope scene colors to dedicated semantic tokens and the homepage/footer wrappers; this preserves readability of existing financial tools and forms.
-- Scope cinematic chart colors to the chart wrapper, and normalize real history plus fixed-period indicator warmup in a browser-safe shared module; this preserves other forms and consistent calculations across filters.

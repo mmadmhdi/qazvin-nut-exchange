@@ -15,7 +15,6 @@ import {
 import { adminStatus, unlockAdmin, lockAdmin } from "@/lib/admin-gate.functions";
 import { crmSnapshot, crmMarketPrices, type CrmSnapshot, type MarketPrice } from "@/lib/crm.functions";
 import { formatPrice, toFaDigits } from "@/lib/format";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/panel")({
   head: () => ({
@@ -141,7 +140,6 @@ function PanelGate() {
 function Panel({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }) {
   const [data, setData] = useState<CrmSnapshot | null>(null);
   const [market, setMarket] = useState<MarketPrice[]>([]);
-  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     Promise.all([crmSnapshot(), crmMarketPrices()])
@@ -149,7 +147,7 @@ function Panel({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }
         setData(snapshot);
         setMarket(prices);
       })
-      .catch(() => { setFailed(true); toast.error("خواندن داده‌ها ناموفق بود"); });
+      .catch(() => toast.error("خواندن داده‌ها ناموفق بود"));
   }, []);
 
   const marketById = useMemo(() => new Map(market.map((m) => [m.product_id, m])), [market]);
@@ -161,7 +159,7 @@ function Panel({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }
   if (!data) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-24 text-center text-sm text-muted-foreground sm:px-6">
-        {failed ? <><p>خواندن اطلاعات ناموفق بود.</p><Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>تلاش دوباره</Button></> : "در حال بارگذاری…"}
+        در حال بارگذاری…
       </div>
     );
   }

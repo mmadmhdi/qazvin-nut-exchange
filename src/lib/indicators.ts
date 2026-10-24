@@ -40,9 +40,7 @@ export function ema(values: number[], win: number): (number | null)[] {
 }
 
 export function rsi(values: number[], win = 14): (number | null)[] {
-  if (!values.length) return [];
   const out: (number | null)[] = [null];
-  const result = (gain: number, loss: number) => loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss);
   let gain = 0, loss = 0;
   for (let i = 1; i < values.length; i++) {
     const d = values[i] - values[i - 1];
@@ -51,14 +49,16 @@ export function rsi(values: number[], win = 14): (number | null)[] {
       gain += g; loss += l;
       if (i === win) {
         gain /= win; loss /= win;
-        out.push(result(gain, loss));
+        const rs = loss === 0 ? 100 : gain / loss;
+        out.push(100 - 100 / (1 + rs));
       } else {
         out.push(null);
       }
     } else {
       gain = (gain * (win - 1) + g) / win;
       loss = (loss * (win - 1) + l) / win;
-      out.push(result(gain, loss));
+      const rs = loss === 0 ? 100 : gain / loss;
+      out.push(100 - 100 / (1 + rs));
     }
   }
   return out;
@@ -70,10 +70,8 @@ export function macd(values: number[], fast = 12, slow = 26, sig = 9) {
   const macdLine = values.map((_, i) =>
     ef[i] != null && es[i] != null ? (ef[i] as number) - (es[i] as number) : null,
   );
-  const valid = macdLine.filter((v): v is number => v !== null);
-  const warmed = ema(valid, sig);
-  let signalIndex = 0;
-  const signal = macdLine.map((v) => v === null ? null : warmed[signalIndex++]);
+  const filled = macdLine.map((v) => v ?? 0);
+  const signal = ema(filled, sig).map((v, i) => (macdLine[i] == null ? null : v));
   const hist = macdLine.map((v, i) =>
     v != null && signal[i] != null ? v - (signal[i] as number) : null,
   );
@@ -180,10 +178,8 @@ export function stochastic(rows: OHLC[], kWin = 14, dWin = 3) {
     const c = rows[i].close;
     k.push(hh === ll ? 50 : ((c - ll) / (hh - ll)) * 100);
   }
-  const valid = k.filter((v): v is number => v !== null);
-  const warmed = sma(valid, dWin);
-  let dIndex = 0;
-  const d = k.map((v) => v === null ? null : warmed[dIndex++]);
+  const filled = k.map((v) => v ?? 0);
+  const d = sma(filled, dWin).map((v, i) => (k[i] == null ? null : v));
   return { k, d };
 }
 

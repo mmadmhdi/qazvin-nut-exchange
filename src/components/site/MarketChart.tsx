@@ -5,7 +5,6 @@ import {
   Cell,
   ComposedChart,
   Customized,
-  CartesianGrid,
   Line,
   ReferenceLine,
   ResponsiveContainer,
@@ -13,15 +12,24 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { Product } from "@/lib/store";
-import { Button } from "@/components/ui/button";
-import { buildMarketData, RANGE_DAYS, type ChartPeriod } from "@/lib/chart-data";
-import { chartCopy } from "@/lib/chart-copy";
-export type { ChartPeriod } from "@/lib/chart-data";
+import type { Product, PricePoint } from "@/lib/store";
 import { formatPrice, formatJalali, formatJalaliShort, localizedDigits, jalaliParts } from "@/lib/format";
 import { useTranslation } from "@/lib/i18n-provider";
 import { localizeProduct } from "@/lib/product-i18n";
 import { marketCopy } from "@/lib/public-copy";
+import {
+  bollinger,
+  ema,
+  heikinAshi,
+  macd as calcMacd,
+  rsi as calcRsi,
+  sma,
+  atr as calcAtr,
+  stochastic,
+  vwap as calcVwap,
+  fibonacciLevels,
+  type OHLC,
+} from "@/lib/indicators";
 import {
   BarChart3,
   CandlestickChart,
@@ -32,8 +40,6 @@ import {
   Layers,
   GitBranch,
   Zap,
-  Download,
-  RotateCcw,
 } from "lucide-react";
 
 type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
@@ -137,7 +143,7 @@ type Row = {
 };
 
 // ─────────────────────────── Component ───────────────────────────
-
+export type ChartPeriod = { jy: number | null; jm: number | null; jd?: number | null };
 
 export function MarketChart({
   product,
@@ -151,7 +157,6 @@ export function MarketChart({
 }) {
   const { locale, dir } = useTranslation();
   const copy = marketCopy(locale);
-  const c = chartCopy(locale);
   const lp = localizeProduct(product, locale);
   const periodOn = !!period && (period.jy !== null || period.jm !== null || period.jd != null);
   const [range, setRange] = useState<Range>("3m");
@@ -173,38 +178,118 @@ export function MarketChart({
   const [hoverDate, setHoverDate] = useState<string | null>(null);
   const [showTools, setShowTools] = useState(false);
 
-  const { data, actual, stats, meta } = useMemo(
-    () => buildMarketData(product.history ?? [], RANGE_DAYS[range], period, style === "ha"),
-    [product.history, range, style, period?.jy, period?.jm, period?.jd],
-  );
-  const reset = () => {
-    setRange("3m"); setStyle("candle"); setHoverDate(null); setShowTools(false);
-    setOverlays({ ma20: true, ma50: false, ema50: false, bb: false, vwap: false, fib: false });
-    setPanels({ volume: true, rsi: false, macd: false, stoch: false });
-  };
-  const download = () => {
-    const rows = [["date", "open", "high", "low", "close", "volume"].join(","),
-      ...actual.map((r) => [r.date, r.open, r.high, r.low, r.close, r.volume ?? 0].join(","))];
-    const url = URL.createObjectURL(new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a"); link.href = url; link.download = `${product.slug}-prices.csv`; link.click();
-    URL.revokeObjectURL(url);
-  };
+  const { data, stats, meta } = useMemo(() => {
+    const days = RANGES.find((r) => r.key === range)!.days;
+    // De-duplicate by date and sort chronologically — admin edits can produce
+    // out-of-order or repeated dates, which used to break the band scale.
+    const byDate = new Map<string, PricePoint>();
+    for (const p of product.history ?? []) {
+      const d = String(p.date).slice(0, 10);
+      if (!d) continue;
+      byDate.set(d, { ...p, date: d });
+    }
+    const sortedAll = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+    const windowed = periodOn
+      ? sortedAll.filter((p) => {
+          const j = jalaliParts(p.date);
+          if (!j) return false;
+          if (period!.jy !== null && j.jy !== period!.jy) return false;
+          if (period!.jm !== null && j.jm !== period!.jm) return false;
+          if (period!.jd != null && j.jd !== period!.jd) return false;
+          return true;
+        })
+      : sortedAll;
+    // Quick ranges are calendar windows ending at the newest record (records
+    // are not daily, so slicing by count showed far longer spans).
+    const lastDate = sortedAll[sortedAll.length - 1]?.date;
+    const cutoff =
+      lastDate && Number.isFinite(days) && days < 100_000
+        ? new Date(new Date(lastDate).getTime() - days * 86_400_000).toISOString().slice(0, 10)
+        : "";
+    const inRange = cutoff ? windowed.filter((p) => p.date >= cutoff) : windowed;
+    const raw = periodOn ? windowed : inRange.length >= 2 ? inRange : windowed.slice(-2);
+
+    const asOHLC: OHLC[] = raw.map((p) => {
+      const close = Number(p.close ?? p.price) || 0;
+      const open = Number(p.open ?? close) || close;
+      return {
+        date: p.date,
+        open,
+        high: Math.max(Number(p.high ?? close) || close, open, close),
+        low: Math.min(Number(p.low ?? close) || close, open, close),
+        close,
+        volume: Number(p.volume ?? 0) || 0,
+      };
+    });
+    const rows = style === "ha" ? heikinAshi(asOHLC) : asOHLC;
+    const closes = rows.map((r) => r.close);
+    const n = rows.length;
+
+    const ma20 = sma(closes, Math.min(20, Math.max(2, Math.floor(n / 4) || 2)));
+    const ma50 = sma(closes, Math.min(50, Math.max(3, Math.floor(n / 2) || 3)));
+    const em50 = ema(closes, Math.min(50, Math.max(3, Math.floor(n / 2) || 3)));
+    const bb = bollinger(closes, Math.min(20, Math.max(3, Math.floor(n / 4) || 3)), 2);
+    const r14 = calcRsi(closes, Math.min(14, Math.max(2, n - 1)));
+    const m = calcMacd(closes, 12, 26, 9);
+    const at = calcAtr(rows, Math.min(14, Math.max(2, n - 1)));
+    const stoch = stochastic(rows, Math.min(14, Math.max(2, n - 1)), 3);
+    const vw = calcVwap(rows);
+    const fib = fibonacciLevels(rows);
+
+    const chartRows: Row[] = rows.map((r, i) => ({
+      date: r.date,
+      open: r.open,
+      high: r.high,
+      low: r.low,
+      close: r.close,
+      volume: r.volume ?? 0,
+      ma20: ma20[i],
+      ma50: ma50[i],
+      ema50: em50[i],
+      bbU: bb.upper[i],
+      bbM: bb.mid[i],
+      bbL: bb.lower[i],
+      vwap: vw[i],
+      rsi: r14[i],
+      macd: m.macd[i],
+      macdSignal: m.signal[i],
+      macdHist: m.hist[i],
+      stochK: stoch.k[i],
+      stochD: stoch.d[i],
+      up: r.close >= r.open,
+    }));
+
+    const first = chartRows[0];
+    const last = chartRows[chartRows.length - 1];
+    const hi = chartRows.length ? Math.max(...chartRows.map((r) => r.high)) : 0;
+    const lo = chartRows.length ? Math.min(...chartRows.map((r) => r.low)) : 0;
+    const chg = last ? last.close - (first?.close ?? last.close) : 0;
+    const chgPct = first?.close ? (chg / first.close) * 100 : 0;
+    const avgVol = chartRows.length
+      ? chartRows.reduce((s, r) => s + r.volume, 0) / chartRows.length
+      : 0;
+    const atrLast = at[at.length - 1] ?? 0;
+
+    return {
+      data: chartRows,
+      stats: { last, first, hi, lo, chg, chgPct },
+      meta: { avgVol, atrLast, bars: chartRows.length, fib },
+    };
+  }, [product.history, range, style, periodOn, period?.jy, period?.jm, period?.jd]);
 
   const hasData = data.length > 0;
   const pad = (stats.hi - stats.lo) * 0.12 || stats.hi * 0.03 || 1;
-  const displayedHigh = data.length ? Math.max(stats.hi, ...data.map((r) => r.high)) : stats.hi;
-  const displayedLow = data.length ? Math.min(stats.lo, ...data.map((r) => r.low)) : stats.lo;
-  const domain: [number, number] = [Math.max(0, displayedLow - pad), displayedHigh + pad];
-  const current = (hoverDate ? actual.find((d) => d.date === hoverDate) : null) ?? stats.last;
+  const domain: [number, number] = [stats.lo - pad, stats.hi + pad];
+  const current = (hoverDate ? data.find((d) => d.date === hoverDate) : null) ?? stats.last;
 
-  const priceHeight = compact ? "h-72" : "h-80 md:h-[440px]";
+  const priceHeight = compact ? "h-64" : "h-72 md:h-96";
   const openPanels = (["volume", "rsi", "macd", "stoch"] as SubPanel[]).filter((p) => panels[p]);
   const lastPanel = openPanels[openPanels.length - 1] ?? null;
 
   const dateTick = {
     dataKey: "date" as const,
     tickFormatter: (d: string) => formatJalaliShort(d),
-    tick: { fill: "var(--tv-muted)", fontSize: 11 },
+    tick: { fill: "var(--tv-muted)", fontSize: 9 },
     tickLine: false,
     axisLine: { stroke: "var(--tv-border)" },
     interval: "preserveStartEnd" as const,
@@ -216,7 +301,7 @@ export function MarketChart({
   const mutedYAxis = {
     orientation: "right" as const,
     width: AXIS_W,
-    tick: { fill: "var(--tv-muted)", fontSize: 11 },
+    tick: { fill: "var(--tv-muted)", fontSize: 9 },
     tickLine: false,
     axisLine: { stroke: "var(--tv-border)" },
   };
@@ -227,12 +312,12 @@ export function MarketChart({
   };
 
   return (
-    <div className="tv-panel market-experience-chart overflow-hidden min-w-0" dir={dir}>
+    <div className="tv-panel rounded-sm overflow-hidden" dir={dir}>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 py-5 border-b border-tv-border bg-tv-headband">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-3 md:px-4 py-3 border-b border-tv-border bg-tv-headband">
         <div className="min-w-0">
-          <div className="text-[11px] text-brass">{c.market}</div>
-          <div className="font-display text-tv-text text-xl md:text-2xl mt-2 break-words">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass">DARJ · MARKET</div>
+          <div className="font-display text-tv-text text-base md:text-lg mt-0.5 truncate">
              {lp.name}
           </div>
         </div>
@@ -247,21 +332,12 @@ export function MarketChart({
           {!periodOn && (
             <SegGroup>
                {RANGES.map((r, i) => (
-                <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)} title={c.ranges[i]}>
+                <SegBtn key={r.key} on={range === r.key} onClick={() => setRange(r.key)}>
                    <span className="text-[11px] px-0.5">{copy.ranges[i]}</span>
                 </SegBtn>
               ))}
             </SegGroup>
           )}
-          <Button variant="chart" size="icon" onClick={reset} title={c.reset} aria-label={c.reset}><RotateCcw /></Button>
-          <Button variant="chart" size="icon" onClick={download} disabled={!data.length} title={c.download} aria-label={c.download}><Download /></Button>
-        </div>
-        <div className="flex w-full flex-wrap items-end justify-between gap-3">
-          <div>
-            <div className="text-xs text-tv-muted">{c.last}</div>
-            <div className="mt-1 text-2xl md:text-3xl text-tv-text num-fa">{stats.last ? formatPrice(stats.last.close) : "—"} <span className="text-xs text-tv-muted">{lp.unit}</span></div>
-          </div>
-          <div className="text-xs text-tv-muted">{localizedDigits(meta.bars)} {c.records} · {style === "ha" ? c.derived : c.real}</div>
         </div>
       </div>
 
@@ -293,8 +369,7 @@ export function MarketChart({
              <div className="text-tv-muted">{copy.noData}</div>
           )}
         </div>
-        <Button
-          variant="chart"
+        <button
           type="button"
           onClick={() => setShowTools((v) => !v)}
           aria-expanded={showTools}
@@ -302,7 +377,7 @@ export function MarketChart({
         >
           <Layers className="h-3.5 w-3.5" />
            {showTools ? copy.closeIndicators : copy.indicators}
-        </Button>
+        </button>
         <div className={`${showTools ? "flex" : "hidden"} flex-wrap items-center gap-1.5 mt-2 pb-0.5 sm:flex sm:flex-nowrap sm:overflow-x-auto sm:scrollbar-none`}>
           <ToggleChip
             on={overlays.ma20}
@@ -375,7 +450,6 @@ export function MarketChart({
                 onMouseMove={track} onClick={track}
                 onMouseLeave={() => setHoverDate(null)}
               >
-                <CartesianGrid vertical={false} stroke="var(--tv-border)" strokeDasharray="2 6" />
                 <XAxis {...(openPanels.length ? hiddenAxis : dateTick)} />
                 <YAxis
                   {...mutedYAxis}
@@ -448,8 +522,7 @@ export function MarketChart({
                     dataKey="close"
                     stroke="var(--brass)"
                     strokeWidth={1.75}
-                    fill="color-mix(in oklab, var(--brass) 14%, transparent)"
-                    dot={data.length === 1 ? { r: 4 } : false}
+                    fill="color-mix(in oklab, var(--brass) 22%, transparent)"
                     isAnimationActive={false}
                   />
                 )}
@@ -459,7 +532,7 @@ export function MarketChart({
                     dataKey="close"
                     stroke="var(--brass)"
                     strokeWidth={1.75}
-                    dot={data.length === 1 ? { r: 4 } : false}
+                    dot={false}
                     isAnimationActive={false}
                   />
                 )}
@@ -502,7 +575,7 @@ export function MarketChart({
                   <Line
                     type="monotone"
                     dataKey="vwap"
-                    stroke="var(--signal)"
+                    stroke="#c9a84c"
                     strokeWidth={1.4}
                     strokeDasharray="1 3"
                     dot={false}
@@ -523,7 +596,7 @@ export function MarketChart({
                         value: `${(lv.ratio * 100).toFixed(1)}%`,
                         position: "insideLeft",
                         fill: fibColor(lv.ratio),
-                        fontSize: 11,
+                        fontSize: 9,
                       }}
                     />
                   ))}
@@ -562,7 +635,7 @@ export function MarketChart({
 
           {/* RSI panel */}
           {panels.rsi && (
-            <SubPanelBox label={`RSI ${localizedDigits(14)}`}>
+            <SubPanelBox label="RSI ۱۴">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "rsi" ? dateTick : hiddenAxis)} />
@@ -591,7 +664,7 @@ export function MarketChart({
 
           {/* MACD panel */}
           {panels.macd && (
-            <SubPanelBox label={`MACD ${localizedDigits(12)} ${localizedDigits(26)} ${localizedDigits(9)}`}>
+            <SubPanelBox label="MACD ۱۲ ۲۶ ۹">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={data} margin={MARGIN} onMouseMove={track} onClick={track}>
                   <XAxis {...(lastPanel === "macd" ? dateTick : hiddenAxis)} />
@@ -688,7 +761,7 @@ export function MarketChart({
          <Kv k={copy.high} v={hasData ? formatPrice(stats.hi) : "—"} />
          <Kv k={copy.low} v={hasData ? formatPrice(stats.lo) : "—"} />
          <Kv k={copy.avgVolume} v={hasData ? localizedDigits(Math.round(meta.avgVol)) : "—"} />
-         <Kv k={`ATR ${localizedDigits(14)}`} v={meta.atrLast != null ? formatPrice(Math.round(meta.atrLast)) : "—"} />
+         <Kv k={`ATR ${localizedDigits(14)}`} v={hasData ? formatPrice(Math.round(meta.atrLast)) : "—"} />
       </div>
     </div>
   );
@@ -803,17 +876,16 @@ function SegBtn({
   title?: string;
 }) {
   return (
-    <Button
-      variant="chart"
+    <button
       type="button"
       onClick={onClick}
       title={title}
       aria-label={title}
       aria-pressed={on}
-      className="h-9 min-w-9 rounded-none px-2.5 text-xs"
+      className={`px-2.5 py-2 transition-colors sm:py-1 ${on ? "bg-brass/20 text-brass" : "text-tv-muted hover:text-tv-text"}`}
     >
       {children}
-    </Button>
+    </button>
   );
 }
 function ToggleChip({
@@ -826,19 +898,18 @@ function ToggleChip({
   children: React.ReactNode;
 }) {
   return (
-    <Button
-      variant="chart"
+    <button
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className={`inline-flex shrink-0 items-center gap-1 rounded-sm border px-2.5 py-1.5 text-[11px] transition-colors sm:py-1 ${
+      className={`inline-flex shrink-0 items-center gap-1 rounded-sm border px-2.5 py-1.5 text-[10px] tracking-widest uppercase transition-colors sm:py-0.5 ${
         on
           ? "border-brass/60 bg-brass/15 text-brass"
           : "border-tv-border text-tv-muted hover:text-tv-text"
       }`}
     >
       {children}
-    </Button>
+    </button>
   );
 }
 function styleIcon(s: Style) {
@@ -851,8 +922,8 @@ function styleLabel(s: Style, copy: ReturnType<typeof marketCopy>) {
   return copy.chartStyles[["candle", "ha", "line", "area"].indexOf(s)];
 }
 function fibColor(r: number): string {
-  if (r === 0 || r === 1) return "var(--signal)";
-  if (r === 0.5) return "var(--scene-text)";
-  if (r === 0.618) return "var(--bear)";
-  return "var(--olive)";
+  if (r === 0 || r === 1) return "#c9a84c";
+  if (r === 0.5) return "#e8b84a";
+  if (r === 0.618) return "#e85d3a";
+  return "#8b7355";
 }

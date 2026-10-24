@@ -14,7 +14,6 @@ import { ARTICLES, CATEGORIES, categoryLabel } from "@/lib/articles";
 import type { Article, ArticleCategoryId } from "@/lib/articles-types";
 import { formatPrice, formatJalali, toFaDigits, formatPercent, parseAmount, parseDateInput, todayTehran } from "@/lib/format";
 import { adminStatus, unlockAdmin, lockAdmin } from "@/lib/admin-gate.functions";
-import { adminSaveDailyPrices } from "@/lib/site-data.functions";
 import { toast } from "sonner";
 import {
   Trash2,
@@ -196,54 +195,51 @@ function Admin({ role, onLock }: { role: "admin" | "sales"; onLock: () => void }
 
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10">
-      <div className="card-paper rounded-xl p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-xs text-brass-dark">پنل مدیریت</div>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">پنل مدیریت</div>
           <h1 className="font-display text-2xl sm:text-3xl text-olive-deep mt-1">مرکز کنترل درج سبز</h1>
-          <div className="mt-2 inline-flex rounded-full bg-cream px-3 py-1 text-[11px] text-muted-foreground">
-            {role === "admin" ? "مدیر — دسترسی کامل" : "کارشناس فروش — CRM"}
+          <div className="mt-1 text-[11px] text-muted-foreground">
+            {role === "admin" ? "نقش: مدیر — دسترسی کامل" : "نقش: کارشناس فروش — خواندن و ویرایش CRM"}
           </div>
         </div>
         <div className="flex gap-2">
-          {role === "admin" && (
-            <button
-              onClick={() => setTab("prices")}
-              className="inline-flex items-center gap-1.5 rounded-full bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive"
-            >
-              <LineChart className="h-4 w-4" /> ثبت قیمت امروز
-            </button>
-          )}
           <button
-            onClick={() => void act(refresh, "داده‌ها بازخوانی شد")}
-            className="text-xs px-3 py-2 rounded-full border border-border hover:bg-cream"
+            onClick={() => {
+              void refresh();
+              toast.success("داده‌ها از پایگاه داده بازخوانی شد");
+            }}
+            className="text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
           >
             بازخوانی
           </button>
           <button
             onClick={logout}
-            className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-full border border-border hover:bg-cream"
+            className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-sm border border-border hover:bg-cream"
           >
             <LogOut className="h-3.5 w-3.5" /> خروج
           </button>
         </div>
       </div>
+      <div className="gold-rule my-5 sm:my-6" />
 
-      <nav className="my-5 flex gap-1.5 overflow-x-auto scrollbar-none rounded-full bg-cream/70 p-1.5">
+      <div className="flex gap-1 mb-6 overflow-x-auto border-b border-border">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            aria-current={tab === t.id ? "page" : undefined}
-            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
-              tab === t.id ? "bg-card text-olive-deep font-semibold shadow-sm" : "text-muted-foreground hover:text-olive-deep"
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 sm:px-4 py-2 text-sm ${
+              tab === t.id
+                ? "text-olive-deep border-b-2 border-olive-deep -mb-px font-semibold"
+                : "text-muted-foreground hover:text-cocoa"
             }`}
           >
-            <t.icon className="h-4 w-4" />
+            <t.icon className="h-3.5 w-3.5" />
             {t.label}
           </button>
         ))}
-      </nav>
+      </div>
 
       {tab === "dashboard" && <Dashboard />}
 
@@ -466,61 +462,27 @@ function buildPoint(product: Product, date: string, price: number): PricePoint {
   };
 }
 
-function lastPoint(p: Product) {
-  return [...(p.history ?? [])].sort((a, b) => a.date.localeCompare(b.date)).pop();
-}
-
-function shiftDate(iso: string, days: number) {
-  const d = new Date(`${iso}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
 function PricesTab() {
-  const { products, bulkPricePoints, refresh } = useStore();
-  const today = todayTehran();
-  const [date, setDate] = useState(today);
+  const { products, bulkPricePoints } = useStore();
+  const [date, setDate] = useState(todayTehran());
   const [values, setValues] = useState<Record<string, string>>({});
   const [csvId, setCsvId] = useState(products[0]?.id ?? "");
   const [csv, setCsv] = useState("");
   const [busy, setBusy] = useState(false);
-  const active = useMemo(
-    () => [...products].filter((p) => p.active).sort((a, b) => b.priority - a.priority),
-    [products],
-  );
-
-  const rows = active.map((p) => {
-    const last = lastPoint(p);
-    const onDate = (p.history ?? []).find((h) => h.date === date);
-    const base = onDate?.close ?? last?.close ?? p.price;
-    const raw = values[p.id];
-    const typed = raw === undefined || raw.trim() === "" ? NaN : parseAmount(raw);
-    const invalid = raw !== undefined && raw.trim() !== "" && !(Number.isFinite(typed) && typed > 0);
-    const price = Number.isFinite(typed) && typed > 0 ? Math.round(typed) : base;
-    const ref = last?.close ?? p.price;
-    const diff = ref ? ((price - ref) / ref) * 100 : 0;
-    return { p, last, onDate, price, invalid, diff, changed: price !== ref };
-  });
-  const doneToday = active.filter((p) => (p.history ?? []).some((h) => h.date === today)).length;
-  const hasInvalid = rows.some((r) => r.invalid);
-  const bigMoves = rows.filter((r) => Math.abs(r.diff) >= 20);
 
   async function saveAll() {
     if (!ISO_DATE.test(date)) return toast.error("تاریخ نامعتبر است");
-    if (date > today) return toast.error("ثبت قیمت برای روزهای آینده ممکن نیست");
-    if (hasInvalid) return toast.error("یک یا چند قیمت نامعتبر است");
-    const items = rows.filter((r) => r.price > 0).map((r) => ({ productId: r.p.id, price: r.price }));
-    if (!items.length) return toast.error("محصول فعالی وجود ندارد");
-    if (
-      bigMoves.length &&
-      !window.confirm(`تغییر بیش از ۲۰٪ برای: ${bigMoves.map((r) => r.p.name).join("، ")}. ادامه می‌دهید؟`)
-    )
-      return;
+    const jobs = products
+      .map((p) => {
+        const v = parseAmount(values[p.id]);
+        return Number.isFinite(v) && v > 0 ? { p, point: buildPoint(p, date, Math.round(v)) } : null;
+      })
+      .filter(Boolean) as { p: Product; point: PricePoint }[];
+    if (!jobs.length) return toast.error("قیمتی وارد نشده است");
     setBusy(true);
     try {
-      const res = await adminSaveDailyPrices({ data: { date, items } });
-      await refresh();
-      toast.success(`${toFaDigits(res.saved)} قیمت برای ${formatJalali(date)} ثبت شد`);
+      for (const j of jobs) await bulkPricePoints(j.p.id, [j.point]);
+      toast.success(`${toFaDigits(jobs.length)} قیمت برای ${formatJalali(date)} ثبت شد`);
       setValues({});
     } catch (e) {
       toast.error(`ثبت قیمت‌ها ناموفق بود: ${(e as Error).message}`);
@@ -570,112 +532,62 @@ function PricesTab() {
   }
 
 
-
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="card-paper rounded-lg p-4">
-          <div className="text-xs text-muted-foreground">به‌روزشده امروز</div>
-          <div className="mt-1 font-display text-2xl text-olive-deep num-fa">
-            {toFaDigits(doneToday)} از {toFaDigits(active.length)}
-          </div>
-          <div className="mt-2 h-1.5 rounded-full bg-cream overflow-hidden">
-            <div className="h-full bg-olive transition-all" style={{ width: `${active.length ? (doneToday / active.length) * 100 : 0}%` }} />
-          </div>
+    <div className="space-y-8">
+      <div className="card-paper rounded-sm">
+        <div className="px-4 py-3 hairline-b flex flex-wrap items-center gap-3 justify-between">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-brass-dark">ثبت گروهی قیمت روز</div>
+          <input
+            dir="ltr"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="rounded-sm border border-input bg-background px-2 py-1.5 text-sm"
+          />
         </div>
-        <div className="card-paper rounded-lg p-4">
-          <div className="text-xs text-muted-foreground">امروز</div>
-          <div className="mt-1 font-display text-2xl text-olive-deep num-fa">{formatJalali(today)}</div>
-          <div className="mt-2 text-[11px] text-muted-foreground">قیمت بدون تغییر هم ثبت می‌شود</div>
-        </div>
-        <div className={`card-paper rounded-lg p-4 ${doneToday < active.length ? "border-bear/40" : "border-bull/40"}`}>
-          <div className="text-xs text-muted-foreground">وضعیت</div>
-          <div className={`mt-1 font-display text-lg ${doneToday < active.length ? "text-bear" : "text-bull"}`}>
-            {doneToday < active.length ? "قیمت امروز هنوز کامل ثبت نشده" : "همه قیمت‌های امروز ثبت شده"}
-          </div>
-        </div>
-      </div>
-
-      <div className="card-paper rounded-lg overflow-hidden">
-        <div className="px-4 sm:px-5 py-4 hairline-b flex flex-wrap items-center gap-3 justify-between">
-          <div>
-            <h3 className="font-display text-lg text-olive-deep">ثبت قیمت روزانه</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              فقط قیمت‌هایی را که تغییر کرده‌اند عوض کنید؛ بقیه با همان قیمت قبلی برای این روز ثبت می‌شوند.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {[
-              [today, "امروز"],
-              [shiftDate(today, -1), "دیروز"],
-            ].map(([d, l]) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => { setDate(d); setValues({}); }}
-                className={`rounded-full px-3 py-1.5 text-xs border ${date === d ? "bg-olive-deep text-paper border-olive-deep" : "border-border hover:bg-cream"}`}
-              >
-                {l}
-              </button>
-            ))}
-            <input
-              dir="ltr"
-              type="date"
-              max={today}
-              value={date}
-              onChange={(e) => { setDate(e.target.value); setValues({}); }}
-              className="rounded-full border border-input bg-background px-3 py-1.5 text-xs"
-              aria-label="تاریخ"
-            />
-          </div>
-        </div>
-
-        <ul className="divide-y divide-border">
-          {rows.map(({ p, last, onDate, price, invalid, diff, changed }) => (
-            <li key={p.id} className="grid gap-3 px-4 sm:px-5 py-3 sm:grid-cols-[minmax(0,1fr)_220px_110px] sm:items-center">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium text-olive-deep">{p.name}</span>
-                  {onDate ? (
-                    <span className="shrink-0 rounded-full bg-bull/10 px-2 py-0.5 text-[10px] text-bull">ثبت‌شده برای این روز</span>
-                  ) : (
-                    <span className="shrink-0 rounded-full bg-bear/10 px-2 py-0.5 text-[10px] text-bear">ثبت نشده</span>
-                  )}
+        <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((p) => {
+            const v = parseAmount(values[p.id]);
+            const diff = Number.isFinite(v) && v > 0 && p.price ? ((v - p.price) / p.price) * 100 : null;
+            return (
+              <label key={p.id} className="text-xs">
+                <div className="text-muted-foreground mb-1 flex items-center justify-between gap-2">
+                  <span className="truncate">{p.name}</span>
+                  <span className="num-fa shrink-0 text-[10px]">{formatPrice(p.price)}</span>
                 </div>
-                <div className="mt-0.5 text-[11px] text-muted-foreground num-fa">
-                  آخرین ثبت: {last ? `${formatJalali(last.date)} · ${formatPrice(last.close ?? last.price)}` : "—"}
-                </div>
-              </div>
-              <input
-                dir="ltr"
-                type="text"
-                inputMode="numeric"
-                placeholder={formatPrice(price)}
-                value={values[p.id] ?? ""}
-                onChange={(e) => setValues((s) => ({ ...s, [p.id]: e.target.value }))}
-                className={`w-full rounded-md border bg-background px-3 py-2.5 text-sm num-fa ${invalid ? "border-bear" : "border-input"}`}
-                aria-label={`قیمت ${p.name}`}
-              />
-              <div className={`text-xs num-fa sm:text-left ${invalid ? "text-bear" : !changed ? "text-muted-foreground" : diff >= 0 ? "text-bull" : "text-bear"}`}>
-                {invalid ? "عدد نامعتبر" : changed ? formatPercent(diff) : "بدون تغییر"}
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <div className="sticky bottom-16 lg:bottom-0 z-10 px-4 sm:px-5 py-3 hairline-t bg-card/95 backdrop-blur flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground num-fa">
-            {toFaDigits(rows.length)} محصول برای {formatJalali(date)}
+                <input
+                  dir="ltr"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder={String(p.price)}
+                  value={values[p.id] ?? ""}
+                  onChange={(e) => setValues((s) => ({ ...s, [p.id]: e.target.value }))}
+                  className="w-full rounded-sm border border-input bg-background px-2 py-2 text-sm"
+                />
+                {diff !== null && (
+                  <div className={`mt-1 num-fa text-[10px] ${diff >= 0 ? "text-bull" : "text-bear"}`}>
+                    {formatPercent(diff)} نسبت به قیمت فعلی
+                  </div>
+                )}
+              </label>
+            );
+          })}
+        </div>
+        <div className="px-4 py-3 hairline-t flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11px] text-muted-foreground num-fa">
+            تاریخ ثبت: {formatJalali(date)}
           </span>
           <button
             onClick={saveAll}
-            disabled={busy || hasInvalid}
-            className="rounded-full bg-olive-deep px-6 py-2.5 text-sm font-medium text-paper hover:bg-olive disabled:opacity-50"
+            disabled={busy}
+            className="rounded-sm bg-olive-deep px-4 py-2 text-sm text-paper hover:bg-olive disabled:opacity-50"
           >
-            {busy ? "در حال ثبت…" : "ثبت قیمت‌های این روز"}
+            {busy ? "در حال ثبت…" : "ثبت قیمت‌ها"}
           </button>
         </div>
       </div>
+
+
       <div className="card-paper rounded-sm">
         <div className="px-4 py-3 hairline-b text-[10px] tracking-[0.3em] uppercase text-brass-dark">
           ورود انبوه تاریخچه (CSV)
